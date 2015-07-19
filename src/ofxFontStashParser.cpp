@@ -8,22 +8,18 @@
 
 #include "ofxFontStashParser.h"
 
-ofxFontStashParser::ofxFontStashParser(){
-
-}
-
 vector<ofxFontStashParser::StyledText>
 ofxFontStashParser::parseText(const string& text){
 
-	parsedText.clear();
+	vector<StyledText> parsedText;
 	GumboOutput* output = gumbo_parse(text.c_str());
-	recursiveParse(output->root);
+	recursiveParse(output->root, parsedText);
 	gumbo_destroy_output(&kGumboDefaultOptions, output);
 	return parsedText;
 }
 
 
-void ofxFontStashParser::recursiveParse(GumboNode* node) {
+void ofxFontStashParser::recursiveParse(GumboNode* node, vector<StyledText> & parsedText) {
 
 	if (node->type == GUMBO_NODE_TEXT) {
 		if(node->parent && node->parent->type == GUMBO_NODE_ELEMENT){
@@ -70,7 +66,7 @@ void ofxFontStashParser::recursiveParse(GumboNode* node) {
 	} else if (node->type == GUMBO_NODE_ELEMENT) {
 		GumboVector* children = &node->v.element.children;
 		for (unsigned int i = 0; i < children->length; ++i) {
-			recursiveParse((GumboNode*) children->data[i]);
+			recursiveParse((GumboNode*) children->data[i], parsedText);
 		}
 		return;
 	} else {

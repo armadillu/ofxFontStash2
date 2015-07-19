@@ -7,6 +7,7 @@ void ofApp::setup(){
 	fonts.addFont("veraMono", "fonts/VeraMono.ttf");
 	fonts.addFont("Helvetica", "fonts/HelveticaNeue.ttf");
 	ofBackground(22);
+	TIME_SAMPLE_ENABLE();
 }
 
 
@@ -18,24 +19,34 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-	ofSetColor(255,0,0);
-	ofDrawRectangle(0, 0, 100, 100);
+//	ofSetColor(255,0,0);
+//	ofDrawRectangle(0, 0, 100, 100);
 
 	ofxFontStashStyle style;
 	style.fontID = "veraMono";
 	style.fontSize = 22;
 	style.color = ofColor::white;
-	if(ofGetFrameNum()%60 < 30) style.blur = 4;
-
-	ofSetColor(255);
-	fonts.draw("banana! monkey!", style, mouseX, mouseY);
-
-	string formattedText = "<style font=veraMono size=12 color=#ff0000>this is red veramono 12</style>";
+//	if(ofGetFrameNum()%60 < 30) style.blur = 4;
+//
+//	ofSetColor(255);
+//	fonts.draw("banana! monkey!", style, mouseX, mouseY);
+//
+	string formattedText = "<style font=veraMono size=20 color=#ff0000>this is: red! veramono 12. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</style>";
+	//string formattedText = "<style font=veraMono size=20 color=#ff0000>this is: red! veramono 12</style>";
 	formattedText += "<style font=Helvetica size=44 color=#000ff>this is blue Helvetica 44</style>";
-	fonts.drawFormatted(formattedText, 200, 300);
+//	fonts.drawFormatted(formattedText, 200, 300);
+//
+//	ofSetColor(0,255,0,64);
+//	ofDrawRectangle(50, 0, 200, 100);
 
-	ofSetColor(0,255,0,64);
-	ofDrawRectangle(50, 0, 200, 100);
+	int x = 200;
+	int y = 200;
+
+	fonts.drawFormattedColumn(formattedText, x, y, mouseX - 200);
+	ofSetColor(255,22);
+	ofDrawLine(x, y, ofGetWidth(), y);
+	ofDrawLine(x, 0, x, ofGetHeight());
+	ofDrawLine(mouseX, 0, mouseX, ofGetHeight());
 
 }
 

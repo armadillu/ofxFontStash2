@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxFontStash2.h"
+#include "ofxTimeMeasurements.h"
 
 class ofApp : public ofBaseApp{
 

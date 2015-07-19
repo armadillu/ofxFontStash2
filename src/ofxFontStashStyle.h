@@ -28,6 +28,18 @@ struct ofxFontStashStyle{
 		blur = 0;
 		alignment = (FONSalign)(FONS_ALIGN_LEFT | FONS_ALIGN_BASELINE);
 	};
+
+	bool operator== (ofxFontStashStyle &b){
+		return (fontSize == b.fontSize &&
+				blur == b.blur &&
+				alignment == b.alignment &&
+				fontID == b.fontID
+				);
+	}
+
+	bool operator!= (ofxFontStashStyle &b){
+		return !(*this == b);
+	}
 };
 
 #endif /* defined(__ofxFontStash2__ofxFontStashStyle__) */

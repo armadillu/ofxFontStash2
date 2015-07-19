@@ -17,6 +17,8 @@
 #include "ofxFontStashParser.h"
 #include "ofxFontStashStyle.h"
 
+#include "ofxTimeMeasurements.h"
+
 class ofxFontStash2{
 
 public:
@@ -30,7 +32,9 @@ public:
 
 	//simple draw - no multiline awareness
 	float draw(const string& text, const ofxFontStashStyle& style, float x, float y);
+
 	void drawFormatted(const string& text, float x, float y);
+
 	void drawFormattedColumn(const string& text, float x, float y, float width);
 
 	void getVerticalMetrics( const ofxFontStashStyle& style, float* ascender, float* descender, float* lineH);
@@ -39,12 +43,59 @@ public:
 
 protected:
 
+	enum SplitBlockType{
+		WORD,
+		SEPARATOR
+	};
+
+
+	string toString(SplitBlockType t){
+		if (t == WORD) return "WORD";
+		else return "SEPARATOR";
+	}
+
+
+	struct SplitTextBlock{
+		SplitBlockType type;
+		ofxFontStashParser::StyledText styledText;
+		SplitTextBlock(SplitBlockType type, string text, ofxFontStashStyle style){
+			this->type = type;
+			this->styledText.text = text;
+			this->styledText.style = style;
+		}
+		SplitTextBlock(){}
+	};
+
+	struct LineElement{
+		SplitTextBlock content;
+		ofRectangle area;
+		LineElement(SplitTextBlock & b, ofRectangle r){
+			this->content = b;
+			this->area = r;
+		}
+	};
+
+	struct StyledLine{
+		float lineH;
+		float lineW;
+		vector<LineElement> elements;
+		StyledLine(){
+			lineH = lineW = 0;
+		}
+	};
+
 	int getFsID(const string& userFontID);
+
+	float calcWidth(StyledLine & line);
+	float calcLineHeight(StyledLine & line);
+	
 	void applyStyle(const ofxFontStashStyle& style);
 
 	unsigned int toFScolor(const ofColor& c);
 	FONScontext * fs;
 	map<string, int> fontIDs; //userFontID to fontStashFontID
+
+	vector<SplitTextBlock> splitWords( vector<ofxFontStashParser::StyledText> & blocks);
 
 
 };
