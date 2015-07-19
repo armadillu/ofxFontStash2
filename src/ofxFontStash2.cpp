@@ -104,10 +104,8 @@ void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, fl
 			currentStyle = words[i].styledText.style;
 			TS_STOP_ACC("new style");
 			if(currentStyle.fontID.size()){
-				TS_START_ACC("apply style change");
 				applyStyle(currentStyle);
 				fonsVertMetrics(fs, NULL, NULL, &currentLineH);
-				TS_STOP_ACC("apply style change");
 			}else{
 				ofLogError() << "no style id!";
 			}
@@ -218,21 +216,21 @@ void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, fl
 			}
 			lines[i].elements[j].area.y += lines[i].lineH -lines[0].lineH;
 
-			TS_START_ACC("fonsDrawText");
+			//TS_START_ACC("fonsDrawText");
 			fonsDrawText(fs,
 						 lines[i].elements[j].x,
 						 lines[i].elements[j].baseLineY + lines[i].lineH -lines[0].lineH,
 						 lines[i].elements[j].content.styledText.text.c_str(),
 						 NULL);
-			TS_STOP_ACC("fonsDrawText");
+			//TS_STOP_ACC("fonsDrawText");
 
 			//debug rects
 			if(debug){
-				TS_START_ACC("debug rects");
+				//TS_START_ACC("debug rects");
 				if(lines[i].elements[j].content.type == WORD) ofSetColor(255,25);
 				else ofSetColor(0,255,0,25);
 				ofDrawRectangle(lines[i].elements[j].area);
-				TS_STOP_ACC("debug rects");
+				//TS_STOP_ACC("debug rects");
 			}
 		}
 	}

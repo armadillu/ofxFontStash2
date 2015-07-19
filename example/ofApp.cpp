@@ -10,7 +10,7 @@ void ofApp::setup(){
 	fonts.setLineHeightMult(0.9);
 	ofBackground(22);
 	TIME_SAMPLE_ENABLE();
-	TIME_SAMPLE_SET_AVERAGE_RATE(0.05);
+	TIME_SAMPLE_SET_AVERAGE_RATE(0.01);
 	TIME_SAMPLE_SET_DRAW_LOCATION(TIME_SAMPLE_DRAW_LOC_TOP_RIGHT);
 
 	RUI_SETUP();
@@ -38,12 +38,12 @@ void ofApp::draw(){
 	if(ofGetFrameNum()%60 < 30) style.blur = 4;
 //
 //	ofSetColor(255);
-//	fonts.draw("banana! monkey!", style, mouseX, mouseY);
+
 //
-	string formattedText = "<style font=veraMono size=17 color=#ff0000>This is: red! veramono 12.</style> <style font=veraMonoBold size=15 color=#00ff00>Lorem ipsum</style> <style font=veraMono size=15 color=#00ff00> dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</style>";
+	string formattedText = "<style font=veraMono size=17 color=#ff0000>This is: red! veramono 12.</style> <style blur=2 font=veraMonoBold size=15 color=#00ff00>Lorem ipsum</style> <style font=veraMono size=15 color=#00ff00> dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</style>";
 //	//string formattedText = "<style font=veraMono size=20 color=#ff0000>this is: red! veramono 12 this is: red! veramono 12</style> ";
 	formattedText += "<style font=Helvetica size=17 color=#bbbbbb>Lorem ipsum ad his scripta blandit partiendo, eum fastidii accumsan euripidis in, eum liber hendrerit an. Qui ut wisi </style><style font=Helvetica size=33 color=#bbbbbb>vocibus suscipiantur, </style><style font=Helvetica size=15 color=#bbbbbb>quo dicit ridens inciderint id. Quo mundi lobortis reformidans eu, legimus senserit definiebas an eos. Eu sit tincidunt incorrupte definitionem, vis mutat affert percipit cu, eirmod consectetuer signiferumque eu per. In usu latine equidem dolores. Quo no falli viris intellegam, ut fugit veritus placerat per. \n Ius id vidit volumus mandamus, vide veritus democritum te nec, ei eos debet libris consulatu. No mei ferri graeco dicunt, ad cum veri accommodare. Sed at malis omnesque delicata, usu et iusto zzril meliore. Dicunt maiorum eloquentiam cum cu, sit summo dolor essent te. Ne quodsi nusquam legendos has, ea dicit voluptua eloquentiam pro, ad sit quas qualisque. Eos vocibus deserunt quaestio ei. \n Blandit incorrupte quaerendum in quo, nibh impedit id vis, vel no nullam semper audiam. Ei populo graeci consulatu mei, has ea stet modus phaedrum. Inani oblique ne has, duo et veritus detraxit. Tota ludus oratio ea mel, offendit persequeris ei vim. Eos dicat oratio partem ut, id cum ignota senserit intellegat. Sit inani ubique graecis ad, quando graecis liberavisse et cum, dicit option eruditi at duo. Homero salutatus suscipiantur eum id, tamquam voluptaria expetendis ad sed, nobis feugiat similique usu ex.</style> ";
-	formattedText += "<style font=Helvetica size=18 color=#00ffff>Lorem ipsum ad his scripta blandit partiendo, eum fastidii accumsan euripidis in, eum liber hendrerit an. Qui ut wisi vocibus suscipiantur, quo dicit ridens inciderint id. Quo mundi lobortis reformidans eu, legimus senserit definiebas an eos. Eu sit tincidunt incorrupte definitionem, vis mutat affert percipit cu, eirmod consectetuer signiferumque eu per. In usu latine equidem dolores. Quo no falli viris intellegam, ut fugit veritus placerat per. \n Ius id vidit volumus mandamus, vide veritus democritum te nec, ei eos debet libris consulatu. No mei ferri graeco dicunt, ad cum veri accommodare. Sed at malis omnesque delicata, usu et iusto zzril meliore. Dicunt maiorum eloquentiam cum cu, sit summo dolor essent te. Ne quodsi nusquam legendos has, ea dicit voluptua eloquentiam pro, ad sit quas qualisque. Eos vocibus deserunt quaestio ei. \n Blandit incorrupte quaerendum in quo, nibh impedit id vis, vel no nullam semper audiam. Ei populo graeci consulatu mei, has ea stet modus phaedrum. Inani oblique ne has, duo et veritus detraxit. Tota ludus oratio ea mel, offendit persequeris ei vim. Eos dicat oratio partem ut, id cum ignota senserit intellegat. Sit inani ubique graecis ad, quando graecis liberavisse et cum, dicit option eruditi at duo. Homero salutatus suscipiantur eum id, tamquam voluptaria expetendis ad sed, nobis feugiat similique usu ex.</style> ";
+	formattedText += "<style font=Helvetica blur=2 size=18 color=#00ffff>Lorem ipsum ad his scripta blandit partiendo, eum fastidii accumsan euripidis in, eum liber hendrerit an. Qui ut wisi vocibus suscipiantur, quo dicit ridens inciderint id. Quo mundi lobortis reformidans eu, legimus senserit definiebas an eos. Eu sit tincidunt incorrupte definitionem, vis mutat affert percipit cu, eirmod consectetuer signiferumque eu per. In usu latine equidem dolores. Quo no falli viris intellegam, ut fugit veritus placerat per. \n Ius id vidit volumus mandamus, vide veritus democritum te nec, ei eos debet libris consulatu. No mei ferri graeco dicunt, ad cum veri accommodare. Sed at malis omnesque delicata, usu et iusto zzril meliore. Dicunt maiorum eloquentiam cum cu, sit summo dolor essent te. Ne quodsi nusquam legendos has, ea dicit voluptua eloquentiam pro, ad sit quas qualisque. Eos vocibus deserunt quaestio ei. \n Blandit incorrupte quaerendum in quo, nibh impedit id vis, vel no nullam semper audiam. Ei populo graeci consulatu mei, has ea stet modus phaedrum. Inani oblique ne has, duo et veritus detraxit. Tota ludus oratio ea mel, offendit persequeris ei vim. Eos dicat oratio partem ut, id cum ignota senserit intellegat. Sit inani ubique graecis ad, quando graecis liberavisse et cum, dicit option eruditi at duo. Homero salutatus suscipiantur eum id, tamquam voluptaria expetendis ad sed, nobis feugiat similique usu ex.</style> ";
 	//formattedText += "<style font=veraMono size=99 color=#00ff00>giant 99 text on vera mono</style> ";
 	formattedText += "<style font=Helvetica size=44 color=#0000ff>this is blue Helvetica 44</style> ";
 //	fonts.drawFormatted(formattedText, 200, 300);
@@ -54,7 +54,14 @@ void ofApp::draw(){
 	int x = 100;
 	int y = 100;
 
+	TS_START("drawFormattedColumn");
 	fonts.drawFormattedColumn(formattedText, x, y, mouseX - x, debug);
+	TS_STOP("drawFormattedColumn");
+
+	TS_START("drawText");
+	fonts.draw(formattedText, style, mouseX, mouseY);
+	TS_STOP("drawText");
+
 	ofSetColor(255,22);
 	ofTranslate(0.5, 0.5);
 	ofDrawLine(x, y, ofGetWidth(), y);
@@ -62,13 +69,13 @@ void ofApp::draw(){
 	ofDrawLine(mouseX, 0, mouseX, ofGetHeight());
 
 
-	ofSetColor(255);
-	float t = ofGetElapsedTimef();;
-	for(int i = 0; i < 1000; i++){
-		TS_START_ACC("test");
-		TS_STOP_ACC("test");
-	}
-	ofDrawBitmapString(ofToString((ofGetElapsedTimef()-t) * 1000.0f), 30, 30);
+//	ofSetColor(255);
+//	float t = ofGetElapsedTimef();;
+//	for(int i = 0; i < 1000; i++){
+//		TS_START_ACC("test");
+//		TS_STOP_ACC("test");
+//	}
+//	ofDrawBitmapString(ofToString((ofGetElapsedTimef()-t) * 1000.0f), 30, 30);
 
 }
 

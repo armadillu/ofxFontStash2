@@ -36,6 +36,12 @@ void ofxFontStashParser::recursiveParse(GumboNode* node, vector<StyledText> & pa
 				if(size){
 					styledTextBlock.style.fontSize = ofToFloat(size->value);
 				}
+
+				GumboAttribute* blur = gumbo_get_attribute(&node->parent->v.element.attributes, "blur");
+				if(blur){
+					styledTextBlock.style.blur = ofToFloat(blur->value);
+				}
+
 				GumboAttribute* color = gumbo_get_attribute(&node->parent->v.element.attributes, "color");
 				if(color){
 					string hex = color->value;
