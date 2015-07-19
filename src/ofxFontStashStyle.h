@@ -30,10 +30,10 @@ struct ofxFontStashStyle{
 	};
 
 	bool operator== (ofxFontStashStyle &b){
-		return (fontSize == b.fontSize &&
+		return (fontID == b.fontID &&
+				fontSize == b.fontSize &&
 				blur == b.blur &&
-				alignment == b.alignment &&
-				fontID == b.fontID
+				alignment == b.alignment
 				);
 	}
 

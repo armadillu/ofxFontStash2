@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxFontStash2.h"
 #include "ofxTimeMeasurements.h"
+#include "ofxRemoteUIServer.h"
 
 class ofApp : public ofBaseApp{
 
@@ -24,5 +25,6 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 		ofxFontStash2 fonts;
+		bool debug;
 
 };

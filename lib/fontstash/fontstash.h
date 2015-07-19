@@ -320,7 +320,7 @@ int fons__tt_getGlyphKernAdvance(FONSttFontImpl *font, int glyph1, int glyph2)
 #	define FONS_INIT_ATLAS_NODES 256
 #endif
 #ifndef FONS_VERTEX_COUNT
-#	define FONS_VERTEX_COUNT 1024
+#	define FONS_VERTEX_COUNT 4096
 #endif
 #ifndef FONS_MAX_STATES
 #	define FONS_MAX_STATES 20

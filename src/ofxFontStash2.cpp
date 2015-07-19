@@ -19,6 +19,7 @@
 
 ofxFontStash2::ofxFontStash2(){
 	fs = NULL;
+	lineHeightMultiplier = 1.0;
 }
 
 void ofxFontStash2::setup(int atlasSizePow2){
@@ -64,14 +65,18 @@ void ofxFontStash2::drawFormatted(const string& text, float x, float y){
 
 
 
-void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, float targetWidth){
+void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, float targetWidth, bool debug){
 
 	if (targetWidth < 0) return;
 	float xx = x;
 	float yy = y;
 
+	TS_START_NIF("parse text");
 	vector<ofxFontStashParser::StyledText> blocks = ofxFontStashParser::parseText(text);
+	TS_STOP_NIF("parse text");
+	TS_START_NIF("split words");
 	vector<SplitTextBlock> words = splitWords(blocks);
+	TS_STOP_NIF("split words");
 
 	if (words.size() == 0) return;
 
@@ -83,92 +88,155 @@ void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, fl
 	int wordsThisLine = 0;
 
 	vector<float> lineHeigts;
-	lineHeigts.push_back(yy);
+	lineHeigts.push_back(0);
+	float currentLineH = 0;
 
+	float bounds[4];
+	float dx;
+
+	TS_START("walk words");
 	for(int i = 0; i < words.size(); i++){
 
+		//TS_START_ACC("word style");
 		if(currentStyle != words[i].styledText.style){
 			//cout << "   new style!" << endl;
+			TS_START_ACC("new style");
 			currentStyle = words[i].styledText.style;
-			applyStyle(currentStyle);
+			TS_STOP_ACC("new style");
+			if(currentStyle.fontID.size()){
+				TS_START_ACC("apply style change");
+				applyStyle(currentStyle);
+				fonsVertMetrics(fs, NULL, NULL, &currentLineH);
+				TS_STOP_ACC("apply style change");
+			}else{
+				ofLogError() << "no style id!";
+			}
 		}
+		//TS_STOP_ACC("word style");
 
-		float bounds[4];
-		float dx;
 		//TS_START_ACC("fonsTextBounds");
 		dx = fonsTextBounds(	fs,
 								xx,
-								0,
+								yy,
 								words[i].styledText.text.c_str(),
 								NULL,
 								&bounds[0]
 								);
 		//TS_STOP_ACC("fonsTextBounds");
 
-		//ofRectangle where = ofRectangle(bounds[0], -bounds[3] , dx, -(bounds[3] - bounds[1]));
-		ofRectangle where = ofRectangle(bounds[0], bounds[3] , dx, -(bounds[3] - bounds[1]));
+		ofRectangle where = ofRectangle(bounds[0], bounds[1] , bounds[2] - bounds[0], bounds[3] - bounds[1]);
+
 		LineElement le = LineElement(words[i], where);
+		le.baseLineY = yy;
+		le.x = xx;
+		le.lineHeight = currentLineH;
 
 		float nextWidth = lineWidth + dx;
 
-		if (nextWidth < targetWidth //if wider than targetW
-			||
-			(wordsThisLine == 0 && (nextWidth >= targetWidth))){ //this is the 1st word in this line but even that doesnt fit
+		//if not wider than targetW
+		// ||
+		//this is the 1st word in this line but even that doesnt fit
+		bool stayOnCurrentLine = nextWidth < targetWidth || (wordsThisLine == 0 && (nextWidth >= targetWidth));
 
+		if (stayOnCurrentLine){
+
+			//TS_START_ACC("stay on line");
 			currentLine.elements.push_back(le);
 			lineWidth += dx;
 			xx += dx;
 			wordsThisLine++;
+			//TS_STOP_ACC("stay on line");
 
 		}else{ //too long, start a new line
 
+			//TS_START_ACC("new line");
 			//calc height for this line - taking in account all words in the line
-			float lineH = calcLineHeight(currentLine);
-			lineHeigts.push_back(yy + lineH);
+			float lineH = lineHeightMultiplier * calcLineHeight(currentLine);
+			if(debug) lineHeigts.push_back(yy + lineH);
 			currentLine.lineH = lineH;
 			currentLine.lineW = xx - x + dx;
 
 			i--; //re-calc dimensions of this word on a new line!
-			
 			yy += lineH;
 
 			lineWidth = 0;
 			wordsThisLine = 0;
 			xx = x;
-
 			lines.push_back(currentLine);
-
 			currentLine.elements.clear();
+			//TS_STOP_ACC("new line");
 		}
+
+		//TS_START_ACC("last line");
+		if(stayOnCurrentLine && i == words.size() -1){ //addd last line
+			float lineH = lineHeightMultiplier * calcLineHeight(currentLine);
+			lineHeigts.push_back(yy + lineH);
+			currentLine.lineH = lineH;
+			currentLine.lineW = xx - x + dx;
+			lines.push_back(currentLine);
+		}
+		//TS_STOP_ACC("last line");
 		//float w = calcWidth(currentLine);
 	}
+	TS_STOP("walk words");
 
+	TS_START("count words");
+	int nDrawnWords;
+	for(int i = 0; i < lines.size(); i++){
+		for(int j = 0; j < lines[i].elements.size(); j++){
+			nDrawnWords ++;
+		}
+	}
+	TS_STOP("count words");
+
+	//debug line heights!
+	if(debug){
+		TS_START("draw line Heights");
+		ofSetColor(0,255,0,32);
+		ofPushMatrix();
+		ofTranslate(0.5, 0.5);
+		for(int i = 0; i < lineHeigts.size(); i++){
+			float offset = -lines[0].lineH;
+			ofDrawLine(0, lineHeigts[i] + offset, ofGetWidth(), lineHeigts[i] + offset);
+		}
+		ofPopMatrix();
+		TS_STOP("draw line Heights");
+	}
 
 	ofxFontStashStyle drawStyle;
 
+	TS_START("draw all lines");
 	for(int i = 0; i < lines.size(); i++){
 		for(int j = 0; j < lines[i].elements.size(); j++){
 
-			lines[i].elements[j].area.y += lineHeigts[i + 1];
 
 			if (drawStyle != lines[i].elements[j].content.styledText.style ){
 				drawStyle = lines[i].elements[j].content.styledText.style;
+				TS_START_ACC("applyStyle");
 				applyStyle(drawStyle);
+				TS_STOP_ACC("applyStyle");
 			}
-			//TS_START_ACC("fonsDrawText");
+			lines[i].elements[j].area.y += lines[i].lineH -lines[0].lineH;
+
+			TS_START_ACC("fonsDrawText");
 			fonsDrawText(fs,
-						 lines[i].elements[j].area.x,
-						 lines[i].elements[j].area.y,
+						 lines[i].elements[j].x,
+						 lines[i].elements[j].baseLineY + lines[i].lineH -lines[0].lineH,
 						 lines[i].elements[j].content.styledText.text.c_str(),
 						 NULL);
-			//TS_STOP_ACC("fonsDrawText");
+			TS_STOP_ACC("fonsDrawText");
 
 			//debug rects
-			if(lines[i].elements[j].content.type == WORD) ofSetColor(255,12);
-			else ofSetColor(0,255,0,12);
-			ofDrawRectangle(lines[i].elements[j].area);
+			if(debug){
+				TS_START_ACC("debug rects");
+				if(lines[i].elements[j].content.type == WORD) ofSetColor(255,25);
+				else ofSetColor(0,255,0,25);
+				ofDrawRectangle(lines[i].elements[j].area);
+				TS_STOP_ACC("debug rects");
+			}
 		}
 	}
+	TS_STOP("draw all lines");
 }
 
 float ofxFontStash2::calcWidth(StyledLine & line){
@@ -182,8 +250,8 @@ float ofxFontStash2::calcWidth(StyledLine & line){
 float ofxFontStash2::calcLineHeight(StyledLine & line){
 	float h = 0;
 	for(int i = 0; i < line.elements.size(); i++){
-		if (-line.elements[i].area.height > h){
-			h = -line.elements[i].area.height;
+		if (line.elements[i].lineHeight > h){
+			h = line.elements[i].lineHeight;
 		}
 	}
 	return h;
@@ -241,13 +309,15 @@ void ofxFontStash2::getVerticalMetrics(const ofxFontStashStyle & style, float* a
 
 
 void ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
-	fonsClearState(fs);
-	int id = getFsID(style.fontID);
-	fonsSetFont(fs, id);
-	fonsSetSize(fs, style.fontSize);
-	fonsSetColor(fs, toFScolor(style.color));
-	fonsSetAlign(fs, style.alignment);
-	fonsSetBlur(fs, style.blur);
+	//if(style.fontID.size()){
+		fonsClearState(fs);
+		int id = getFsID(style.fontID);
+		fonsSetFont(fs, id);
+		fonsSetSize(fs, style.fontSize);
+		fonsSetColor(fs, toFScolor(style.color));
+		fonsSetAlign(fs, style.alignment);
+		fonsSetBlur(fs, style.blur);
+	//}
 }
 
 int ofxFontStash2::getFsID(const string& userFontID){

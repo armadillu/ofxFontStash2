@@ -35,13 +35,16 @@ public:
 
 	void drawFormatted(const string& text, float x, float y);
 
-	void drawFormattedColumn(const string& text, float x, float y, float width);
+	void drawFormattedColumn(const string& text, float x, float y, float width, bool debug);
 
 	void getVerticalMetrics( const ofxFontStashStyle& style, float* ascender, float* descender, float* lineH);
+	void setLineHeightMult(float l){lineHeightMultiplier = l;}
 
 	FONScontext * getFSContext(){return fs;}
 
 protected:
+
+	float lineHeightMultiplier;
 
 	enum SplitBlockType{
 		WORD,
@@ -69,6 +72,9 @@ protected:
 	struct LineElement{
 		SplitTextBlock content;
 		ofRectangle area;
+		float lineHeight; //not of this block, but of this style
+		float baseLineY;
+		float x; //x
 		LineElement(SplitTextBlock & b, ofRectangle r){
 			this->content = b;
 			this->area = r;
@@ -80,6 +86,7 @@ protected:
 		float lineW;
 		vector<LineElement> elements;
 		StyledLine(){
+			//elements.reserve(50);
 			lineH = lineW = 0;
 		}
 	};
