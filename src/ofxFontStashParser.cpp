@@ -17,7 +17,7 @@ ofxFontStashParser::parseText(const string& text, const map<string, ofxFontStash
 	gumbo_destroy_output(&kGumboDefaultOptions, output);
 	return parsedText;
 }
-
+ 
 
 void ofxFontStashParser::recursiveParse(GumboNode* node,
 										const map<string, ofxFontStashStyle> & styleIDs,
