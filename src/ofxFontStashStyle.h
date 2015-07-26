@@ -33,7 +33,8 @@ struct ofxFontStashStyle{
 		return (fontID == b.fontID &&
 				fontSize == b.fontSize &&
 				blur == b.blur &&
-				alignment == b.alignment
+				alignment == b.alignment &&
+				color == b.color
 				);
 	}
 

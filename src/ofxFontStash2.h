@@ -40,6 +40,9 @@ public:
 	void getVerticalMetrics( const ofxFontStashStyle& style, float* ascender, float* descender, float* lineH);
 	void setLineHeightMult(float l){lineHeightMultiplier = l;}
 
+	void addStyle(const string& styleID, ofxFontStashStyle style);
+	map<string, ofxFontStashStyle> getStyleList(){ return styleIDs; }
+
 	FONScontext * getFSContext(){return fs;}
 
 protected:
@@ -100,7 +103,10 @@ protected:
 
 	unsigned int toFScolor(const ofColor& c);
 	FONScontext * fs;
+
 	map<string, int> fontIDs; //userFontID to fontStashFontID
+
+	map<string, ofxFontStashStyle> styleIDs;
 
 	vector<SplitTextBlock> splitWords( vector<ofxFontStashParser::StyledText> & blocks);
 

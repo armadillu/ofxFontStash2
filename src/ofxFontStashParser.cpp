@@ -9,24 +9,36 @@
 #include "ofxFontStashParser.h"
 
 vector<ofxFontStashParser::StyledText>
-ofxFontStashParser::parseText(const string& text){
+ofxFontStashParser::parseText(const string& text, const map<string, ofxFontStashStyle> & styleIDs){
 
 	vector<StyledText> parsedText;
 	GumboOutput* output = gumbo_parse(text.c_str());
-	recursiveParse(output->root, parsedText);
+	recursiveParse(output->root, styleIDs, parsedText);
 	gumbo_destroy_output(&kGumboDefaultOptions, output);
 	return parsedText;
 }
 
 
-void ofxFontStashParser::recursiveParse(GumboNode* node, vector<StyledText> & parsedText) {
+void ofxFontStashParser::recursiveParse(GumboNode* node,
+										const map<string, ofxFontStashStyle> & styleIDs,
+										vector<StyledText> & parsedText) {
 
-	if (node->type == GUMBO_NODE_TEXT) {
+	if (node->type == GUMBO_NODE_TEXT || node->type == GUMBO_NODE_WHITESPACE) {
 		if(node->parent && node->parent->type == GUMBO_NODE_ELEMENT){
 			StyledText styledTextBlock;
 			styledTextBlock.text = node->v.text.text;
 
 			if(node->parent->v.element.tag == GUMBO_TAG_STYLE){
+
+				GumboAttribute* styleID = gumbo_get_attribute(&node->parent->v.element.attributes, "id");
+				if(styleID){
+					map<string, ofxFontStashStyle>::const_iterator it = styleIDs.find(styleID->value);
+					if(it != styleIDs.end()){
+						styledTextBlock.style = it->second;
+						cout << it->first << endl;
+
+					}
+				}
 
 				GumboAttribute* font = gumbo_get_attribute(&node->parent->v.element.attributes, "font");
 				if(font){
@@ -69,10 +81,11 @@ void ofxFontStashParser::recursiveParse(GumboNode* node, vector<StyledText> & pa
 			ofLogError() << "text node with no parent?!";
 		}
 		return;
-	} else if (node->type == GUMBO_NODE_ELEMENT) {
+
+	}else if (node->type == GUMBO_NODE_ELEMENT) {
 		GumboVector* children = &node->v.element.children;
 		for (unsigned int i = 0; i < children->length; ++i) {
-			recursiveParse((GumboNode*) children->data[i], parsedText);
+			recursiveParse((GumboNode*) children->data[i], styleIDs, parsedText);
 		}
 		return;
 	} else {

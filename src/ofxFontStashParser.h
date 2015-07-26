@@ -22,11 +22,13 @@ public:
 		ofxFontStashStyle style;
 	};
 
-	static vector<StyledText> parseText(const string& text);
+	static vector<StyledText> parseText(const string& text, const map<string, ofxFontStashStyle> & styleIDs);
 
 protected:
 
-	static void recursiveParse(GumboNode* node, vector<StyledText> & parsedText);
+	static void recursiveParse(GumboNode* node,
+							   const map<string, ofxFontStashStyle> & styleIDs,
+							   vector<StyledText> & parsedText);
 
 };
 

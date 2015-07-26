@@ -45,6 +45,10 @@ bool ofxFontStash2::addFont(const string& fontID, const string& fontFile){
 }
 
 
+void ofxFontStash2::addStyle(const string& styleID, ofxFontStashStyle style){
+	styleIDs[styleID] = style;
+}
+
 float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, float x, float y){
 	applyStyle(style);
 	float dx = fonsDrawText(fs, x, y, text.c_str(), NULL);
@@ -55,7 +59,7 @@ float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, fl
 void ofxFontStash2::drawFormatted(const string& text, float x, float y){
 
 	ofxFontStashParser parser;
-	vector<ofxFontStashParser::StyledText> blocks = parser.parseText(text);
+	vector<ofxFontStashParser::StyledText> blocks = parser.parseText(text, styleIDs);
 	float xx = x;
 	float yy = y;
 	for(int i = 0; i < blocks.size(); i++){
@@ -72,7 +76,7 @@ void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, fl
 	float yy = y;
 
 	TS_START_NIF("parse text");
-	vector<ofxFontStashParser::StyledText> blocks = ofxFontStashParser::parseText(text);
+	vector<ofxFontStashParser::StyledText> blocks = ofxFontStashParser::parseText(text, styleIDs);
 	TS_STOP_NIF("parse text");
 	TS_START_NIF("split words");
 	vector<SplitTextBlock> words = splitWords(blocks);
@@ -98,16 +102,14 @@ void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, fl
 	for(int i = 0; i < words.size(); i++){
 
 		//TS_START_ACC("word style");
-		if(currentStyle != words[i].styledText.style){
+		if(words[i].styledText.style.valid && currentStyle != words[i].styledText.style ){
 			//cout << "   new style!" << endl;
-			TS_START_ACC("new style");
 			currentStyle = words[i].styledText.style;
-			TS_STOP_ACC("new style");
 			if(currentStyle.fontID.size()){
 				applyStyle(currentStyle);
 				fonsVertMetrics(fs, NULL, NULL, &currentLineH);
 			}else{
-				ofLogError() << "no style id!";
+				ofLogError() << "no style font defined!";
 			}
 		}
 		//TS_STOP_ACC("word style");
@@ -208,7 +210,9 @@ void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, fl
 		for(int j = 0; j < lines[i].elements.size(); j++){
 
 
-			if (drawStyle != lines[i].elements[j].content.styledText.style ){
+			if (lines[i].elements[j].content.styledText.style.valid &&
+				drawStyle != lines[i].elements[j].content.styledText.style ){
+
 				drawStyle = lines[i].elements[j].content.styledText.style;
 				TS_START_ACC("applyStyle");
 				applyStyle(drawStyle);
