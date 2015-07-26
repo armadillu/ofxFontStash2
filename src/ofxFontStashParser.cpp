@@ -35,8 +35,6 @@ void ofxFontStashParser::recursiveParse(GumboNode* node,
 					map<string, ofxFontStashStyle>::const_iterator it = styleIDs.find(styleID->value);
 					if(it != styleIDs.end()){
 						styledTextBlock.style = it->second;
-						cout << it->first << endl;
-
 					}
 				}
 
