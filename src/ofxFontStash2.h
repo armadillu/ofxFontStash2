@@ -17,7 +17,16 @@
 #include "ofxFontStashParser.h"
 #include "ofxFontStashStyle.h"
 
+#ifdef USE_OFX_TIMEMEASUREMENTS
 #include "ofxTimeMeasurements.h"
+#else
+#define TS_START_NIF //
+#define TS_STOP_NIF //
+#define TS_START_ACC //
+#define TS_STOP_ACC //
+#define TS_START //
+#define TS_STOP //
+#endif
 
 class ofxFontStash2{
 

@@ -328,7 +328,7 @@ int ofxFontStash2::getFsID(const string& userFontID){
 	if(it != fontIDs.end()){
 		return it->second;
 	}
-	ofLogError("ofxFontStash2") << "Invalid Font ID!";
+	ofLogError("ofxFontStash2") << "Invalid Font ID: " << userFontID;
 	return FONS_INVALID;
 }
 
