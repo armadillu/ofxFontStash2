@@ -147,7 +147,10 @@ void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, fl
 			wordsThisLine++;
 			//TS_STOP_ACC("stay on line");
 
-		}else{ //too long, start a new line
+		} else if( words[i].type == SEPARATOR && words[i].styledText.text == " " ){
+			// ignore separators when moving into the next line!
+			continue;
+		} else{ //too long, start a new line
 
 			//TS_START_ACC("new line");
 			//calc height for this line - taking in account all words in the line
