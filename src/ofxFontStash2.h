@@ -45,7 +45,7 @@ public:
 
 	void drawFormattedColumn(const string& text, float x, float y, float width, bool debug);
 
-	ofRectangle getTextBounds( const string &text, const float x, const float y, const ofxFontStashStyle &style );
+	ofRectangle getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y );
 	void getVerticalMetrics( const ofxFontStashStyle& style, float* ascender, float* descender, float* lineH);
 	void setLineHeightMult(float l){lineHeightMultiplier = l;}
 
@@ -54,6 +54,9 @@ public:
 
 	FONScontext * getFSContext(){return fs;}
 
+	
+	float pixelDensity;
+	
 protected:
 
 	float lineHeightMultiplier;

@@ -20,6 +20,7 @@
 ofxFontStash2::ofxFontStash2(){
 	fs = NULL;
 	lineHeightMultiplier = 1.0;
+	pixelDensity = 1.0; 
 }
 
 void ofxFontStash2::setup(int atlasSizePow2){
@@ -56,8 +57,11 @@ void ofxFontStash2::addStyle(const string& styleID, ofxFontStashStyle style){
 }
 
 float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, float x, float y){
+	ofPushMatrix();
+	ofScale(1/pixelDensity, 1/pixelDensity);
 	applyStyle(style);
-	float dx = fonsDrawText(fs, x, y, text.c_str(), NULL);
+	float dx = fonsDrawText(fs, x*pixelDensity, y*pixelDensity, text.c_str(), NULL)/pixelDensity;
+	ofPopMatrix();
 	return dx;
 }
 
@@ -114,6 +118,7 @@ void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, fl
 			if(currentStyle.fontID.size()){
 				applyStyle(currentStyle);
 				fonsVertMetrics(fs, NULL, NULL, &currentLineH);
+				currentLineH/=pixelDensity;
 			}else{
 				ofLogError() << "no style font defined!";
 			}
@@ -127,7 +132,11 @@ void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, fl
 								words[i].styledText.text.c_str(),
 								NULL,
 								&bounds[0]
-								);
+								)/pixelDensity;
+		bounds[0]/=pixelDensity;
+		bounds[1]/=pixelDensity;
+		bounds[2]/=pixelDensity;
+		bounds[3]/=pixelDensity;
 		//TS_STOP_ACC("fonsTextBounds");
 
 		ofRectangle where = ofRectangle(bounds[0], bounds[1] , bounds[2] - bounds[0], bounds[3] - bounds[1]);
@@ -215,6 +224,8 @@ void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, fl
 	ofxFontStashStyle drawStyle;
 
 	TS_START("draw all lines");
+	ofPushMatrix();
+	ofScale(1/pixelDensity, 1/pixelDensity); 
 	for(int i = 0; i < lines.size(); i++){
 		for(int j = 0; j < lines[i].elements.size(); j++){
 
@@ -231,8 +242,8 @@ void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, fl
 
 			//TS_START_ACC("fonsDrawText");
 			fonsDrawText(fs,
-						 lines[i].elements[j].x,
-						 lines[i].elements[j].baseLineY + lines[i].lineH -lines[0].lineH,
+						 lines[i].elements[j].x*pixelDensity,
+						 (lines[i].elements[j].baseLineY + lines[i].lineH -lines[0].lineH)*pixelDensity,
 						 lines[i].elements[j].content.styledText.text.c_str(),
 						 NULL);
 			//TS_STOP_ACC("fonsDrawText");
@@ -247,6 +258,7 @@ void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, fl
 			}
 		}
 	}
+	ofPopMatrix();
 	TS_STOP("draw all lines");
 }
 
@@ -313,10 +325,14 @@ ofxFontStash2::splitWords( vector<ofxFontStashParser::StyledText> & blocks){
 }
 
 
-ofRectangle ofxFontStash2::getTextBounds( const string &text, const float x, const float y, const ofxFontStashStyle &style ){
+ofRectangle ofxFontStash2::getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y ){
 	applyStyle(style);
 	float bounds[4];
 	fonsTextBounds( fs, x, y, text.c_str(), NULL, bounds );
+	bounds[0]/=pixelDensity;
+	bounds[1]/=pixelDensity;
+	bounds[2]/=pixelDensity;
+	bounds[3]/=pixelDensity;
 	return ofRectangle(bounds[0],bounds[1],bounds[2]-bounds[0],bounds[3]-bounds[1]);
 }
 
@@ -331,7 +347,7 @@ void ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
 		fonsClearState(fs);
 		int id = getFsID(style.fontID);
 		fonsSetFont(fs, id);
-		fonsSetSize(fs, style.fontSize);
+		fonsSetSize(fs, style.fontSize*pixelDensity);
 		fonsSetColor(fs, toFScolor(style.color));
 		fonsSetAlign(fs, style.alignment);
 		fonsSetBlur(fs, style.blur);
