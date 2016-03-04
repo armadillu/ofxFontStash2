@@ -45,6 +45,12 @@ bool ofxFontStash2::addFont(const string& fontID, const string& fontFile){
 }
 
 
+bool ofxFontStash2::isFontLoaded(const string& fontID){
+	std::map<string, int>::iterator iter = fontIDs.find( fontID );
+	return iter == fontIDs.end()?false:true;
+}
+
+
 void ofxFontStash2::addStyle(const string& styleID, ofxFontStashStyle style){
 	styleIDs[styleID] = style;
 }
@@ -306,6 +312,13 @@ ofxFontStash2::splitWords( vector<ofxFontStashParser::StyledText> & blocks){
 	return wordBlocks;
 }
 
+
+ofRectangle ofxFontStash2::getTextBounds( const string &text, const float x, const float y, const ofxFontStashStyle &style ){
+	applyStyle(style);
+	float bounds[4];
+	fonsTextBounds( fs, x, y, text.c_str(), NULL, bounds );
+	return ofRectangle(bounds[0],bounds[1],bounds[2]-bounds[0],bounds[3]-bounds[1]);
+}
 
 void ofxFontStash2::getVerticalMetrics(const ofxFontStashStyle & style, float* ascender, float* descender, float* lineH){
 	applyStyle(style);
