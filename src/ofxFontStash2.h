@@ -37,8 +37,7 @@ public:
 	void setup(int atlasSizePow2);
 
 	bool addFont(const string& fontID, const string& fontFile); //returns fontID
-
-
+	bool isFontLoaded(const string& fontID); //checks if a font was already loaded
 	//simple draw - no multiline awareness
 	float draw(const string& text, const ofxFontStashStyle& style, float x, float y);
 
@@ -46,6 +45,7 @@ public:
 
 	void drawFormattedColumn(const string& text, float x, float y, float width, bool debug);
 
+	ofRectangle getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y );
 	void getVerticalMetrics( const ofxFontStashStyle& style, float* ascender, float* descender, float* lineH);
 	void setLineHeightMult(float l){lineHeightMultiplier = l;}
 
@@ -54,6 +54,9 @@ public:
 
 	FONScontext * getFSContext(){return fs;}
 
+	
+	float pixelDensity;
+	
 protected:
 
 	float lineHeightMultiplier;
