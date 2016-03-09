@@ -11,6 +11,7 @@ string formattedText = "<style font=verdana size=12 color=#ff0000>this is red ve
 ![](https://farm1.staticflickr.com/493/19806237826_788c341f9c_z_d.jpg)
 
 
+Note! apparently the Gumbo Parser does NOT compile under Visual Studio!
 
 # Included Libraries
 
