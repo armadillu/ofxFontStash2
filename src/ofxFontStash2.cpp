@@ -20,7 +20,8 @@
 ofxFontStash2::ofxFontStash2(){
 	fs = NULL;
 	lineHeightMultiplier = 1.0;
-	pixelDensity = 1.0; 
+	pixelDensity = 1.0;
+	fontScale = 1.0;
 }
 
 void ofxFontStash2::setup(int atlasSizePow2){
@@ -347,7 +348,7 @@ void ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
 		fonsClearState(fs);
 		int id = getFsID(style.fontID);
 		fonsSetFont(fs, id);
-		fonsSetSize(fs, style.fontSize*pixelDensity);
+		fonsSetSize(fs, style.fontSize*pixelDensity*fontScale);
 		fonsSetColor(fs, toFScolor(style.color));
 		fonsSetAlign(fs, style.alignment);
 		fonsSetBlur(fs, style.blur);

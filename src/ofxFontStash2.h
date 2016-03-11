@@ -55,7 +55,13 @@ public:
 	FONScontext * getFSContext(){return fs;}
 
 	
+	// allows for higher pixel densities.
+	// this will increase texture resolution during drawing,
+	// but will leave all sizes exactly the same
 	float pixelDensity;
+	
+	// with this option one can scale all fonts up/down by a factor
+	float fontScale;
 	
 protected:
 
