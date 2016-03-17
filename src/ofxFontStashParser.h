@@ -10,8 +10,11 @@
 #define __ofxFontStash2__ofxFontStashParser__
 
 #include "ofMain.h"
-#include "gumbo.h"
 #include "ofxFontStashStyle.h"
+
+namespace pugi{
+	class xml_node;
+}
 
 class ofxFontStashParser{
 
@@ -26,7 +29,8 @@ public:
 
 protected:
 
-	static void recursiveParse(GumboNode* node,
+	static void recursiveParse(pugi::xml_node & node,
+							   ofxFontStashStyle parentStyle,
 							   const map<string, ofxFontStashStyle> & styleIDs,
 							   vector<StyledText> & parsedText);
 

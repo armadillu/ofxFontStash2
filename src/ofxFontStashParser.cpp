@@ -7,54 +7,65 @@
 //
 
 #include "ofxFontStashParser.h"
+#include "pugixml.hpp"
+
+using namespace pugi;
 
 vector<ofxFontStashParser::StyledText>
 ofxFontStashParser::parseText(const string& text, const map<string, ofxFontStashStyle> & styleIDs){
 
 	vector<StyledText> parsedText;
-	GumboOutput* output = gumbo_parse(text.c_str());
-	recursiveParse(output->root, styleIDs, parsedText);
-	gumbo_destroy_output(&kGumboDefaultOptions, output);
+	// pugi has a some interesting whitespace options available
+	// e.g. parse_fragment, parse_trim_pcdata, parse_ws_pcdata_single
+	xml_document doc;
+	xml_parse_result result = doc.load_string(text.c_str());
+	if(result.status == status_ok){
+		ofxFontStashStyle baseStyle;
+		recursiveParse(doc, baseStyle, styleIDs, parsedText);
+	}
+	else{
+		ofLogError()
+			<< "ofxFontStash: xml parsing error in " << text << ": " << endl
+			<< result.description() << endl;
+	}
+	
 	return parsedText;
 }
  
 
-void ofxFontStashParser::recursiveParse(GumboNode* node,
+void ofxFontStashParser::recursiveParse(xml_node & parentNode,
+										ofxFontStashStyle style,
 										const map<string, ofxFontStashStyle> & styleIDs,
 										vector<StyledText> & parsedText) {
 
-	if (node->type == GUMBO_NODE_TEXT || node->type == GUMBO_NODE_WHITESPACE) {
-		if(node->parent && node->parent->type == GUMBO_NODE_ELEMENT){
-			StyledText styledTextBlock;
-			styledTextBlock.text = node->v.text.text;
+	for( xml_node node : parentNode ){
+		// handle nodes
+		if( node.type() == node_element ){
 
-			if(node->parent->v.element.tag == GUMBO_TAG_STYLE){
-
-				GumboAttribute* styleID = gumbo_get_attribute(&node->parent->v.element.attributes, "id");
-				if(styleID){
-					map<string, ofxFontStashStyle>::const_iterator it = styleIDs.find(styleID->value);
-					if(it != styleIDs.end()){
-						styledTextBlock.style = it->second;
+			// <style></style>
+			if( strcmp( node.name(), "style") == 0){
+				xml_attribute attr;
+				if((attr = node.attribute("id"))){
+					auto it = styleIDs.find(attr.value());
+					if( it != styleIDs.end() ){
+						style = it->second;
 					}
 				}
-
-				GumboAttribute* font = gumbo_get_attribute(&node->parent->v.element.attributes, "font");
-				if(font){
-					styledTextBlock.style.fontID = font->value;
+				
+				if((attr = node.attribute("font"))){
+					style.fontID = attr.value();
 				}
-				GumboAttribute* size = gumbo_get_attribute(&node->parent->v.element.attributes, "size");
-				if(size){
-					styledTextBlock.style.fontSize = ofToFloat(size->value);
+				
+				if((attr = node.attribute("size"))){
+					style.fontSize = ofToFloat(attr.value());
 				}
-
-				GumboAttribute* blur = gumbo_get_attribute(&node->parent->v.element.attributes, "blur");
-				if(blur){
-					styledTextBlock.style.blur = ofToFloat(blur->value);
+				
+				if((attr = node.attribute("blur"))){
+					style.blur = ofToFloat(attr.value());
 				}
-
-				GumboAttribute* color = gumbo_get_attribute(&node->parent->v.element.attributes, "color");
-				if(color){
-					string hex = color->value;
+				
+				if((attr = node.attribute("color"))){
+					string hex = attr.value();
 					int slen = hex.length();
 					if(slen > 1){
 						hex = hex.substr(1, slen);
@@ -65,28 +76,19 @@ void ofxFontStashParser::recursiveParse(GumboNode* node,
 							alpha =  ofHexToInt("0000" + a); //add 255 alpha if not specified
 						}
 						int hexInt = ofHexToInt(hex);
-						styledTextBlock.style.color = ofColor::fromHex(hexInt, alpha);
-						//cout << styledTextBlock.style.color << endl;
+						style.color = ofColor::fromHex(hexInt, alpha);
 					}
 				}
-				styledTextBlock.style.valid = true;
-			}else{
-				//ofLogError() << "text node with no style?! '" << node->v.text.text << "'";
-				styledTextBlock.style.valid = false;
+				
 			}
-			parsedText.push_back(styledTextBlock);
-		}else{
-			ofLogError() << "text node with no parent?!";
+			
+			recursiveParse(node, style, styleIDs,parsedText);
 		}
-		return;
+		
+		// handle whitespace
+		else if(node.type() == node_pcdata || node.type() == node_cdata){
+			parsedText.push_back({node.text().get(),style});
+		}
 
-	}else if (node->type == GUMBO_NODE_ELEMENT) {
-		GumboVector* children = &node->v.element.children;
-		for (unsigned int i = 0; i < children->length; ++i) {
-			recursiveParse((GumboNode*) children->data[i], styleIDs, parsedText);
-		}
-		return;
-	} else {
-		return ;
 	}
 }
