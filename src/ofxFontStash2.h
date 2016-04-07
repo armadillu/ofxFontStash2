@@ -40,11 +40,12 @@ public:
 	bool isFontLoaded(const string& fontID); //checks if a font was already loaded
 	//simple draw - no multiline awareness
 	float draw(const string& text, const ofxFontStashStyle& style, float x, float y);
-
+	void drawColumn(const string& text, const ofxFontStashStyle& style, float x, float y, float width, bool debug=false);
 	void drawFormatted(const string& text, float x, float y);
 
-	void drawFormattedColumn(const string& text, float x, float y, float width, bool debug);
-
+	void drawFormattedColumn(const string& text, float x, float y, float width, bool debug=false);
+	void drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, float x, float y, float targetWidth, bool debug=false);
+	
 	ofRectangle getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y );
 	void getVerticalMetrics( const ofxFontStashStyle& style, float* ascender, float* descender, float* lineH);
 	void setLineHeightMult(float l){lineHeightMultiplier = l;}

@@ -66,6 +66,12 @@ float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, fl
 	return dx;
 }
 
+void ofxFontStash2::drawColumn(const string& text, const ofxFontStashStyle &style, float x, float y, float targetWidth, bool debug){
+	vector<ofxFontStashParser::StyledText> blocks;
+	ofxFontStashParser::StyledText block{text, style}; 
+	blocks.push_back(block);
+	drawBlocks(blocks, x, y, targetWidth, debug);
+}
 
 void ofxFontStash2::drawFormatted(const string& text, float x, float y){
 
@@ -78,17 +84,25 @@ void ofxFontStash2::drawFormatted(const string& text, float x, float y){
 	}
 }
 
-
-
 void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, float targetWidth, bool debug){
+	if (targetWidth < 0) return;
+	float xx = x;
+	float yy = y;
+	
+	TS_START_NIF("parse text");
+	vector<ofxFontStashParser::StyledText> blocks = ofxFontStashParser::parseText(text, styleIDs);
+	TS_STOP_NIF("parse text");
+	
+	drawBlocks(blocks, x, y, targetWidth, debug);
+	
+}
+
+void ofxFontStash2::drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, float x, float y, float targetWidth, bool debug){
 
 	if (targetWidth < 0) return;
 	float xx = x;
 	float yy = y;
 
-	TS_START_NIF("parse text");
-	vector<ofxFontStashParser::StyledText> blocks = ofxFontStashParser::parseText(text, styleIDs);
-	TS_STOP_NIF("parse text");
 	TS_START_NIF("split words");
 	vector<SplitTextBlock> words = splitWords(blocks);
 	TS_STOP_NIF("split words");
