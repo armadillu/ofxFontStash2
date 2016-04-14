@@ -87,8 +87,8 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 		
 		// handle whitespace
 		else if(node.type() == node_pcdata || node.type() == node_cdata){
-			parsedText.push_back({node.text().get(),style});
+			string text = node.text().get();
+			parsedText.push_back((StyledText){node.text().get(),style});
 		}
-
 	}
 }

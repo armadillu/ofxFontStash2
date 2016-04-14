@@ -38,14 +38,17 @@ public:
 
 	bool addFont(const string& fontID, const string& fontFile); //returns fontID
 	bool isFontLoaded(const string& fontID); //checks if a font was already loaded
-	//simple draw - no multiline awareness
+
+	//simple draw - no multiline awareness - '\n' will be drawn as squares!"
 	float draw(const string& text, const ofxFontStashStyle& style, float x, float y);
+
+	//will break lines according to column width - '\n' will be drawn as squares!
 	void drawColumn(const string& text, const ofxFontStashStyle& style, float x, float y, float width, bool debug=false);
 	void drawFormatted(const string& text, float x, float y);
 
+	//"\n" aware - will break lines but also will break lines to fit column width
 	void drawFormattedColumn(const string& text, float x, float y, float width, bool debug=false);
-	void drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, float x, float y, float targetWidth, bool debug=false);
-	
+
 	ofRectangle getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y );
 	void getVerticalMetrics( const ofxFontStashStyle& style, float* ascender, float* descender, float* lineH);
 	void setLineHeightMult(float l){lineHeightMultiplier = l;}
@@ -55,7 +58,6 @@ public:
 
 	FONScontext * getFSContext(){return fs;}
 
-	
 	// allows for higher pixel densities.
 	// this will increase texture resolution during drawing,
 	// but will leave all sizes exactly the same
@@ -128,6 +130,7 @@ protected:
 	map<string, ofxFontStashStyle> styleIDs;
 
 	vector<SplitTextBlock> splitWords( vector<ofxFontStashParser::StyledText> & blocks);
+	void drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, float x, float y, float targetWidth, bool debug=false);
 
 
 };

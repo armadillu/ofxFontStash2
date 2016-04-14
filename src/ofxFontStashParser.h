@@ -30,7 +30,7 @@ public:
 protected:
 
 	static void recursiveParse(pugi::xml_node & node,
-							   ofxFontStashStyle parentStyle,
+							   ofxFontStashStyle style,
 							   const map<string, ofxFontStashStyle> & styleIDs,
 							   vector<StyledText> & parsedText);
 
