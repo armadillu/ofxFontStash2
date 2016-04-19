@@ -13,7 +13,11 @@
 #undef FONTSTASH_IMPLEMENTATION
 
 #define GLFONTSTASH_IMPLEMENTATION //only include implementation from cpp file
-#include "glfontstash.h"
+#ifdef GL_VERSION_3
+	#include "gl3fontstash.h"
+#else
+	#include "glfontstash.h"
+#endif
 #undef GLFONTSTASH_IMPLEMENTATION
 
 
@@ -26,7 +30,13 @@ ofxFontStash2::ofxFontStash2(){
 
 void ofxFontStash2::setup(int atlasSizePow2){
 
+	#ifdef GL_VERSION_3
+	ofLogNotice("ofxFontStash2") << "creating fontStash GL3";
+	fs = gl3fonsCreate(atlasSizePow2, atlasSizePow2, FONS_ZERO_TOPLEFT);
+	#else
+	ofLogNotice("ofxFontStash2") << "creating fontStash GL2";
 	fs = glfonsCreate(atlasSizePow2, atlasSizePow2, FONS_ZERO_TOPLEFT);
+	#endif
 	if (fs == NULL) {
 		ofLogError("ofxFontStash2") << "Could not create stash.";
 		return;
@@ -57,7 +67,28 @@ void ofxFontStash2::addStyle(const string& styleID, ofxFontStashStyle style){
 	styleIDs[styleID] = style;
 }
 
+
+void ofxFontStash2::updateFsPrjMatrix(){
+
+#ifdef GL_VERSION_3
+	GLfloat mat[16];
+	memset(mat, 0, 16 * sizeof(GLfloat));
+	mat[0] = 4.0 / ofGetScreenWidth();
+	mat[5] = -4.0 / ofGetScreenHeight();
+	mat[10] = 2.0;
+	mat[12] = -1.0;
+	mat[13] = 1.0;
+	mat[14] = -1.0;
+	mat[15] = 1.0;
+	gl3fonsProjection(fs, &mat[0]);
+#endif
+
+}
+
 float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, float x, float y){
+
+	updateFsPrjMatrix();
+
 	ofPushMatrix();
 	ofScale(1/pixelDensity, 1/pixelDensity);
 	applyStyle(style);
@@ -241,6 +272,9 @@ void ofxFontStash2::drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, f
 	ofxFontStashStyle drawStyle;
 
 	TS_START("draw all lines");
+
+	updateFsPrjMatrix();
+
 	if (pixelDensity != 1.0f){ //hmmmm
 		ofPushMatrix();
 		ofScale(1/pixelDensity, 1/pixelDensity);
@@ -390,5 +424,9 @@ int ofxFontStash2::getFsID(const string& userFontID){
 }
 
 unsigned int ofxFontStash2::toFScolor(const ofColor & c){
+	#ifdef GL_VERSION_3
+	return gl3fonsRGBA(c.r, c.g, c.b, c.a);
+	#else
 	return glfonsRGBA(c.r, c.g, c.b, c.a);
+	#endif
 }

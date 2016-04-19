@@ -27,7 +27,7 @@
 
 FONScontext* gl3fonsCreate(int width, int height, int flags);
 void gl3fonsDelete(FONScontext* ctx);
-void gl3fonsProjection(FONScontext* ctx, GLfloat *mat, int screenWidth, int screenHeight);
+void gl3fonsProjection(FONScontext* ctx, GLfloat *mat);
 
 unsigned int gl3fonsRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
@@ -89,6 +89,7 @@ static GLuint shader() {
 	GLint			compiled = 0;
 	GLint			linked = 0;
 	const GLchar	*stringptrs[1];
+	GLuint 			programID = 0;
 	
 	// create our shaders
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -153,7 +154,7 @@ static GLuint shader() {
 	};
 	
 	// setup our shader program
-	GLuint programID = glCreateProgram();
+	programID = glCreateProgram();
 	glAttachShader(programID, vertexShader);
 	glAttachShader(programID, fragmentShader);
 
@@ -194,8 +195,9 @@ static GLuint shader() {
 
 static int gl3fons__renderCreate(void* userPtr, int width, int height)
 {
-	int i;
 	GLFONScontext* gl = (GLFONScontext*)userPtr;
+	int i;
+	
 	// Create may be called multiple times, delete existing texture.
 	if (gl->tex != 0) {
 		glDeleteTextures(1, &gl->tex);
@@ -291,7 +293,7 @@ static void gl3fons__renderDraw(void* userPtr, const float* verts, const float* 
 	glUniform1i(gl->texture_uniform, 0);
 	
 	// init our projection matrix
-	glUniformMatrix4fv(gl->projMat_uniform, 1, 0, gl->projMat);
+	glUniformMatrix4fv(gl->projMat_uniform, 1, false, gl->projMat);
 	
 	// bind our vao
 	glBindVertexArray(gl->vao);
@@ -387,22 +389,10 @@ void gl3fonsDelete(FONScontext* ctx)
 // mat[14] = -1.0;
 // mat[15] = 1.0;
 
-void gl3fonsProjection(FONScontext* ctx, GLfloat *mat, int screenWidth, int screenHeight)
+void gl3fonsProjection(FONScontext* ctx, GLfloat *mat)
 {
-	int i;
 	GLFONScontext* gl = (GLFONScontext*)(ctx->params.userPtr);
-
-	// If we have a screenWidth and a screenHeight, calculate mat.  Otherwise,
-	// assume it is alredy set and being passed in.
-	if (screenWidth != 0 && screenHeight != 0) {
-		mat[0] = 2.0f / screenWidth;
-		mat[5] = -2.0f / screenHeight;
-		mat[10] = 2.0f;
-		mat[12] = -1.0f;
-		mat[13] = 1.0f;
-		mat[14] = -1.0f;
-		mat[15] = 1.0f;
-	}
+	int i;
 
 	for (i = 0; i < 16; i++) {
 		gl->projMat[i] = mat[i];

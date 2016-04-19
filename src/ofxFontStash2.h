@@ -12,7 +12,11 @@
 #include "ofMain.h"
 
 #include "fontstash.h"
-#include "glfontstash.h"
+#ifdef GL_VERSION_3
+	#include "gl3fontstash.h"
+#else
+	#include "glfontstash.h"
+#endif
 
 #include "ofxFontStashParser.h"
 #include "ofxFontStashStyle.h"
@@ -67,6 +71,8 @@ public:
 	float fontScale;
 	
 protected:
+
+	void updateFsPrjMatrix();
 
 	float lineHeightMultiplier;
 
