@@ -143,6 +143,8 @@ float ofxFontStash2::drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, 
 
 	vector<StyledLine> lines;
 	ofxFontStashStyle currentStyle;
+	currentStyle.fontSize = -1; // this makes sure the first style is actually applied, even if it's the default style
+	
 	StyledLine currentLine;
 
 	float lineWidth = 0;
