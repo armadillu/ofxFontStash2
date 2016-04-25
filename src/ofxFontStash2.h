@@ -12,7 +12,11 @@
 #include "ofMain.h"
 
 #include "fontstash.h"
-#include "glfontstash.h"
+#ifdef GL_VERSION_3
+	#include "gl3fontstash.h"
+#else
+	#include "glfontstash.h"
+#endif
 
 #include "ofxFontStashParser.h"
 #include "ofxFontStashStyle.h"
@@ -39,23 +43,27 @@ public:
 	bool addFont(const string& fontID, const string& fontFile); //returns fontID
 	bool isFontLoaded(const string& fontID); //checks if a font was already loaded
 
-	// draw single line string (no multiline)
+	// draw single line string
 	// returns text width
+	// multiline ("\n") not supported
 	float draw(const string& text, const ofxFontStashStyle& style, float x, float y);
 	
 	// draw string with fixed maximum width
 	// returns height of the text block
+	// multiline ("\n") not supported
 	float drawColumn(const string& text, const ofxFontStashStyle& style, float x, float y, float width, bool debug=false);
 	
-	// draw xml formatted string (no multiline)
+	// draw xml formatted string
 	// return text width
+	// multiline ("\n") not supported
 	float drawFormatted(const string& text, float x, float y);
 	
 	// draw xml formatted string with fixed maximum width
 	// returns height of the text block
+	// multiline ("\n") supported
 	float drawFormattedColumn(const string& text, float x, float y, float width, bool debug=false);
 
-	// draw prepare text blocks
+	// draw prepared text blocks
 	float drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, float x, float y, float targetWidth, bool debug=false);
 	
 	ofRectangle getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y );
@@ -67,7 +75,6 @@ public:
 
 	FONScontext * getFSContext(){return fs;}
 
-	
 	// allows for higher pixel densities.
 	// this will increase texture resolution during drawing,
 	// but will leave all sizes exactly the same
@@ -77,6 +84,8 @@ public:
 	float fontScale;
 	
 protected:
+
+	void updateFsPrjMatrix();
 
 	float lineHeightMultiplier;
 

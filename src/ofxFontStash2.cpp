@@ -13,7 +13,11 @@
 #undef FONTSTASH_IMPLEMENTATION
 
 #define GLFONTSTASH_IMPLEMENTATION //only include implementation from cpp file
-#include "glfontstash.h"
+#ifdef GL_VERSION_3
+	#include "gl3fontstash.h"
+#else
+	#include "glfontstash.h"
+#endif
 #undef GLFONTSTASH_IMPLEMENTATION
 
 
@@ -26,7 +30,13 @@ ofxFontStash2::ofxFontStash2(){
 
 void ofxFontStash2::setup(int atlasSizePow2){
 
+	#ifdef GL_VERSION_3
+	ofLogNotice("ofxFontStash2") << "creating fontStash GL3";
+	fs = gl3fonsCreate(atlasSizePow2, atlasSizePow2, FONS_ZERO_TOPLEFT);
+	#else
+	ofLogNotice("ofxFontStash2") << "creating fontStash GL2";
 	fs = glfonsCreate(atlasSizePow2, atlasSizePow2, FONS_ZERO_TOPLEFT);
+	#endif
 	if (fs == NULL) {
 		ofLogError("ofxFontStash2") << "Could not create stash.";
 		return;
@@ -57,7 +67,28 @@ void ofxFontStash2::addStyle(const string& styleID, ofxFontStashStyle style){
 	styleIDs[styleID] = style;
 }
 
+
+void ofxFontStash2::updateFsPrjMatrix(){
+
+#ifdef GL_VERSION_3
+	GLfloat mat[16];
+	memset(mat, 0, 16 * sizeof(GLfloat));
+	mat[0] = 4.0 / ofGetScreenWidth();
+	mat[5] = -4.0 / ofGetScreenHeight();
+	mat[10] = 2.0;
+	mat[12] = -1.0;
+	mat[13] = 1.0;
+	mat[14] = -1.0;
+	mat[15] = 1.0;
+	gl3fonsProjection(fs, &mat[0]);
+#endif
+
+}
+
 float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, float x, float y){
+
+	updateFsPrjMatrix();
+
 	ofPushMatrix();
 	ofScale(1/pixelDensity, 1/pixelDensity);
 	applyStyle(style);
@@ -67,6 +98,8 @@ float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, fl
 }
 
 float ofxFontStash2::drawColumn(const string& text, const ofxFontStashStyle &style, float x, float y, float targetWidth, bool debug){
+	//TODO this ignores \n ! need to parse!
+	//TODO double check the todo, this might work already.
 	vector<ofxFontStashParser::StyledText> blocks;
 	ofxFontStashParser::StyledText block{text, style}; 
 	blocks.push_back(block);
@@ -262,41 +295,52 @@ float ofxFontStash2::drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, 
 	ofxFontStashStyle drawStyle;
 
 	TS_START("draw all lines");
-	ofPushMatrix();
-	ofScale(1/pixelDensity, 1/pixelDensity); 
+
+	updateFsPrjMatrix();
+
+	if (pixelDensity != 1.0f){ //hmmmm
+		ofPushMatrix();
+		ofScale(1/pixelDensity, 1/pixelDensity);
+	}
 	for(int i = 0; i < lines.size(); i++){
 		for(int j = 0; j < lines[i].elements.size(); j++){
 
+			//if(lines[i].elements[j].content.type == WORD){ //only draw words!
+			if(lines[i].elements[j].content.styledText.text != " "){ //no need to draw whitespace
 
-			if (lines[i].elements[j].content.styledText.style.valid &&
-				drawStyle != lines[i].elements[j].content.styledText.style ){
+				if (lines[i].elements[j].content.styledText.style.valid &&
+					drawStyle != lines[i].elements[j].content.styledText.style ){
 
-				drawStyle = lines[i].elements[j].content.styledText.style;
-				TS_START_ACC("applyStyle");
-				applyStyle(drawStyle);
-				TS_STOP_ACC("applyStyle");
-			}
-			lines[i].elements[j].area.y += lines[i].lineH -lines[0].lineH;
+					drawStyle = lines[i].elements[j].content.styledText.style;
+					TS_START_ACC("applyStyle");
+					applyStyle(drawStyle);
+					TS_STOP_ACC("applyStyle");
+				}
+				lines[i].elements[j].area.y += lines[i].lineH -lines[0].lineH;
 
-			//TS_START_ACC("fonsDrawText");
-			fonsDrawText(fs,
-						 lines[i].elements[j].x*pixelDensity,
-						 (lines[i].elements[j].baseLineY + lines[i].lineH -lines[0].lineH)*pixelDensity,
-						 lines[i].elements[j].content.styledText.text.c_str(),
-						 NULL);
-			//TS_STOP_ACC("fonsDrawText");
+				//TS_START_ACC("fonsDrawText");
+				string & texttt = lines[i].elements[j].content.styledText.text;
+				fonsDrawText(fs,
+							 lines[i].elements[j].x*pixelDensity,
+							 (lines[i].elements[j].baseLineY + lines[i].lineH -lines[0].lineH)*pixelDensity,
+							 texttt.c_str(),
+							 NULL);
+				//TS_STOP_ACC("fonsDrawText");
 
-			//debug rects
-			if(debug){
-				//TS_START_ACC("debug rects");
-				if(lines[i].elements[j].content.type == WORD) ofSetColor(255,25);
-				else ofSetColor(0,255,0,25);
-				ofDrawRectangle(lines[i].elements[j].area);
-				//TS_STOP_ACC("debug rects");
+				//debug rects
+				if(debug){
+					//TS_START_ACC("debug rects");
+					if(lines[i].elements[j].content.type == WORD) ofSetColor(255,25);
+					else ofSetColor(0,255,0,25);
+					ofDrawRectangle(lines[i].elements[j].area);
+					//TS_STOP_ACC("debug rects");
+				}
 			}
 		}
 	}
-	ofPopMatrix();
+	if (pixelDensity != 1.0f){ //hmmmm
+		ofPopMatrix();
+	}
 	TS_STOP("draw all lines");
 	
 	return lines.size() == 0? 0 : (lines.back().elements.back().baseLineY - y);
@@ -411,5 +455,9 @@ int ofxFontStash2::getFsID(const string& userFontID){
 }
 
 unsigned int ofxFontStash2::toFScolor(const ofColor & c){
+	#ifdef GL_VERSION_3
+	return gl3fonsRGBA(c.r, c.g, c.b, c.a);
+	#else
 	return glfonsRGBA(c.r, c.g, c.b, c.a);
+	#endif
 }
