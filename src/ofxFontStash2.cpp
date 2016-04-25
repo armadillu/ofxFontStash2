@@ -66,40 +66,39 @@ float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, fl
 	return dx;
 }
 
-void ofxFontStash2::drawColumn(const string& text, const ofxFontStashStyle &style, float x, float y, float targetWidth, bool debug){
+float ofxFontStash2::drawColumn(const string& text, const ofxFontStashStyle &style, float x, float y, float targetWidth, bool debug){
 	vector<ofxFontStashParser::StyledText> blocks;
 	ofxFontStashParser::StyledText block{text, style}; 
 	blocks.push_back(block);
-	drawBlocks(blocks, x, y, targetWidth, debug);
+	return drawBlocks(blocks, x, y, targetWidth, debug);
 }
 
-void ofxFontStash2::drawFormatted(const string& text, float x, float y){
+float ofxFontStash2::drawFormatted(const string& text, float x, float y){
 
 	ofxFontStashParser parser;
 	vector<ofxFontStashParser::StyledText> blocks = parser.parseText(text, styleIDs);
 	float xx = x;
 	float yy = y;
 	for(int i = 0; i < blocks.size(); i++){
-		xx = draw(blocks[i].text, blocks[i].style, xx, yy);
+		xx += draw(blocks[i].text, blocks[i].style, xx, yy);
 	}
+	
+	return xx-x; 
 }
 
-void ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, float targetWidth, bool debug){
-	if (targetWidth < 0) return;
-	float xx = x;
-	float yy = y;
+float ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, float targetWidth, bool debug){
+	if (targetWidth < 0) return 0;
 	
 	TS_START_NIF("parse text");
 	vector<ofxFontStashParser::StyledText> blocks = ofxFontStashParser::parseText(text, styleIDs);
 	TS_STOP_NIF("parse text");
 	
-	drawBlocks(blocks, x, y, targetWidth, debug);
-	
+	return drawBlocks(blocks, x, y, targetWidth, debug);
 }
 
-void ofxFontStash2::drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, float x, float y, float targetWidth, bool debug){
+float ofxFontStash2::drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, float x, float y, float targetWidth, bool debug){
 
-	if (targetWidth < 0) return;
+	if (targetWidth < 0) return 0;
 	float xx = x;
 	float yy = y;
 
@@ -107,7 +106,7 @@ void ofxFontStash2::drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, f
 	vector<SplitTextBlock> words = splitWords(blocks);
 	TS_STOP_NIF("split words");
 
-	if (words.size() == 0) return;
+	if (words.size() == 0) return 0;
 
 	vector<StyledLine> lines;
 	ofxFontStashStyle currentStyle;
@@ -122,7 +121,8 @@ void ofxFontStash2::drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, f
 
 	float bounds[4];
 	float dx;
-
+	LineElement le;
+	
 	TS_START("walk words");
 	for(int i = 0; i < words.size(); i++){
 
@@ -130,8 +130,7 @@ void ofxFontStash2::drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, f
 		if(words[i].styledText.style.valid && currentStyle != words[i].styledText.style ){
 			//cout << "   new style!" << endl;
 			currentStyle = words[i].styledText.style;
-			if(currentStyle.fontID.size()){
-				applyStyle(currentStyle);
+			if(applyStyle(currentStyle)){
 				fonsVertMetrics(fs, NULL, NULL, &currentLineH);
 				currentLineH/=pixelDensity;
 			}else{
@@ -139,35 +138,59 @@ void ofxFontStash2::drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, f
 			}
 		}
 		//TS_STOP_ACC("word style");
+		
+		bool stayOnCurrentLine = true;
+		
+		if( words[i].type == SEPARATOR && words[i].styledText.text == "\n" ){
+			stayOnCurrentLine = false;
+			dx = 0;
+			float lineH = lineHeightMultiplier * calcLineHeight(currentLine);
+			if(debug) lineHeigts.push_back(yy + lineH);
+			currentLine.lineH = lineH;
+			currentLine.lineW = xx - x + dx;
+			
+			// no!
+			//i--; //re-calc dimensions of this word on a new line!
+			yy += lineH;
+			
+			lineWidth = 0;
+			wordsThisLine = 0;
+			xx = x;
+			lines.push_back(currentLine);
+			currentLine.elements.clear();
+			continue;
+		}
+		else{
+			//TS_START_ACC("fonsTextBounds");
+			dx = fonsTextBounds(	fs,
+									xx,
+									yy,
+									words[i].styledText.text.c_str(),
+									NULL,
+									&bounds[0]
+									)/pixelDensity;
+			bounds[0]/=pixelDensity;
+			bounds[1]/=pixelDensity;
+			bounds[2]/=pixelDensity;
+			bounds[3]/=pixelDensity;
+			//TS_STOP_ACC("fonsTextBounds");
 
-		//TS_START_ACC("fonsTextBounds");
-		dx = fonsTextBounds(	fs,
-								xx,
-								yy,
-								words[i].styledText.text.c_str(),
-								NULL,
-								&bounds[0]
-								)/pixelDensity;
-		bounds[0]/=pixelDensity;
-		bounds[1]/=pixelDensity;
-		bounds[2]/=pixelDensity;
-		bounds[3]/=pixelDensity;
-		//TS_STOP_ACC("fonsTextBounds");
+			ofRectangle where = ofRectangle(bounds[0], bounds[1] , bounds[2] - bounds[0], bounds[3] - bounds[1]);
 
-		ofRectangle where = ofRectangle(bounds[0], bounds[1] , bounds[2] - bounds[0], bounds[3] - bounds[1]);
+			le = LineElement(words[i], where);
+			le.baseLineY = yy;
+			le.x = xx;
+			le.lineHeight = currentLineH;
 
-		LineElement le = LineElement(words[i], where);
-		le.baseLineY = yy;
-		le.x = xx;
-		le.lineHeight = currentLineH;
+			float nextWidth = lineWidth + dx;
+			
+			//if not wider than targetW
+			// ||
+			//this is the 1st word in this line but even that doesnt fit
+			stayOnCurrentLine = nextWidth < targetWidth || (wordsThisLine == 0 && (nextWidth >= targetWidth));
 
-		float nextWidth = lineWidth + dx;
-
-		//if not wider than targetW
-		// ||
-		//this is the 1st word in this line but even that doesnt fit
-		bool stayOnCurrentLine = nextWidth < targetWidth || (wordsThisLine == 0 && (nextWidth >= targetWidth));
-
+		}
+		
 		if (stayOnCurrentLine){
 
 			//TS_START_ACC("stay on line");
@@ -275,6 +298,8 @@ void ofxFontStash2::drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, f
 	}
 	ofPopMatrix();
 	TS_STOP("draw all lines");
+	
+	return lines.size() == 0? 0 : (lines.back().elements.back().baseLineY - y);
 }
 
 float ofxFontStash2::calcWidth(StyledLine & line){
@@ -342,13 +367,17 @@ ofxFontStash2::splitWords( vector<ofxFontStashParser::StyledText> & blocks){
 
 ofRectangle ofxFontStash2::getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y ){
 	applyStyle(style);
-	float bounds[4];
-	fonsTextBounds( fs, x, y, text.c_str(), NULL, bounds );
+	float bounds[4]={0,0,0,0};
+	int advance = fonsTextBounds( fs, x*pixelDensity, y*pixelDensity, text.c_str(), NULL, bounds );
+	advance/=pixelDensity;
 	bounds[0]/=pixelDensity;
 	bounds[1]/=pixelDensity;
 	bounds[2]/=pixelDensity;
 	bounds[3]/=pixelDensity;
-	return ofRectangle(bounds[0],bounds[1],bounds[2]-bounds[0],bounds[3]-bounds[1]);
+	// here we use the "text advance" instead of the width of the rectangle,
+	// because this includes spaces at the end correctly (the text bounds "x" and "x " are the same,
+	// the text advance isn't). 
+	return ofRectangle(bounds[0],bounds[1],advance,bounds[3]-bounds[1]);
 }
 
 void ofxFontStash2::getVerticalMetrics(const ofxFontStashStyle & style, float* ascender, float* descender, float* lineH){
@@ -357,7 +386,7 @@ void ofxFontStash2::getVerticalMetrics(const ofxFontStashStyle & style, float* a
 }
 
 
-void ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
+bool ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
 	//if(style.fontID.size()){
 		fonsClearState(fs);
 		int id = getFsID(style.fontID);
@@ -366,6 +395,8 @@ void ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
 		fonsSetColor(fs, toFScolor(style.color));
 		fonsSetAlign(fs, style.alignment);
 		fonsSetBlur(fs, style.blur);
+	
+	return id != FONS_INVALID;
 	//}
 }
 

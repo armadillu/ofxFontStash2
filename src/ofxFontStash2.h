@@ -38,13 +38,25 @@ public:
 
 	bool addFont(const string& fontID, const string& fontFile); //returns fontID
 	bool isFontLoaded(const string& fontID); //checks if a font was already loaded
-	//simple draw - no multiline awareness
-	float draw(const string& text, const ofxFontStashStyle& style, float x, float y);
-	void drawColumn(const string& text, const ofxFontStashStyle& style, float x, float y, float width, bool debug=false);
-	void drawFormatted(const string& text, float x, float y);
 
-	void drawFormattedColumn(const string& text, float x, float y, float width, bool debug=false);
-	void drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, float x, float y, float targetWidth, bool debug=false);
+	// draw single line string (no multiline)
+	// returns text width
+	float draw(const string& text, const ofxFontStashStyle& style, float x, float y);
+	
+	// draw string with fixed maximum width
+	// returns height of the text block
+	float drawColumn(const string& text, const ofxFontStashStyle& style, float x, float y, float width, bool debug=false);
+	
+	// draw xml formatted string (no multiline)
+	// return text width
+	float drawFormatted(const string& text, float x, float y);
+	
+	// draw xml formatted string with fixed maximum width
+	// returns height of the text block
+	float drawFormattedColumn(const string& text, float x, float y, float width, bool debug=false);
+
+	// draw prepare text blocks
+	float drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, float x, float y, float targetWidth, bool debug=false);
 	
 	ofRectangle getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y );
 	void getVerticalMetrics( const ofxFontStashStyle& style, float* ascender, float* descender, float* lineH);
@@ -97,6 +109,8 @@ protected:
 		float lineHeight; //not of this block, but of this style
 		float baseLineY;
 		float x; //x
+		LineElement(){
+		}
 		LineElement(SplitTextBlock & b, ofRectangle r){
 			this->content = b;
 			this->area = r;
@@ -118,7 +132,7 @@ protected:
 	float calcWidth(StyledLine & line);
 	float calcLineHeight(StyledLine & line);
 	
-	void applyStyle(const ofxFontStashStyle& style);
+	bool applyStyle(const ofxFontStashStyle& style);
 
 	unsigned int toFScolor(const ofColor& c);
 	FONScontext * fs;
