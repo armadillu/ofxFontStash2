@@ -11,7 +11,7 @@
 
 using namespace pugi;
 
-vector<ofxFontStashParser::StyledText>
+vector<StyledText>
 ofxFontStashParser::parseText(const string& text, const map<string, ofxFontStashStyle> & styleIDs){
 
 	vector<StyledText> parsedText;

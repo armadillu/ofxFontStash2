@@ -20,11 +20,6 @@ class ofxFontStashParser{
 
 public:
 
-	struct StyledText{
-		string text;
-		ofxFontStashStyle style;
-	};
-
 	static vector<StyledText> parseText(const string& text, const map<string, ofxFontStashStyle> & styleIDs);
 
 protected:

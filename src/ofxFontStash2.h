@@ -63,8 +63,14 @@ public:
 	// multiline ("\n") supported
 	float drawFormattedColumn(const string& text, float x, float y, float width, bool debug=false);
 
+	// layout styled text
+	const vector<StyledLine> layoutLines(const vector<StyledText> &blocks, float targetWidth, bool debug=false);
+
 	// draw prepared text blocks
-	float drawBlocks(vector<ofxFontStashParser::StyledText> &blocks, float x, float y, float targetWidth, bool debug=false);
+	float drawLines(const vector<StyledLine> &lines, float x, float y, bool debug=false);
+	
+	// draw and layout blocks
+	float drawAndLayout(vector<StyledText> &blocks, float x, float y, float width, bool debug=false);
 	
 	ofRectangle getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y );
 	void getVerticalMetrics( const ofxFontStashStyle& style, float* ascender, float* descender, float* lineH);
@@ -89,53 +95,10 @@ protected:
 
 	float lineHeightMultiplier;
 
-	enum SplitBlockType{
-		WORD,
-		SEPARATOR
-	};
-
-
 	string toString(SplitBlockType t){
 		if (t == WORD) return "WORD";
 		else return "SEPARATOR";
 	}
-
-
-	struct SplitTextBlock{
-		SplitBlockType type;
-		ofxFontStashParser::StyledText styledText;
-		SplitTextBlock(SplitBlockType type, string text, ofxFontStashStyle style){
-			this->type = type;
-			this->styledText.text = text;
-			this->styledText.style = style;
-		}
-		SplitTextBlock(){}
-	};
-
-	struct LineElement{
-		SplitTextBlock content;
-		ofRectangle area;
-		float lineHeight; //not of this block, but of this style
-		float baseLineY;
-		float x; //x
-		LineElement(){
-		}
-		LineElement(SplitTextBlock & b, ofRectangle r){
-			this->content = b;
-			this->area = r;
-		}
-	};
-
-	struct StyledLine{
-		float lineH;
-		float lineW;
-		vector<LineElement> elements;
-		StyledLine(){
-			//elements.reserve(50);
-			lineH = lineW = 0;
-		}
-	};
-
 	int getFsID(const string& userFontID);
 
 	float calcWidth(StyledLine & line);
@@ -150,7 +113,7 @@ protected:
 
 	map<string, ofxFontStashStyle> styleIDs;
 
-	vector<SplitTextBlock> splitWords( vector<ofxFontStashParser::StyledText> & blocks);
+	vector<SplitTextBlock> splitWords( const vector<StyledText> & blocks);
 
 
 };

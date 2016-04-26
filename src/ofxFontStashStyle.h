@@ -29,7 +29,7 @@ struct ofxFontStashStyle{
 		alignment = (FONSalign)(FONS_ALIGN_LEFT | FONS_ALIGN_BASELINE);
 	};
 
-	bool operator== (ofxFontStashStyle &b){
+	bool operator== (const ofxFontStashStyle &b){
 		return (fontID == b.fontID &&
 				fontSize == b.fontSize &&
 				blur == b.blur &&
@@ -38,8 +38,54 @@ struct ofxFontStashStyle{
 				);
 	}
 
-	bool operator!= (ofxFontStashStyle &b){
+	bool operator!= (const ofxFontStashStyle &b){
 		return !(*this == b);
+	}
+};
+
+struct StyledText{
+	string text;
+	ofxFontStashStyle style;
+};
+
+enum SplitBlockType{
+	WORD,
+	SEPARATOR
+};
+
+
+struct SplitTextBlock{
+	SplitBlockType type;
+	StyledText styledText;
+	SplitTextBlock(SplitBlockType type, string text, ofxFontStashStyle style){
+		this->type = type;
+		this->styledText.text = text;
+		this->styledText.style = style;
+	}
+	SplitTextBlock(){}
+};
+
+struct LineElement{
+	SplitTextBlock content;
+	ofRectangle area;
+	float lineHeight; //not of this block, but of this style
+	float baseLineY;
+	float x; //x
+	LineElement(){
+	}
+	LineElement(SplitTextBlock & b, ofRectangle r){
+		this->content = b;
+		this->area = r;
+	}
+};
+
+struct StyledLine{
+	float lineH;
+	float lineW;
+	vector<LineElement> elements;
+	StyledLine(){
+		//elements.reserve(50);
+		lineH = lineW = 0;
 	}
 };
 
