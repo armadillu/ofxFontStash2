@@ -48,9 +48,15 @@ struct StyledText{
 	ofxFontStashStyle style;
 };
 
+// There are three types of blocks:
+// - WORDS: 'hey' and 'wow'
+// - SEPARATOR: word separators that allow breaking into a new line after, like '.' or '-'
+// - SEPARATOR_INVISIBLE: just as separator, but there's no need to ever draw them (space, new line)
+// The enum values are chosen so that you can check if it's_any kind of separator with (type & SEPARATOR) != 0
 enum SplitBlockType{
-	WORD,
-	SEPARATOR
+	WORD=1,
+	SEPARATOR=2,
+	SEPARATOR_INVISIBLE=3
 };
 
 
@@ -73,7 +79,7 @@ struct LineElement{
 	float x; //x
 	LineElement(){
 	}
-	LineElement(SplitTextBlock & b, ofRectangle r){
+	LineElement(SplitTextBlock b, ofRectangle r){
 		this->content = b;
 		this->area = r;
 	}

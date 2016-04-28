@@ -143,10 +143,15 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 	if (words.size() == 0) return vector<StyledLine>();
 	
 	vector<StyledLine> lines;
+	
+	// here we create the first line. a few things to note:
+	// - in general, like in a texteditor, the line exists first, then content is added to it.
+	// - 'line' here refers to the visual representation. even a line with no newline (\n) can span multiple lines
+	lines.push_back(StyledLine());
+	
 	ofxFontStashStyle currentStyle;
 	currentStyle.fontSize = -1; // this makes sure the first style is actually applied, even if it's the default style
 	
-	StyledLine currentLine;
 	
 	float lineWidth = 0;
 	int wordsThisLine = 0;
@@ -160,6 +165,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 	
 	TS_START("walk words");
 	for(int i = 0; i < words.size(); i++){
+		StyledLine &currentLine = lines.back();
 		
 		//TS_START_ACC("word style");
 		if(words[i].styledText.style.valid && currentStyle != words[i].styledText.style ){
@@ -176,10 +182,19 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 		
 		bool stayOnCurrentLine = true;
 		
-		if( words[i].type == SEPARATOR && words[i].styledText.text == "\n" ){
+		if( words[i].type == SEPARATOR_INVISIBLE && words[i].styledText.text == "\n" ){
 			stayOnCurrentLine = false;
 			dx = 0;
-			float lineH = lineHeightMultiplier * calcLineHeight(currentLine);
+			
+			// add a zero-width enter mark. this is used to keep track
+			// of the vertical spacing of empty lines.
+			le = LineElement(words[i], ofRectangle(xx,yy,0,currentLineH));
+			le.baseLineY = yy;
+			le.x = xx;
+			le.lineHeight = currentLineH;
+			currentLine.elements.push_back(le);
+			
+			float lineH = calcLineHeight(currentLine);
 			currentLine.lineH = lineH;
 			currentLine.lineW = xx - x + dx;
 			
@@ -190,8 +205,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 			lineWidth = 0;
 			wordsThisLine = 0;
 			xx = x;
-			lines.push_back(currentLine);
-			currentLine.elements.clear();
+			lines.push_back(StyledLine());
 			continue;
 		}
 		else{
@@ -239,8 +253,8 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 			wordsThisLine++;
 			//TS_STOP_ACC("stay on line");
 			
-		} else if( words[i].type == SEPARATOR && words[i].styledText.text == " " ){
-			// ignore separators when moving into the next line!
+		} else if( words[i].type == SEPARATOR_INVISIBLE && words[i].styledText.text == " " ){
+			// ignore spaces when moving into the next line!
 			continue;
 		} else{ //too long, start a new line
 			
@@ -256,21 +270,29 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 			lineWidth = 0;
 			wordsThisLine = 0;
 			xx = x;
-			lines.push_back(currentLine);
-			currentLine.elements.clear();
+			lines.push_back(StyledLine());
 			//TS_STOP_ACC("new line");
 		}
-		
-		//TS_START_ACC("last line");
-		if(stayOnCurrentLine && i == words.size() -1){ //addd last line
-			float lineH = lineHeightMultiplier * calcLineHeight(currentLine);
-			currentLine.lineH = lineH;
-			currentLine.lineW = xx - x + dx;
-			lines.push_back(currentLine);
-		}
-		//TS_STOP_ACC("last line");
-		//float w = calcWidth(currentLine);
 	}
+
+	//TS_START_ACC("last line");
+	// update dimensions of the last line
+	StyledLine &currentLine = lines.back();
+	if( currentLine.elements.size() == 0 ){
+		// but at least one spacing character, so we have a line height.
+		le = LineElement(SplitTextBlock(SEPARATOR_INVISIBLE,"",currentStyle), ofRectangle(xx,yy,0,currentLineH));
+		le.baseLineY = yy;
+		le.x = xx;
+		le.lineHeight = currentLineH;
+		currentLine.elements.push_back(le);
+	}
+	
+	float lineH = calcLineHeight(currentLine);
+	currentLine.lineH = lineH;
+	currentLine.lineW = xx - x + dx;
+	
+	//TS_STOP_ACC("last line");
+
 	TS_STOP("walk words");
 	
 	return lines; 
@@ -315,11 +337,14 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 	if (pixelDensity != 1.0f){ //hmmmm
 		ofScale(1/pixelDensity, 1/pixelDensity);
 	}
+	
+	float offY = 0; // only track for return value
 	for(int i = 0; i < lines.size(); i++){
+		y += lines[i].lineH;
+		
 		for(int j = 0; j < lines[i].elements.size(); j++){
 
-			//if(lines[i].elements[j].content.type == WORD){ //only draw words!
-			if(lines[i].elements[j].content.styledText.text != " "){ //no need to draw whitespace
+			if(lines[i].elements[j].content.type != SEPARATOR_INVISIBLE ){ //no need to draw the invisible chars
 
 				if (lines[i].elements[j].content.styledText.style.valid &&
 					drawStyle != lines[i].elements[j].content.styledText.style ){
@@ -357,7 +382,7 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 	TS_STOP("draw all lines");
 	
 	ofPopMatrix();
-	return lines.size() == 0? 0 : (lines.back().elements.back().baseLineY - y);
+	return offY;
 }
 
 float ofxFontStash2::drawAndLayout(vector<StyledText> &blocks, float x, float y, float width, bool debug){
@@ -365,7 +390,7 @@ float ofxFontStash2::drawAndLayout(vector<StyledText> &blocks, float x, float y,
 }
 
 
-float ofxFontStash2::calcWidth(StyledLine & line){
+float ofxFontStash2::calcWidth(const StyledLine & line){
 	float w = 0;
 	for(int i = 0; i < line.elements.size(); i++){
 		w += line.elements[i].area.width;
@@ -373,7 +398,7 @@ float ofxFontStash2::calcWidth(StyledLine & line){
 	return w;
 }
 
-float ofxFontStash2::calcLineHeight(StyledLine & line){
+float ofxFontStash2::calcLineHeight(const StyledLine & line){
 	float h = 0;
 	for(int i = 0; i < line.elements.size(); i++){
 		if (line.elements[i].lineHeight > h){
@@ -411,7 +436,7 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 				}
 				string separatorText;
 				utf8::append(c, back_inserter(separatorText));
-				SplitTextBlock separator = SplitTextBlock(SEPARATOR, separatorText, block.style);
+				SplitTextBlock separator = SplitTextBlock(isPunct?SEPARATOR:SEPARATOR_INVISIBLE, separatorText, block.style);
 				wordBlocks.push_back(separator);
 
 			}else{

@@ -96,13 +96,17 @@ protected:
 	float lineHeightMultiplier;
 
 	string toString(SplitBlockType t){
-		if (t == WORD) return "WORD";
-		else return "SEPARATOR";
+		switch(t){
+			case WORD: return "WORD";
+			case SEPARATOR: return "SEPARATOR";
+			case SEPARATOR_INVISIBLE: return "SEPARATOR_INVISIBLE";
+			default: return "UNKNOWN";
+		}
 	}
 	int getFsID(const string& userFontID);
 
-	float calcWidth(StyledLine & line);
-	float calcLineHeight(StyledLine & line);
+	float calcWidth(const StyledLine & line);
+	float calcLineHeight(const StyledLine & line);
 	
 	bool applyStyle(const ofxFontStashStyle& style);
 
