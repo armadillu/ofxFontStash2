@@ -196,9 +196,12 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 		}
 		else{
 			//TS_START_ACC("fonsTextBounds");
+			// applyStyle() already upscaled the font size for the display resolution.
+			// Here we do the same for x/y.
+			// The result gets the inverse treatment.
 			dx = fonsTextBounds(	fs,
-								xx,
-								yy,
+								xx*pixelDensity,
+								yy*pixelDensity,
 								words[i].styledText.text.c_str(),
 								NULL,
 								&bounds[0]
@@ -209,7 +212,9 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 			bounds[3]/=pixelDensity;
 			//TS_STOP_ACC("fonsTextBounds");
 			
-			ofRectangle where = ofRectangle(bounds[0], bounds[1] , bounds[2] - bounds[0], bounds[3] - bounds[1]);
+			//hansi: using dx instead of bounds[2]-bounds[0]
+			//dx is the right size for spacing out text. bounds give exact area of the char, which isn't so useful here.
+			ofRectangle where = ofRectangle(bounds[0], bounds[1] , dx, bounds[3] - bounds[1]);
 			
 			le = LineElement(words[i], where);
 			le.baseLineY = yy;
@@ -293,7 +298,7 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 		ofTranslate(0.5, 0.5);
 		float yy = 0;
 		for( const StyledLine &line : lines ){
-			ofDrawLine(x, y+yy, ofGetWidth(), y+yy);
+			ofDrawLine(x, yy, x+line.lineW, yy);
 			yy += line.lineH;
 		}
 		ofPopMatrix();
@@ -301,6 +306,7 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 	}
 
 	ofxFontStashStyle drawStyle;
+	drawStyle.fontSize = -1;
 
 	TS_START("draw all lines");
 
@@ -323,9 +329,11 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 					applyStyle(drawStyle);
 					TS_STOP_ACC("applyStyle");
 				}
-				lines[i].elements[j].area.y += lines[i].lineH -lines[0].lineH;
+				//lines[i].elements[j].area.y += lines[i].lineH -lines[0].lineH;
 
 				//TS_START_ACC("fonsDrawText");
+				const LineElement &el = lines[i].elements[j];
+				const StyledLine &l = lines[i];
 				const string & texttt = lines[i].elements[j].content.styledText.text;
 				fonsDrawText(fs,
 							 lines[i].elements[j].x*pixelDensity,
@@ -337,10 +345,11 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 				//debug rects
 				if(debug){
 					//TS_START_ACC("debug rects");
-					if(lines[i].elements[j].content.type == WORD) ofSetColor(255,25);
-					else ofSetColor(0,255,0,25);
-					ofDrawRectangle(lines[i].elements[j].area);
-					//TS_STOP_ACC("debug rects");
+					if(lines[i].elements[j].content.type == WORD) ofSetColor(70*i,255-70*i,0,200);
+					else ofSetColor(50*i,255-50*i,0,100);
+					const ofRectangle &r = lines[i].elements[j].area;
+					ofDrawRectangle(pixelDensity*r.x, pixelDensity*r.y, pixelDensity*r.width, pixelDensity*r.height);
+					ofFill();
 				}
 			}
 		}
@@ -437,6 +446,11 @@ ofRectangle ofxFontStash2::getTextBounds( const string &text, const ofxFontStash
 void ofxFontStash2::getVerticalMetrics(const ofxFontStashStyle & style, float* ascender, float* descender, float* lineH){
 	applyStyle(style);
 	fonsVertMetrics(fs, ascender, descender, lineH);
+	if( pixelDensity != 1 ){
+		*ascender /= pixelDensity;
+		*descender /= pixelDensity;
+		*lineH /= pixelDensity;
+	}
 }
 
 
