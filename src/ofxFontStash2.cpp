@@ -262,7 +262,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 			//calc height for this line - taking in account all words in the line
 			float lineH = lineHeightMultiplier * calcLineHeight(currentLine);
 			currentLine.lineH = lineH;
-			currentLine.lineW = xx - x + dx;
+			currentLine.lineW = xx - x;
 			
 			i--; //re-calc dimensions of this word on a new line!
 			yy += lineH;
