@@ -330,6 +330,7 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 	ofxFontStashStyle drawStyle;
 	drawStyle.fontSize = -1;
 
+	float offY = 0; // only track for return value
 	TS_START("draw all lines");
 
 	updateFsPrjMatrix();
@@ -338,7 +339,6 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 		ofScale(1/pixelDensity, 1/pixelDensity);
 	}
 	
-	float offY = 0; // only track for return value
 	for(int i = 0; i < lines.size(); i++){
 		y += lines[i].lineH;
 		
