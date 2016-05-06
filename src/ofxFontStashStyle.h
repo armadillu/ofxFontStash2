@@ -21,6 +21,24 @@ struct ofxFontStashStyle{
 	int blur;
 	FONSalign alignment; // default: FONS_ALIGN_LEFT | FONS_ALIGN_BASELINE
 
+	ofxFontStashStyle(string fontID, float fontSize, const ofColor & color){
+		valid = true;
+		this->fontSize = fontSize;
+		this->color = color;
+		this->fontID = fontID;
+		blur = 0;
+		alignment = (FONSalign)(FONS_ALIGN_LEFT | FONS_ALIGN_BASELINE);
+	}
+
+	ofxFontStashStyle(string fontID, float fontSize){
+		valid = true;
+		this->fontSize = fontSize;
+		this->fontID = fontID;
+		this->color = ofColor::white;
+		blur = 0;
+		alignment = (FONSalign)(FONS_ALIGN_LEFT | FONS_ALIGN_BASELINE);
+	}
+
 	ofxFontStashStyle(){
 		valid = true;
 		fontSize = 12;
