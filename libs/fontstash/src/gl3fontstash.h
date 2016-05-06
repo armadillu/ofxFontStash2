@@ -39,6 +39,8 @@ unsigned int gl3fonsRGBA(unsigned char r, unsigned char g, unsigned char b, unsi
 #include <syslog.h>
 #endif
 
+#define GLFONSTSTASH_RESTORE_STATE_AFTER_UPLOADING_TEX	true /*oriol*/
+
 
 struct GLFONScontext {
 	GLuint	tex;
@@ -270,6 +272,14 @@ static void gl3fons__renderUpdate(void* userPtr, int* rect, const unsigned char*
 	glPixelStorei(GL_UNPACK_SKIP_PIXELS, rect[0]);
 	glPixelStorei(GL_UNPACK_SKIP_ROWS, rect[1]);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, rect[0], rect[1], w, h, GL_RED,GL_UNSIGNED_BYTE, data);
+
+	#if (GLFONSTSTASH_RESTORE_STATE_AFTER_UPLOADING_TEX)
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+	glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+	glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+	//glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+	//glBindTexture(GL_TEXTURE_2D, 0);
+	#endif
 	glPopClientAttrib();
 }
 
