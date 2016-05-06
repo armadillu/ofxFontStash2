@@ -22,4 +22,4 @@ string formattedText = "<style font='verdana' size='12' color='#ff0000'>this is 
 # GL 3.x compatibility
 
 This is a WIP, but you this can work in GL 3.2 if you define GL_VERSION_3 in your preprocessor macros.  
-*GL_3 formated is broken for now, but it draws readable text. It also breaks OF's bitmap font so something is definitively off.
+*GL_3 formated is broken for now, but it draws readable text. It also seems to always draw at 0,0 - and it seems to somehow break ofDrawRect() for OF.
