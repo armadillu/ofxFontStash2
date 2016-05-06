@@ -73,8 +73,8 @@ void ofxFontStash2::updateFsPrjMatrix(){
 #ifdef GL_VERSION_3
 	GLfloat mat[16];
 	memset(mat, 0, 16 * sizeof(GLfloat));
-	mat[0] = 2.0 / ofGetWidth();
-	mat[5] = -2.0 / ofGetHeight();
+	mat[0] = 2.0 / (ofGetWidth() * pixelDensity);
+	mat[5] = -2.0 / (ofGetHeight() * pixelDensity);
 	mat[10] = 2.0;
 	mat[12] = -1.0;
 	mat[13] = 1.0;
@@ -309,8 +309,8 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 
 	ofVec2f offset;
 	#ifdef GL_VERSION_3
-	offset.x = x;
-	offset.y = y;
+	offset.x = x * pixelDensity;
+	offset.y = y * pixelDensity;
 	#endif
 
 //	TS_START("count words");
@@ -499,7 +499,7 @@ bool ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
 		fonsClearState(fs);
 		int id = getFsID(style.fontID);
 		fonsSetFont(fs, id);
-		fonsSetSize(fs, style.fontSize*pixelDensity*fontScale);
+		fonsSetSize(fs, style.fontSize * pixelDensity * fontScale);
 		fonsSetColor(fs, toFScolor(style.color));
 		fonsSetAlign(fs, style.alignment);
 		fonsSetBlur(fs, style.blur);
