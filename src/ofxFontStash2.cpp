@@ -26,6 +26,7 @@ ofxFontStash2::ofxFontStash2(){
 	lineHeightMultiplier = 1.0;
 	pixelDensity = 1.0;
 	fontScale = 1.0;
+	drawingFS = false;
 }
 
 void ofxFontStash2::setup(int atlasSizePow2){
@@ -69,12 +70,11 @@ void ofxFontStash2::addStyle(const string& styleID, ofxFontStashStyle style){
 
 
 void ofxFontStash2::updateFsPrjMatrix(){
-
 #ifdef GL_VERSION_3
 	GLfloat mat[16];
 	memset(mat, 0, 16 * sizeof(GLfloat));
-	mat[0] = 4.0 / ofGetScreenWidth();
-	mat[5] = -4.0 / ofGetScreenHeight();
+	mat[0] = 2.0 / ofGetWidth();
+	mat[5] = -2.0 / ofGetHeight();
 	mat[10] = 2.0;
 	mat[12] = -1.0;
 	mat[13] = 1.0;
@@ -82,18 +82,17 @@ void ofxFontStash2::updateFsPrjMatrix(){
 	mat[15] = 1.0;
 	gl3fonsProjection(fs, &mat[0]);
 #endif
-
 }
 
 float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, float x, float y){
 
-	updateFsPrjMatrix();
-
+	FONT_STASH_PRE_DRAW;
 	ofPushMatrix();
 	ofScale(1/pixelDensity, 1/pixelDensity);
 	applyStyle(style);
 	float dx = fonsDrawText(fs, x*pixelDensity, y*pixelDensity, text.c_str(), NULL)/pixelDensity;
 	ofPopMatrix();
+	FONT_STASH_POST_DRAW;
 	return dx;
 }
 
@@ -108,6 +107,7 @@ float ofxFontStash2::drawColumn(const string& text, const ofxFontStashStyle &sty
 
 float ofxFontStash2::drawFormatted(const string& text, float x, float y){
 
+	FONT_STASH_PRE_DRAW;
 	ofxFontStashParser parser;
 	vector<StyledText> blocks = parser.parseText(text, styleIDs);
 	float xx = x;
@@ -115,8 +115,9 @@ float ofxFontStash2::drawFormatted(const string& text, float x, float y){
 	for(int i = 0; i < blocks.size(); i++){
 		xx += draw(blocks[i].text, blocks[i].style, xx, yy);
 	}
-	
-	return xx-x; 
+
+	FONT_STASH_POST_DRAW;
+	return xx-x;
 }
 
 float ofxFontStash2::drawFormattedColumn(const string& text, float x, float y, float targetWidth, bool debug){
@@ -299,46 +300,55 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 }
 
 float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y, bool debug){
+
 	// if possible get rid of this translate:
+	#ifndef GL_VERSION_3
 	ofPushMatrix();
 	ofTranslate(x, y);
-	
-	TS_START("count words");
-	int nDrawnWords;
-	for(int i = 0; i < lines.size(); i++){
-		for(int j = 0; j < lines[i].elements.size(); j++){
-			nDrawnWords ++;
-		}
-	}
-	TS_STOP("count words");
+	#endif
+
+	ofVec2f offset;
+	#ifdef GL_VERSION_3
+	offset.x = x;
+	offset.y = y;
+	#endif
+
+//	TS_START("count words");
+//	int nDrawnWords;
+//	for(int i = 0; i < lines.size(); i++){
+//		for(int j = 0; j < lines[i].elements.size(); j++){
+//			nDrawnWords ++;
+//		}
+//	}
+//	TS_STOP("count words");
 
 	//debug line heights!
 	if(debug){
 		TS_START("draw line Heights");
 		ofSetColor(0,255,0,32);
-		ofPushMatrix();
-		ofTranslate(0.5, 0.5);
 		float yy = 0;
 		for( const StyledLine &line : lines ){
-			ofDrawLine(x, yy, x+line.lineW, yy);
+			ofDrawLine(offset.x + 0.5f, offset.y + yy + 0.5f, offset.x + line.lineW + 0.5f, offset.y + yy + 0.5f);
 			yy += line.lineH;
 		}
-		ofPopMatrix();
 		TS_STOP("draw line Heights");
 	}
 
 	ofxFontStashStyle drawStyle;
 	drawStyle.fontSize = -1;
 
-	float offY = 0; // only track for return value
+	float offY = 0.0f; // only track for return value
 	TS_START("draw all lines");
 
-	updateFsPrjMatrix();
+	FONT_STASH_PRE_DRAW;
 
+	#ifndef GL_VERSION_3
 	if (pixelDensity != 1.0f){ //hmmmm
-		ofScale(1/pixelDensity, 1/pixelDensity);
+		ofScale(1.0f/pixelDensity, 1.0f/pixelDensity);
 	}
-	
+	#endif
+
+
 	for(int i = 0; i < lines.size(); i++){
 		y += lines[i].lineH;
 		
@@ -346,10 +356,14 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 
 			if(lines[i].elements[j].content.type != SEPARATOR_INVISIBLE ){ //no need to draw the invisible chars
 
-				if (lines[i].elements[j].content.styledText.style.valid &&
-					drawStyle != lines[i].elements[j].content.styledText.style ){
+				const StyledLine &l = lines[i];
+				const LineElement &el = l.elements[j];
+				const string & texttt = el.content.styledText.text;
 
-					drawStyle = lines[i].elements[j].content.styledText.style;
+				if (el.content.styledText.style.valid &&
+					drawStyle != el.content.styledText.style ){
+
+					drawStyle = el.content.styledText.style;
 					TS_START_ACC("applyStyle");
 					applyStyle(drawStyle);
 					TS_STOP_ACC("applyStyle");
@@ -357,12 +371,9 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 				//lines[i].elements[j].area.y += lines[i].lineH -lines[0].lineH;
 
 				//TS_START_ACC("fonsDrawText");
-				const LineElement &el = lines[i].elements[j];
-				const StyledLine &l = lines[i];
-				const string & texttt = lines[i].elements[j].content.styledText.text;
 				fonsDrawText(fs,
-							 lines[i].elements[j].x*pixelDensity,
-							 (lines[i].elements[j].baseLineY + lines[i].lineH -lines[0].lineH)*pixelDensity,
+							 el.x * pixelDensity + offset.x,
+							 (el.baseLineY + l.lineH - lines[0].lineH) * pixelDensity + offset.y,
 							 texttt.c_str(),
 							 NULL);
 				//TS_STOP_ACC("fonsDrawText");
@@ -370,24 +381,28 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 				//debug rects
 				if(debug){
 					//TS_START_ACC("debug rects");
-					if(lines[i].elements[j].content.type == WORD) ofSetColor(70*i,255-70*i,0,200);
-					else ofSetColor(50*i,255-50*i,0,100);
-					const ofRectangle &r = lines[i].elements[j].area;
-					ofDrawRectangle(pixelDensity*r.x, pixelDensity*r.y, pixelDensity*r.width, pixelDensity*r.height);
+					if(el.content.type == WORD) ofSetColor(70 * i, 255 - 70 * i, 0, 200);
+					else ofSetColor(50 * i,255 - 50 * i, 0, 100);
+					const ofRectangle &r = el.area;
+					ofDrawRectangle(pixelDensity * r.x, pixelDensity * r.y, pixelDensity * r.width, pixelDensity * r.height);
 					ofFill();
 				}
 			}
 		}
 	}
 	TS_STOP("draw all lines");
-	
+
+	#ifndef GL_VERSION_3
 	ofPopMatrix();
+	#endif
+	FONT_STASH_POST_DRAW;
+
+	if(debug){
+		ofSetColor(255);
+	}
 	return offY;
 }
 
-float ofxFontStash2::drawAndLayout(vector<StyledText> &blocks, float x, float y, float width, bool debug){
-	return drawLines(layoutLines(blocks, width), x, y, debug );
-}
 
 
 float ofxFontStash2::calcWidth(const StyledLine & line){
@@ -509,4 +524,19 @@ unsigned int ofxFontStash2::toFScolor(const ofColor & c){
 	#else
 	return glfonsRGBA(c.r, c.g, c.b, c.a);
 	#endif
+}
+
+void ofxFontStash2::preFSDraw(){
+	//cout << "preFSDraw()" << endl;
+	updateFsPrjMatrix();
+	//fonstash sets its own shader to draw text- once done, we need OF to enable back its own
+	//there's no way to do that in the current API, the hacky workaround is to unbind() an empty shader
+	//that we keep around - which end up doing what we ultimatelly want
+	nullShader.begin();
+}
+
+
+void ofxFontStash2::postFSDraw(){
+	//cout << "postFSDraw()" << endl;
+	nullShader.end(); //shader wrap
 }

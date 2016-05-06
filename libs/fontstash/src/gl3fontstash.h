@@ -329,6 +329,7 @@ static void gl3fons__renderDraw(void* userPtr, const float* verts, const float* 
 	
 	glBindVertexArray(0);
 	glUseProgram(0);
+
 }
 
 static void gl3fons__renderDelete(void* userPtr)
