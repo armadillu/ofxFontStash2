@@ -378,7 +378,7 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 				//debug rects
 				if(debug){
 					//TS_START_ACC("debug rects");
-					if(el.content.type == WORD) ofSetColor(70 * i, 255 - 70 * i, 0, 200);
+					if(el.content.type == BLOCK_WORD) ofSetColor(70 * i, 255 - 70 * i, 0, 200);
 					else ofSetColor(50 * i,255 - 50 * i, 0, 100);
 					const ofRectangle &r = el.area;
 					ofDrawRectangle(pixelDensity * r.x, pixelDensity * r.y, pixelDensity * r.width, pixelDensity * r.height);
@@ -442,7 +442,7 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 			if(isSpace || isPunct){
 
 				if(currentWord.size()){
-					SplitTextBlock word = SplitTextBlock(WORD, currentWord, block.style);
+					SplitTextBlock word = SplitTextBlock(BLOCK_WORD, currentWord, block.style);
 					currentWord.clear();
 					wordBlocks.push_back(word);
 				}
@@ -456,7 +456,7 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 			}
 		}
 		if(currentWord.size()){ //add last word
-			SplitTextBlock word = SplitTextBlock(WORD, currentWord, block.style);
+			SplitTextBlock word = SplitTextBlock(BLOCK_WORD, currentWord, block.style);
 			currentWord.clear();
 			wordBlocks.push_back(word);
 		}
