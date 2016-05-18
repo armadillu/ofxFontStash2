@@ -97,8 +97,6 @@ float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, fl
 }
 
 float ofxFontStash2::drawColumn(const string& text, const ofxFontStashStyle &style, float x, float y, float targetWidth, bool debug){
-	//TODO this ignores \n ! need to parse!
-	//TODO double check the todo, this might work already.
 	vector<StyledText> blocks;
 	StyledText block{text, style}; 
 	blocks.push_back(block);
@@ -152,8 +150,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 	
 	ofxFontStashStyle currentStyle;
 	currentStyle.fontSize = -1; // this makes sure the first style is actually applied, even if it's the default style
-	
-	
+		
 	float lineWidth = 0;
 	int wordsThisLine = 0;
 	
