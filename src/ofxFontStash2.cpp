@@ -468,7 +468,7 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 ofRectangle ofxFontStash2::getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y ){
 	applyStyle(style);
 	float bounds[4]={0,0,0,0};
-	int advance = fonsTextBounds( fs, x*pixelDensity, y*pixelDensity, text.c_str(), NULL, bounds );
+	float advance = fonsTextBounds( fs, x*pixelDensity, y*pixelDensity, text.c_str(), NULL, bounds );
 	advance/=pixelDensity;
 	bounds[0]/=pixelDensity;
 	bounds[1]/=pixelDensity;
