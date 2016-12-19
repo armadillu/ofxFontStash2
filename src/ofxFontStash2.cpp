@@ -21,6 +21,23 @@
 #undef GLFONTSTASH_IMPLEMENTATION
 
 
+#ifdef USE_OFX_TIMEMEASUREMENTS
+	#include "ofxTimeMeasurements.h"
+#else
+	#pragma push_macro("TS_START_NIF")
+	#define TS_START_NIF
+	#pragma push_macro("TS_STOP_NIF")
+	#define TS_STOP_NIF
+	#pragma push_macro("TS_START_ACC")
+	#define TS_START_ACC
+	#pragma push_macro("TS_STOP_ACC")
+	#define TS_STOP_ACC
+	#pragma push_macro("TS_START")
+	#define TS_START
+	#pragma push_macro("TS_STOP")
+	#define TS_STOP
+#endif
+
 ofxFontStash2::ofxFontStash2(){
 	fs = NULL;
 	lineHeightMultiplier = 1.0;
@@ -537,3 +554,12 @@ void ofxFontStash2::postFSDraw(){
 	//cout << "postFSDraw()" << endl;
 	nullShader.end(); //shader wrap
 }
+
+#ifndef USE_OFX_TIMEMEASUREMENTS
+	#pragma pop_macro("TS_START_NIF")
+	#pragma pop_macro("TS_STOP_NIF")
+	#pragma pop_macro("TS_START_ACC")
+	#pragma pop_macro("TS_STOP_ACC")
+	#pragma pop_macro("TS_START")
+	#pragma pop_macro("TS_STOP")
+#endif
