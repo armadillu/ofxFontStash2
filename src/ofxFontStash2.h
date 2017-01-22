@@ -9,7 +9,7 @@
 #pragma once
 #include "ofMain.h"
 
-#include "fontstash.h"
+#include "ofx_fontstash.h"
 
 #ifdef GL_VERSION_3
 	#include "gl3fontstash.h"

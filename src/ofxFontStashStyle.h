@@ -9,7 +9,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "fontstash.h"
+#include "ofx_fontstash.h"
 
 
 struct ofxFontStashStyle{

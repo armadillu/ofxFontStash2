@@ -9,7 +9,7 @@
 #include "ofxFontStash2.h"
 
 #define FONTSTASH_IMPLEMENTATION //only include implementation from cpp file
-#include "fontstash.h"
+#include "ofx_fontstash.h"
 #undef FONTSTASH_IMPLEMENTATION
 
 #define GLFONTSTASH_IMPLEMENTATION //only include implementation from cpp file

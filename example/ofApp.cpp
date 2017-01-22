@@ -74,8 +74,6 @@ void ofApp::draw(){
 }
 
 
-
-
 void ofApp::drawInsertionPoint(float x, float y, float w){
 	ofSetColor((ofGetFrameNum() * 20)%255,200);
 	ofDrawCircle(x,y, 1.5);

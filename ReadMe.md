@@ -14,7 +14,7 @@ string formattedText = "<style font='verdana' size='12' color='#ff0000'>this is 
 
 # Included Libraries
 
-- [fontstash](https://github.com/memononen/fontstash) by Mikko Mononen: zlib license
+- [fontstash](https://github.com/memononen/fontstash) by Mikko Mononen: zlib license - with tiny modifications
 - [stb_truetype](https://github.com/nothings/stb) by Sean Barrett: Public domain
 - [pugi xml](https://github.com/zeux/pugixml) by Google: MIT License
 
