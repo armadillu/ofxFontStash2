@@ -6,8 +6,7 @@
 //
 //
 
-#ifndef __ofxFontStash2__ofxFontStashParser__
-#define __ofxFontStash2__ofxFontStashParser__
+#pragma once
 
 #include "ofMain.h"
 #include "ofxFontStashStyle.h"
@@ -30,5 +29,3 @@ protected:
 							   vector<StyledText> & parsedText);
 
 };
-
-#endif /* defined(__ofxFontStash2__ofxFontStashParser__) */

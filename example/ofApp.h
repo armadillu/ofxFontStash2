@@ -12,6 +12,13 @@ class ofApp : public ofBaseApp{
 		void update();
 		void draw();
 
+		void testDraw(float x, float y);
+		void testDrawColumn(float x, float y);
+		void testDrawFormatted(float x, float y);
+		void testDrawFormattedColumn(float x, float y);
+		void testCustom(float x, float y);
+
+
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
@@ -26,5 +33,9 @@ class ofApp : public ofBaseApp{
 
 		ofxFontStash2 fonts;
 		bool debug;
+
+	//helpers
+	void drawInsertionPoint(float x, float y, float w);
+	FONSalign getCyclingAlignment();
 
 };

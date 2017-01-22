@@ -6,45 +6,37 @@
 //
 //
 
-#ifndef __ofxFontStash2__ofxFontStashStyle__
-#define __ofxFontStash2__ofxFontStashStyle__
+#pragma once
 
 #include "ofMain.h"
 #include "fontstash.h"
+
 
 struct ofxFontStashStyle{
 
 	bool valid; //will be true if style definition found.
 	string fontID;
-	float fontSize;
-	ofColor color;
-	int blur;
-	FONSalign alignment; // default: FONS_ALIGN_LEFT | FONS_ALIGN_BASELINE
+	float fontSize = 12;
+	ofColor color = ofColor::white;
+	int blur = 0;
+	FONSalign alignment = (FONSalign)(FONS_ALIGN_LEFT | FONS_ALIGN_BASELINE);
+	float lineHeightMult = 1.0;
 
 	ofxFontStashStyle(string fontID, float fontSize, const ofColor & color){
 		valid = true;
 		this->fontSize = fontSize;
 		this->color = color;
 		this->fontID = fontID;
-		blur = 0;
-		alignment = (FONSalign)(FONS_ALIGN_LEFT | FONS_ALIGN_BASELINE);
 	}
 
 	ofxFontStashStyle(string fontID, float fontSize){
 		valid = true;
 		this->fontSize = fontSize;
 		this->fontID = fontID;
-		this->color = ofColor::white;
-		blur = 0;
-		alignment = (FONSalign)(FONS_ALIGN_LEFT | FONS_ALIGN_BASELINE);
 	}
 
 	ofxFontStashStyle(){
 		valid = true;
-		fontSize = 12;
-		color = ofColor::white;
-		blur = 0;
-		alignment = (FONSalign)(FONS_ALIGN_LEFT | FONS_ALIGN_BASELINE);
 	};
 
 	bool operator== (const ofxFontStashStyle &b){
@@ -52,7 +44,8 @@ struct ofxFontStashStyle{
 				fontSize == b.fontSize &&
 				blur == b.blur &&
 				alignment == b.alignment &&
-				color == b.color
+				color == b.color &&
+				fabs(lineHeightMult - b.lineHeightMult) < 0.001f
 				);
 	}
 
@@ -61,10 +54,12 @@ struct ofxFontStashStyle{
 	}
 };
 
+
 struct StyledText{
 	string text;
 	ofxFontStashStyle style;
 };
+
 
 // There are three types of blocks:
 // - WORDS: 'hey' and 'wow'
@@ -72,9 +67,9 @@ struct StyledText{
 // - SEPARATOR_INVISIBLE: just as separator, but there's no need to ever draw them (space, new line)
 // The enum values are chosen so that you can check if it's_any kind of separator with (type & SEPARATOR) != 0
 enum SplitBlockType{
-	BLOCK_WORD=1,
-	SEPARATOR=2,
-	SEPARATOR_INVISIBLE=3
+	WORD = 1,
+	SEPARATOR = 2,
+	SEPARATOR_INVISIBLE = 3
 };
 
 
@@ -89,28 +84,27 @@ struct SplitTextBlock{
 	SplitTextBlock(){}
 };
 
+
 struct LineElement{
 	SplitTextBlock content;
 	ofRectangle area;
-	float lineHeight; //not of this block, but of this style
-	float baseLineY;
-	float x; //x
-	LineElement(){
-	}
+	float lineHeight = 1.0; //not of this block, but of this style
+	float baseLineY = 0.0f;
+	float x = 0.0f; //x
+	LineElement(){}
 	LineElement(SplitTextBlock b, ofRectangle r){
 		this->content = b;
 		this->area = r;
 	}
 };
 
+
 struct StyledLine{
-	float lineH;
-	float lineW;
+	float lineH = 0;
+	float lineW = 0;
 	vector<LineElement> elements;
 	StyledLine(){
 		//elements.reserve(50);
-		lineH = lineW = 0;
 	}
 };
 
-#endif /* defined(__ofxFontStash2__ofxFontStashStyle__) */

@@ -3,11 +3,15 @@
 
 //========================================================================
 int main( ){
-	ofSetupOpenGL(1124,768,OF_WINDOW);			// <-------- setup the GL context
 
-	// this kicks off the running of my app
-	// can be OF_WINDOW or OF_FULLSCREEN
-	// pass in width and height too:
+	ofGLWindowSettings settings;
+	settings.setGLVersion(2, 1);  // Fixed pipeline
+	#ifdef GL_VERSION_3
+	settings.setGLVersion(3, 2);  // Programmable pipeline >> you need to define GL_VERSION_3 in you pre-processor macros!
+	#endif
+	settings.width = 1300;
+	settings.height = 1050;
+	ofCreateWindow(settings);
 	ofRunApp(new ofApp());
 
 }
