@@ -365,7 +365,7 @@ float ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y
 
 	for(int i = 0; i < lines.size(); i++){
 		y += lines[i].lineH;
-		
+		offY += lines[i].lineH; 
 		for(int j = 0; j < lines[i].elements.size(); j++){
 
 			if(lines[i].elements[j].content.type != SEPARATOR_INVISIBLE ){ //no need to draw the invisible chars
