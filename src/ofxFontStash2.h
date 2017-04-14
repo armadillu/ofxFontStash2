@@ -90,6 +90,9 @@ public:
 	/// but will leave all sizes exactly the same
 	float pixelDensity;
 	
+	// width of tabs (measured in spaces)
+	int tabWidth = 4;
+	
 	/// with this option one can scale all fonts up/down by a factor
 	float fontScale;
 	
