@@ -28,7 +28,37 @@ ofxFontStashParser::parseText(const string& text, const map<string, ofxFontStash
 			<< "ofxFontStash: xml parsing error in " << text << ": " << endl
 			<< result.description() << endl;
 	}
-	
+
+	//this is all to add a space between two styled paragraphs. Otherwise they just have no space
+	//betwen them, so things look like "there was a dog.Bananas are cool".
+	//The parsing seems unable to get any xml contents outisde tags; but that would be a better solution.
+ 	//so in:
+	//
+	//	<style>hello</style> monkey <style>world</style>
+	//
+	//the "monkey" is totally lost, but if we found it, then we would need to be adding extra spaces
+
+	if(true){ //TODO!
+		vector<int> spacesToAdd;
+		if (parsedText.size() > 1){
+			for(int i = 0; i < parsedText.size() -1; i++){
+				if (parsedText[i].style != parsedText[i+1].style){
+					spacesToAdd.push_back(i);
+				}
+			}
+		}
+
+		int indexOffset = 1;
+		for(int i = 0; i < spacesToAdd.size(); i++){
+			int index = spacesToAdd[i];
+			StyledText st;
+			st.text = " ";
+			st.style = parsedText[i].style;
+			parsedText.insert(parsedText.begin() + index + indexOffset, st);
+			indexOffset++;
+		}
+	}
+
 	return parsedText;
 }
  

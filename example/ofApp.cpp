@@ -71,6 +71,12 @@ void ofApp::draw(){
 	testDrawFormattedColumn(xx, yy);
 	TS_STOP("drawFormattedColumn");
 
+	xx = 40;
+	yy += 450;
+	TS_START("drawTabs");
+	testDrawTabs(xx, yy);
+	TS_STOP("drawTabs");
+
 }
 
 
@@ -152,6 +158,25 @@ void ofApp::testDrawFormattedColumn(float x, float y){
 	fonts.drawFormattedColumn(styledText, x, y, colW, debug);
 }
 
+
+void ofApp::testDrawTabs(float x, float y){
+
+	string code =
+					"class ofApp : public ofBaseApp{\n"
+					"	public:\n"
+					"		void setup();\n"
+					"		void update();\n"
+					"}";
+
+	ofxFontStashStyle style;
+	style.fontID = "veraMono";
+	style.fontSize = 16;
+	style.color = ofColor::white;
+
+	fonts.drawColumn(code, style, x, y, ofGetWidth(), debug);
+}
+
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
@@ -159,59 +184,7 @@ void ofApp::keyPressed(int key){
 		debug ^= true;
 		RUI_PUSH_TO_CLIENT();
 	}
-
 }
-
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
-	
-}
-
 
 
 FONSalign ofApp::getCyclingAlignment(){

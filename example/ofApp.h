@@ -16,20 +16,9 @@ class ofApp : public ofBaseApp{
 		void testDrawColumn(float x, float y);
 		void testDrawFormatted(float x, float y);
 		void testDrawFormattedColumn(float x, float y);
-		void testCustom(float x, float y);
-
+		void testDrawTabs(float x, float y);
 
 		void keyPressed(int key);
-		void keyReleased(int key);
-		void mouseMoved(int x, int y );
-		void mouseDragged(int x, int y, int button);
-		void mousePressed(int x, int y, int button);
-		void mouseReleased(int x, int y, int button);
-		void mouseEntered(int x, int y);
-		void mouseExited(int x, int y);
-		void windowResized(int w, int h);
-		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
 
 		ofxFontStash2 fonts;
 		bool debug;
