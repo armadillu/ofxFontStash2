@@ -249,6 +249,16 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 			bounds[2] /= pixelDensity;
 			bounds[3] /= pixelDensity;
 			TS_STOP_ACC("fonsTextBounds");
+
+			// make tabs the specified number of spaces wide
+			if(words[i].type == SEPARATOR_INVISIBLE && words[i].styledText.text == "\t" && tabWidth != 1){
+				float space4 = tabWidth*dx; // usual case is 4 spaces
+				float space3 = (tabWidth-1)*dx;
+				float toNextTab = space4-fmodf(bounds[2]+space3,space4);
+				float inc = dx/2<toNextTab?(toNextTab-dx):(toNextTab+space4-dx);
+				bounds[2] += inc;
+				dx += inc;
+			}
 			
 			//hansi: using dx instead of bounds[2]-bounds[0]
 			//dx is the right size for spacing out text. bounds give exact area of the char, which isn't so useful here.
