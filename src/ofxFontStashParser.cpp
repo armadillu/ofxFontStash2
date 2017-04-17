@@ -36,7 +36,7 @@ ofxFontStashParser::parseText(const string& text, const map<string, ofxFontStash
 	//
 	//	<style>hello</style> monkey <style>world</style>
 	//
-	//the "monkey" is totally lost, but if we found it, then we would need to be adding extra spaces
+	//the "monkey" is totally lost, but if we found it, then we wouldn't need to be adding extra spaces
 
 	if(true){ //TODO!
 		vector<int> spacesToAdd;
