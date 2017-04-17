@@ -374,7 +374,6 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 
 	for(int i = 0; i < lines.size(); i++){
 		yy += lines[i].lineH;
-		
 		for(int j = 0; j < lines[i].elements.size(); j++){
 
 			if(lines[i].elements[j].content.type != SEPARATOR_INVISIBLE ){ //no need to draw the invisible chars
