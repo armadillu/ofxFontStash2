@@ -105,6 +105,15 @@ public:
 	/// a global lineH multiplier that affects all loaded fonts.
 	void setLineHeightMult(float l){lineHeightMultiplier = l;}
 
+	// sets a single font as fallback for all fonts
+	// this can only be set once
+	void setGlobalFallbackFont(const string& fallbackFontID);
+	string getGlobalFallbackFont();
+	
+	// add fallback variant to a font
+	// removing/listing the fallbacks is currently not possible.
+	void addFallbackFont(const string& fontID, const string &fallbackFontID);
+	
 	FONScontext * getFSContext(){return fs;}
 
 	/// allows for higher pixel densities.
@@ -148,6 +157,8 @@ protected:
 	map<string, int> fontIDs; //userFontID to fontStashFontID
 
 	map<string, ofxFontStashStyle> styleIDs;
+	
+	string globalFallbackFontID; // id of the fallback font for all loaded fonts
 
 	vector<SplitTextBlock> splitWords( const vector<StyledText> & blocks);
 
