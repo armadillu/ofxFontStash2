@@ -9,28 +9,11 @@
 #pragma once
 #include "ofMain.h"
 
-#include "ofx_fontstash.h"
-
-#ifdef GL_VERSION_3
-	#include "gl3fontstash.h"
-	#define FONT_STASH_PRE_DRAW 	bool wasDrawing = drawingFS; \
-									if(!drawingFS){ \
-										preFSDraw(); \
-										drawingFS = true; \
-									}
-
-	#define FONT_STASH_POST_DRAW 	if(!wasDrawing){	\
-										postFSDraw();	\
-										drawingFS = false;	\
-									}
-#else
-	#include "glfontstash.h"
-	#define FONT_STASH_PRE_DRAW 	;
-	#define FONT_STASH_POST_DRAW 	;
-#endif
-
 #include "ofxFontStashParser.h"
 #include "ofxFontStashStyle.h"
+
+#include "fontstash.h"
+#include "nanovg.h"
 
 class ofxFontStash2{
 
@@ -38,7 +21,9 @@ public:
 
 
 	ofxFontStash2();
-	void setup(int atlasSizePow2);
+	~ofxFontStash2();
+
+	void setup();
 
 	/// load fonts
 	bool addFont(const string& fontID, const string& fontFile); //returns fontID
@@ -66,7 +51,7 @@ public:
 	/// draw xml formatted string with fixed maximum width
 	/// returns height of the text block
 	/// multiline ("\n") supported - and it will break lines on its own given a column width
-	ofRectangle drawFormattedColumn(const string& styledText, float x, float y, float width, bool debug=false);
+	ofRectangle drawFormattedColumn(const string& styledText, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug=false);
 
 	///diy layout + draw - so you can inspect intermediate states and do as you wish
 	/// 1 - Parse your text to get the vector<StyledText> blocks.
@@ -86,17 +71,26 @@ public:
 	vector<StyledText> parseStyledText(const string & styledText);
 
 	/// layout StyledText blocks
-	const vector<StyledLine> layoutLines(const vector<StyledText> &blocks, float targetWidth, bool debug=false);
+	const vector<StyledLine> layoutLines(const vector<StyledText> &blocks,
+										 float targetWidth,
+										 ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
+										 bool debug=false);
 
 	/// draw already prepared StyledLine«s
-	ofRectangle drawLines(const vector<StyledLine> &lines, float x, float y, bool debug=false);
+	ofRectangle drawLines(const vector<StyledLine> &lines,
+						  float x, float y,
+						  ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
+						  bool debug = false);
 	
 	/// draw and layout blocks
-	ofRectangle drawAndLayout(vector<StyledText> &blocks, float x, float y, float width, bool debug=false);
+	ofRectangle drawAndLayout(vector<StyledText> &blocks,
+							  float x, float y,
+							  float width,
+							  ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
+							  bool debug=false);
 
 	/// only applies to draw(); return the bbox of the text
 	ofRectangle getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y );
-
 	ofRectangle getTextBounds(const vector<StyledLine> &lines, float x, float y);
 
 
@@ -105,7 +99,7 @@ public:
 	/// a global lineH multiplier that affects all loaded fonts.
 	void setLineHeightMult(float l){lineHeightMultiplier = l;}
 
-	FONScontext * getFSContext(){return fs;}
+	NVGcontext * getNanoVGContext(){return ctx;}
 
 	/// allows for higher pixel densities.
 	/// this will increase texture resolution during drawing,
@@ -120,11 +114,6 @@ public:
 	
 protected:
 
-	void preFSDraw();
-	void postFSDraw();
-
-	void updateFsPrjMatrix();
-
 	float lineHeightMultiplier;
 
 	string toString(SplitBlockType t){
@@ -135,6 +124,7 @@ protected:
 			default: return "UNKNOWN";
 		}
 	}
+
 	int getFsID(const string& userFontID);
 
 	float calcWidth(const StyledLine & line);
@@ -142,8 +132,8 @@ protected:
 	
 	bool applyStyle(const ofxFontStashStyle& style);
 
-	unsigned int toFScolor(const ofColor& c);
-	FONScontext * fs;
+	NVGcolor toFScolor(const ofColor& c);
+	NVGcontext* ctx = nullptr;
 
 	map<string, int> fontIDs; //userFontID to fontStashFontID
 
@@ -153,4 +143,8 @@ protected:
 
 	ofShader nullShader;
 	bool drawingFS;
+
+	void applyOFMatrix();
+	void begin();
+	void end();
 };

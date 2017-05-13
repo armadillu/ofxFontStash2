@@ -9,8 +9,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofx_fontstash.h"
-
+#include "nanovg.h"
 
 struct ofxFontStashStyle{
 
@@ -19,7 +18,8 @@ struct ofxFontStashStyle{
 	float fontSize = 12;
 	ofColor color = ofColor::white;
 	int blur = 0;
-	FONSalign alignment = (FONSalign)(FONS_ALIGN_LEFT | FONS_ALIGN_BASELINE);
+	NVGalign alignmentV = (NVGalign)(NVG_ALIGN_BASELINE); //NOTE H alignment is ignored!
+	ofAlignHorz alignmentH = OF_ALIGN_HORZ_LEFT;
 	float lineHeightMult = 1.0;
 
 	ofxFontStashStyle(string fontID, float fontSize, const ofColor & color){
@@ -43,7 +43,8 @@ struct ofxFontStashStyle{
 		return (fontID == b.fontID &&
 				fontSize == b.fontSize &&
 				blur == b.blur &&
-				alignment == b.alignment &&
+				alignmentH == b.alignmentH &&
+				alignmentV == b.alignmentV &&
 				color == b.color &&
 				fabs(lineHeightMult - b.lineHeightMult) < 0.001f
 				);
@@ -102,6 +103,7 @@ struct LineElement{
 struct StyledLine{
 	float lineH = 0;
 	float lineW = 0;
+	float boxW = 0;
 	vector<LineElement> elements;
 	StyledLine(){
 		//elements.reserve(50);
