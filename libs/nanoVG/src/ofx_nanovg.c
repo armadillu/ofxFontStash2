@@ -997,8 +997,8 @@ void ofx_nvgIntersectScissor(NVGcontext* ctx, float x, float y, float w, float h
 	ey = state->scissor.extent[1];
 	ofx_nvgTransformInverse(invxorm, state->xform);
 	ofx_nvgTransformMultiply(pxform, invxorm);
-	tex = ex*nvg__absf(pxform[0]) + ey*nvg__absf(pxform[2]);
-	tey = ex*nvg__absf(pxform[1]) + ey*nvg__absf(pxform[3]);
+	tex = ex*ofx_nvg__absf(pxform[0]) + ey*ofx_nvg__absf(pxform[2]);
+	tey = ex*ofx_nvg__absf(pxform[1]) + ey*ofx_nvg__absf(pxform[3]);
 
 	// Intersect rects.
 	ofx_nvg__isectRects(rect, pxform[4]-tex,pxform[5]-tey,tex*2,tey*2, x,y,w,h);

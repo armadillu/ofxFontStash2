@@ -43,6 +43,11 @@
 									return;\
 								}
 
+#define OFX_FONSTASH2_CHECK_RET		if(!ctx){\
+									ofLogError("ofxFontStash2") << "set me up first!";\
+									return ret;\
+								}
+
 
 ofxFontStash2::ofxFontStash2(){
 
@@ -86,7 +91,8 @@ void ofxFontStash2::setup(){
 
 bool ofxFontStash2::addFont(const string& fontID, const string& fontFile){
 
-	OFX_FONSTASH2_CHECK
+	bool ret = false;
+	OFX_FONSTASH2_CHECK_RET
 
 	int id = ofx_nvgCreateFont(ctx, fontID.c_str(), ofToDataPath(fontFile).c_str());
 	if(id != FONS_INVALID){
@@ -130,7 +136,8 @@ void ofxFontStash2::end(){
 
 
 float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, float x, float y){
-	OFX_FONSTASH2_CHECK
+	float ret = 0;
+	OFX_FONSTASH2_CHECK_RET
 	begin();
 		ofRectangle bounds = getTextBounds(text, style, x, y);
 		//applyStyle(style); //getTextBounds already applies style
@@ -141,7 +148,8 @@ float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, fl
 
 
 float ofxFontStash2::drawFormatted(const string& styledText, float x, float y){
-	OFX_FONSTASH2_CHECK
+	float ret = 0;
+	OFX_FONSTASH2_CHECK_RET
 	vector<StyledText> blocks = ofxFontStashParser::parseText(styledText, styleIDs);
 	float xx = x;
 	float yy = y;
@@ -158,7 +166,8 @@ ofRectangle ofxFontStash2::drawColumn(const string& text,
 									  float x, float y, float targetWidth,
 									  ofAlignHorz horAlign,
 									  bool debug){
-	OFX_FONSTASH2_CHECK
+	ofRectangle ret;
+	OFX_FONSTASH2_CHECK_RET
 	vector<StyledText> blocks;
 	blocks.push_back((StyledText){text, style});
 	return drawAndLayout(blocks, x, y, targetWidth, horAlign, debug);
@@ -169,7 +178,8 @@ ofRectangle ofxFontStash2::drawFormattedColumn(const string& styledText,
 											   float x, float y, float targetWidth,
 											   ofAlignHorz horAlign,
 											   bool debug){
-	OFX_FONSTASH2_CHECK
+	ofRectangle ret;
+	OFX_FONSTASH2_CHECK_RET
 	if (targetWidth < 0) return ofRectangle();
 	
 	TS_START_NIF("parse text");
@@ -183,7 +193,8 @@ ofRectangle ofxFontStash2::drawFormattedColumn(const string& styledText,
 ofRectangle ofxFontStash2::drawAndLayout(vector<StyledText> &blocks,
 										 float x, float y, float width,
 										 ofAlignHorz align, bool debug){
-	OFX_FONSTASH2_CHECK
+	ofRectangle ret;
+	OFX_FONSTASH2_CHECK_RET
 	return drawLines(layoutLines(blocks, width, align, debug), x, y, align, debug);
 };
 
@@ -192,7 +203,8 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 													float targetWidth,
 													ofAlignHorz horAlign,
 													bool debug){
-	OFX_FONSTASH2_CHECK
+	vector<StyledLine> ret;
+	OFX_FONSTASH2_CHECK_RET
 	if (targetWidth < 0) return vector<StyledLine>();
 	float x = 0;
 	float y = 0;
@@ -412,7 +424,8 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 
 ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y, ofAlignHorz horAlign, bool debug){
 
-	OFX_FONSTASH2_CHECK
+	ofRectangle ret;
+	OFX_FONSTASH2_CHECK_RET
 	ofVec2f offset;
 	offset.x = x;
 	offset.y = y;
@@ -515,16 +528,16 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 
 ofRectangle ofxFontStash2::getTextBounds(const vector<StyledLine> &lines, float x, float y){
 
-	OFX_FONSTASH2_CHECK
-	ofRectangle total;
+	ofRectangle ret;
+	OFX_FONSTASH2_CHECK_RET
 	for(auto & l : lines){
 		for(auto & e : l.elements){
 			if(e.content.type == WORD){
-				total = total.getUnion(e.area);
+				ret = ret.getUnion(e.area);
 			}
 		}
 	}
-	return total;
+	return ret;
 }
 
 
@@ -593,7 +606,8 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 
 
 ofRectangle ofxFontStash2::getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y ){
-	OFX_FONSTASH2_CHECK
+	ofRectangle ret;
+	OFX_FONSTASH2_CHECK_RET
 	applyStyle(style);
 	float bounds[4]={0,0,0,0};
 
@@ -613,7 +627,8 @@ void ofxFontStash2::getVerticalMetrics(const ofxFontStashStyle & style, float* a
 
 
 bool ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
-	OFX_FONSTASH2_CHECK
+	bool ret;
+	OFX_FONSTASH2_CHECK_RET
 	int id = getFsID(style.fontID);
 	if(id != FONS_INVALID){
 		ofx_nvgFontFaceId(ctx, id);
