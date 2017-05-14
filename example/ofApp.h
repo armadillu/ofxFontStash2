@@ -1,9 +1,9 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxFontStash2.h"
 #include "ofxTimeMeasurements.h"
 #include "ofxRemoteUIServer.h"
+#include "ofxFontStash2.h"
 
 class ofApp : public ofBaseApp{
 
@@ -12,19 +12,20 @@ class ofApp : public ofBaseApp{
 		void update();
 		void draw();
 
-		void testDraw(float x, float y);
-		void testDrawColumn(float x, float y);
-		void testDrawFormatted(float x, float y);
-		void testDrawFormattedColumn(float x, float y);
-		void testDrawTabs(float x, float y);
+	void testDraw(float x, float y);
+	void testDrawColumn(float x, float y);
+	void testDrawFormatted(float x, float y);
+	void testDrawFormattedColumn(float x, float y);
+	void testDrawTabs(float x, float y);
 
-		void keyPressed(int key);
 
-		ofxFontStash2 fonts;
-		bool debug;
+	void keyPressed(int key);
 
-	//helpers
+	bool debug;
+
+	ofxFontStash2 fonts;
+
 	void drawInsertionPoint(float x, float y, float w);
-	FONSalign getCyclingAlignment();
 
+	ofAlignHorz getCyclingAlignment();
 };

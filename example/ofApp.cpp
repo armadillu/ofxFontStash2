@@ -1,9 +1,18 @@
 #include "ofApp.h"
 
-//--------------------------------------------------------------
+
 void ofApp::setup(){
 
-	fonts.setup(512);
+	ofBackground(22);
+	TIME_SAMPLE_ENABLE();
+	TIME_SAMPLE_SET_AVERAGE_RATE(0.1);
+	TIME_SAMPLE_SET_DRAW_LOCATION(TIME_SAMPLE_DRAW_LOC_BOTTOM_RIGHT);
+	TIME_SAMPLE_SET_PRECISION(4);
+
+	RUI_SETUP();
+	RUI_SHARE_PARAM(debug);
+
+	fonts.setup();
 
 	fonts.addFont("Arial", "fonts/Arial Unicode.ttf");
 	fonts.addFont("veraMono", "fonts/VeraMono.ttf");
@@ -24,29 +33,24 @@ void ofApp::setup(){
 	//style.fontSize = 44;
 	fonts.addStyle("style3", style);
 
-	ofBackground(22);
-	TIME_SAMPLE_ENABLE();
-	TIME_SAMPLE_SET_AVERAGE_RATE(0.01);
-	TIME_SAMPLE_SET_DRAW_LOCATION(TIME_SAMPLE_DRAW_LOC_BOTTOM_RIGHT);
-	TIME_SAMPLE_SET_PRECISION(4);
-
-	RUI_SETUP();
-	RUI_SHARE_PARAM(debug);
-	RUI_LOAD_FROM_XML();
-
 	ofDisableAntiAliasing(); //to get precise lines
-	fonts.pixelDensity = 1.0;
+	fonts.pixelDensity = 2.0;
+
 }
 
 
-//--------------------------------------------------------------
+
 void ofApp::update(){
 
 }
 
 
-//--------------------------------------------------------------
+
 void ofApp::draw(){
+
+	ofScale(0.9, 0.9);
+	
+	TSGL_START("d");
 
 	float xx = 40;
 	float yy = 40;
@@ -77,15 +81,7 @@ void ofApp::draw(){
 	testDrawTabs(xx, yy);
 	TS_STOP("drawTabs");
 
-}
-
-
-void ofApp::drawInsertionPoint(float x, float y, float w){
-	ofSetColor((ofGetFrameNum() * 20)%255,200);
-	ofDrawCircle(x,y, 1.5);
-	ofSetColor(255,64);
-	ofDrawLine(x - 10, y, x + w, y);
-	ofSetColor(255);
+	TSGL_STOP("d");
 }
 
 
@@ -94,7 +90,7 @@ void ofApp::testDraw(float x, float y){
 	ofxFontStashStyle style;
 	style.fontID = "Arial";
 	style.fontSize = 22;
-	//style.alignment = getCyclingAlignment();
+	style.alignmentH = getCyclingAlignment();
 	{
 		string text = "testing draw() method with one-line string. バナナのようなサル";
 		ofRectangle bounds = fonts.getTextBounds(text, style, x, y);
@@ -122,7 +118,7 @@ void ofApp::testDrawColumn(float x, float y){
 	ofxFontStashStyle style;
 	style.fontID = "Arial";
 	style.fontSize = 45;
-	//style.alignment = getCyclingAlignment();
+	style.alignmentH = getCyclingAlignment();
 
 	string text = "Testing drawColumn() methods with a long string and no line breaks whatsoever. Also, adding some fancy unicode バナナのようなサル. And back to normal...";
 	drawInsertionPoint(x,y,100);
@@ -133,7 +129,6 @@ void ofApp::testDrawColumn(float x, float y){
 	ofDrawLine(x + colW, y - 15, x + colW, y + boxH);
 	ofRectangle bbox = fonts.drawColumn(text, style, x, y, colW, debug);
 	ofSetColor(255,13);
-	//ofDrawRectangle(x, y, colW, colH);
 	ofDrawRectangle(bbox);
 }
 
@@ -155,18 +150,19 @@ void ofApp::testDrawFormattedColumn(float x, float y){
 	float boxH = 300;
 	ofDrawLine(x , y - 15, x, y + boxH);
 	ofDrawLine(x + colW, y - 15, x + colW, y + boxH);
-	fonts.drawFormattedColumn(styledText, x, y, colW, debug);
+	auto align = getCyclingAlignment();
+	fonts.drawFormattedColumn(styledText, x, y, colW, align, debug);
 }
 
 
 void ofApp::testDrawTabs(float x, float y){
 
 	string code =
-					"class ofApp : public ofBaseApp{\n"
-					"	public:\n"
-					"		void setup();\n"
-					"		void update();\n"
-					"}";
+	"class ofApp : public ofBaseApp{\n"
+	"	public:\n"
+	"		void setup();\n"
+	"		void update();\n"
+	"}";
 
 	ofxFontStashStyle style;
 	style.fontID = "veraMono";
@@ -176,8 +172,6 @@ void ofApp::testDrawTabs(float x, float y){
 	fonts.drawColumn(code, style, x, y, ofGetWidth(), debug);
 }
 
-
-//--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
 	if(key == 'd'){
@@ -187,21 +181,22 @@ void ofApp::keyPressed(int key){
 }
 
 
-FONSalign ofApp::getCyclingAlignment(){
-	FONSalign horizontal;
-	int hor = (ofGetFrameNum() / 30)%3;
-	switch(hor){
-		case 0 : horizontal = FONS_ALIGN_LEFT; break;
-		case 1 : horizontal = FONS_ALIGN_CENTER; break;
-		case 2 : horizontal = FONS_ALIGN_RIGHT; break;
-	}
-	FONSalign vertical;
-	int ver = (ofGetFrameNum() / 30)%4;
-	switch(ver){
-		case 0 : vertical = FONS_ALIGN_TOP; break;
-		case 1 : vertical = FONS_ALIGN_MIDDLE; break;
-		case 2 : vertical = FONS_ALIGN_BOTTOM; break;
-		case 3 : vertical = FONS_ALIGN_BASELINE; break;
-	}
-	return (FONSalign)(horizontal | vertical);
+
+void ofApp::drawInsertionPoint(float x, float y, float w){
+	ofSetColor((ofGetFrameNum() * 20)%255,200);
+	ofDrawCircle(x,y, 1.5);
+	ofSetColor(255,64);
+	ofDrawLine(x - 10, y, x + w, y);
+	ofSetColor(255);
+}
+
+
+ofAlignHorz ofApp::getCyclingAlignment(){
+
+	vector<ofAlignHorz> hor = {OF_ALIGN_HORZ_LEFT, OF_ALIGN_HORZ_CENTER, OF_ALIGN_HORZ_RIGHT};
+	float pct = (ofGetFrameNum()%120 / 120.) ;
+	int hIndex = (ofMap(pct, 0, 1, 0, hor.size()-1));
+
+	//return NVGalign( hor[hIndex] | ver[vIndex] );
+	return hor[0];
 }
