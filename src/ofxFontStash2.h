@@ -117,7 +117,7 @@ protected:
 
 	float lineHeightMultiplier;
 
-	string toString(SplitBlockType t){
+	string toString(TextBlockType t){
 		switch(t){
 			case WORD: return "WORD";
 			case SEPARATOR: return "SEPARATOR";
@@ -140,7 +140,7 @@ protected:
 
 	map<string, ofxFontStashStyle> styleIDs;
 
-	vector<SplitTextBlock> splitWords( const vector<StyledText> & blocks);
+	vector<TextBlock> splitWords( const vector<StyledText> & blocks);
 
 	ofShader nullShader;
 	bool drawingFS;

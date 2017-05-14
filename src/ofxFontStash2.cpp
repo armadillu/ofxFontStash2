@@ -201,7 +201,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 
 	TS_START_NIF("layoutLines");
 	TS_START_NIF("split words");
-	vector<SplitTextBlock> words = splitWords(blocks);
+	vector<TextBlock> words = splitWords(blocks);
 	TS_STOP_NIF("split words");
 	
 	if (words.size() == 0) return vector<StyledLine>();
@@ -351,7 +351,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 	currentLine.boxW = targetWidth;
 	if( currentLine.elements.size() == 0 ){
 		// but at least one spacing character, so we have a line height.
-		le = LineElement(SplitTextBlock(SEPARATOR_INVISIBLE,"",currentStyle), ofRectangle(xx,yy,0,currentWordLineH));
+		le = LineElement(TextBlock(SEPARATOR_INVISIBLE,"",currentStyle), ofRectangle(xx,yy,0,currentWordLineH));
 		le.baseLineY = yy;
 		le.x = xx;
 		le.lineHeight = currentWordLineH;
@@ -548,12 +548,12 @@ float ofxFontStash2::calcLineHeight(const StyledLine & line){
 }
 
 
-vector<SplitTextBlock>
+vector<TextBlock>
 ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 
 	std::locale loc = std::locale("");
 
-	vector<SplitTextBlock> wordBlocks;
+	vector<TextBlock> wordBlocks;
 	std::string currentWord;
 
 	for(int i = 0; i < blocks.size(); i++){
@@ -569,13 +569,13 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 			if(isSpace || isPunct){
 
 				if(currentWord.size()){
-					SplitTextBlock word = SplitTextBlock(WORD, currentWord, block.style);
+					TextBlock word = TextBlock(WORD, currentWord, block.style);
 					currentWord.clear();
 					wordBlocks.push_back(word);
 				}
 				string separatorText;
 				utf8::append(c, back_inserter(separatorText));
-				SplitTextBlock separator = SplitTextBlock(isPunct?SEPARATOR:SEPARATOR_INVISIBLE, separatorText, block.style);
+				TextBlock separator = TextBlock(isPunct?SEPARATOR:SEPARATOR_INVISIBLE, separatorText, block.style);
 				wordBlocks.push_back(separator);
 
 			}else{
@@ -583,7 +583,7 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 			}
 		}
 		if(currentWord.size()){ //add last word
-			SplitTextBlock word = SplitTextBlock(WORD, currentWord, block.style);
+			TextBlock word = TextBlock(WORD, currentWord, block.style);
 			currentWord.clear();
 			wordBlocks.push_back(word);
 		}

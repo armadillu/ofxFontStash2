@@ -42,7 +42,6 @@ struct ofxFontStashStyle{
 		return (fontID == b.fontID &&
 				fontSize == b.fontSize &&
 				blur == b.blur &&
-				//alignmentH == b.alignmentH &&
 				alignmentV == b.alignmentV &&
 				color == b.color &&
 				fabs(lineHeightMult - b.lineHeightMult) < 0.001f
@@ -66,33 +65,33 @@ struct StyledText{
 // - SEPARATOR: word separators that allow breaking into a new line after, like '.' or '-'
 // - SEPARATOR_INVISIBLE: just as separator, but there's no need to ever draw them (space, new line)
 // The enum values are chosen so that you can check if it's_any kind of separator with (type & SEPARATOR) != 0
-enum SplitBlockType{
+enum TextBlockType{
 	WORD = 1,
 	SEPARATOR = 2,
 	SEPARATOR_INVISIBLE = 3
 };
 
 
-struct SplitTextBlock{
-	SplitBlockType type;
+struct TextBlock{
+	TextBlockType type;
 	StyledText styledText;
-	SplitTextBlock(SplitBlockType type, string text, ofxFontStashStyle style){
+	TextBlock(TextBlockType type, string text, ofxFontStashStyle style){
 		this->type = type;
 		this->styledText.text = text;
 		this->styledText.style = style;
 	}
-	SplitTextBlock(){}
+	TextBlock(){}
 };
 
 
 struct LineElement{
-	SplitTextBlock content;
+	TextBlock content;
 	ofRectangle area;
 	float lineHeight = 1.0; //not of this block, but of this style
 	float baseLineY = 0.0f;
 	float x = 0.0f; //x
 	LineElement(){}
-	LineElement(SplitTextBlock b, ofRectangle r){
+	LineElement(TextBlock b, ofRectangle r){
 		this->content = b;
 		this->area = r;
 	}
