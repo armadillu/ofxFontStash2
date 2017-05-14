@@ -43,17 +43,15 @@ void ofApp::setup(){
 
 }
 
-void ofApp::update(){
-}
 
 void ofApp::draw(){
 
-	ofScale(0.9, 0.9);
-	
-	TSGL_START("d");
-
 	float xx = 40;
 	float yy = 40;
+
+	ofScale(0.9, 0.9);
+
+	TSGL_START("d");
 
 	TS_START("draw");
 	testDraw(xx,yy);
@@ -82,8 +80,19 @@ void ofApp::draw(){
 
 	yy += 100;
 	TS_START("drawFormattedColumn");
-	testDrawFormattedColumn(xx, yy);
+	yy += testDrawFormattedColumn(xx, yy);
 	TS_STOP("drawFormattedColumn");
+
+	yy += 100;
+	TS_START("testDiyPlainLayout");
+	yy += testDiyPlainLayout(xx, yy);
+	TS_STOP("testDiyPlainLayout");
+
+	yy += 100;
+	TS_START("testDiyFormattedLayout");
+	yy += testDiyFormattedLayout(xx, yy);
+	TS_STOP("testDiyFormattedLayout");
+
 
 
 	TSGL_STOP("d");
@@ -190,17 +199,20 @@ void ofApp::testDrawFormatted(float x, float y){
 }
 
 
-void ofApp::testDrawFormattedColumn(float x, float y){
+float ofApp::testDrawFormattedColumn(float x, float y){
 	string styledText = "<style id='style1'>This is style1 style.</style> <style id='style2'>And this is Style2, adjusted to the column width.</style>";
 	styledText += " <style id='style3'>And this is stlye3, which has a bigger font size.</style>";
 	drawInsertionPoint(x,y,100);
-	float colW = 500;// + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
 	ofSetColor(255,33);
 	float boxH = 300;
 	ofDrawLine(x , y - 15, x, y + boxH);
 	ofDrawLine(x + colW, y - 15, x + colW, y + boxH);
 	auto align = getCyclingAlignment();
-	fonts.drawFormattedColumn(styledText, x, y, colW, align, debug);
+	ofRectangle bbox = fonts.drawFormattedColumn(styledText, x, y, colW, align, debug);
+	ofSetColor(255,16);
+	ofDrawRectangle(bbox);
+	return bbox.height;
 }
 
 
@@ -220,6 +232,32 @@ void ofApp::testDrawTabs(float x, float y){
 
 	fonts.drawColumn(code, style, x, y, ofGetWidth(), OF_ALIGN_HORZ_LEFT, debug);
 }
+
+float ofApp::testDiyFormattedLayout(float x, float y){
+
+	string myStyledText = "<style id='style1'>hello</style><style id='style2'>banana</style><style id='style3'>monkey</style>";
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	vector<StyledText> parsed = fonts.parseStyledText(myStyledText);
+	vector<StyledLine> laidOutLines = fonts.layoutLines(parsed, colW);
+	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
+	ofSetColor(255,16);
+	ofDrawRectangle(bbox);
+	return bbox.height;
+}
+
+
+float ofApp::testDiyPlainLayout(float x, float y){
+
+	ofxFontStashStyle style = fonts.getStyleList()["style1"];
+	string text = "L'italiano è una tra le ventiquattro lingue ufficiali dell'Unione europea ed è lingua ufficiale dell'Italia, di San Marino, della Svizzera, della Città del Vaticano e del Sovrano Militare Ordine di Malta.";
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, colW);
+	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
+	ofSetColor(255,16);
+	ofDrawRectangle(bbox);
+	return bbox.height;
+}
+
 
 void ofApp::keyPressed(int key){
 

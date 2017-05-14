@@ -58,10 +58,19 @@ public:
 	/// 1 - Parse your text to get the vector<StyledText> blocks.
 	/// 2 - Layout the lines to a certain column width; you get a vector of styled words (vectos<StyledText>).
 	///	3 - Draw the layout; its a vector of Lines so you can dig and edit before you draw.
+
 	/*
+		// Styled Text //
 		vector<StyledText> parsed = fs.parseStyledText(myStyledText);
-		vector<StyledLine> laidOutLines = fs.layoutLines(parsed, 300);
-		ofRectangle bbox = drawLines(laidOutLines, x, y);
+		vector<StyledLine> laidOutLines = fs.layoutLines(parsed, columnWidth);
+		ofRectangle bbox = fs.drawLines(laidOutLines, x, y);
+		
+		// Plain Text //
+		ofxFontStashStyle style;
+		string text = "my text";
+		float columnWidth;
+		vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, columnWidth);
+		ofRectangle bbox = fonts.drawLines(laidOutLines, xx, yy);
 
 	 */
 
@@ -70,10 +79,12 @@ public:
 					   float x, float y, float width,
 					   ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT);
 
+	///get the box containing the text laid out in a drawColumnNVG() call
 	ofRectangle getTextBoundsNVG(const string& text,
 								 const ofxFontStashStyle& style,
 								 float x, float y, float width,
 								 ofAlignHorz horAlign);
+
 
 	// Utils below this line ///////////////////////////////////////////////////////////////////////////////
 
