@@ -175,7 +175,7 @@ void ofApp::testDrawFormattedColumn(float x, float y){
 	string styledText = "<style id='style1'>This is style1 style.</style> <style id='style2'>And this is Style2, adjusted to the column width.</style>";
 	styledText += " <style id='style3'>And this is stlye3, which has a bigger font size.</style>";
 	drawInsertionPoint(x,y,100);
-	float colW = 500;// + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
 	ofSetColor(255,33);
 	float boxH = 300;
 	ofDrawLine(x , y - 15, x, y + boxH);

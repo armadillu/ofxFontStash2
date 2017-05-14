@@ -43,13 +43,8 @@ void ofApp::setup(){
 
 }
 
-
-
 void ofApp::update(){
-
 }
-
-
 
 void ofApp::draw(){
 
@@ -66,8 +61,18 @@ void ofApp::draw(){
 
 	yy += 100;
 	TS_START("drawColumn");
-	testDrawColumn(xx,yy);
+	yy += testDrawColumn(xx,yy);
 	TS_STOP("drawColumn");
+
+	yy += 20;
+	TS_START("drawColumnNVG");
+	yy += testDrawColumnNVG(xx,yy);
+	TS_STOP("drawColumnNVG");
+
+	yy += 20;
+	TS_START("drawTabs");
+	testDrawTabs(xx, yy);
+	TS_STOP("drawTabs");
 
 	yy = 40;
 	xx = 600;
@@ -80,11 +85,6 @@ void ofApp::draw(){
 	testDrawFormattedColumn(xx, yy);
 	TS_STOP("drawFormattedColumn");
 
-	xx = 40;
-	yy += 450;
-	TS_START("drawTabs");
-	testDrawTabs(xx, yy);
-	TS_STOP("drawTabs");
 
 	TSGL_STOP("d");
 
@@ -140,7 +140,7 @@ void ofApp::testDraw(float x, float y){
 }
 
 
-void ofApp::testDrawColumn(float x, float y){
+float ofApp::testDrawColumn(float x, float y){
 
 	ofxFontStashStyle style;
 	style.fontID = "Arial";
@@ -157,6 +157,28 @@ void ofApp::testDrawColumn(float x, float y){
 	ofRectangle bbox = fonts.drawColumn(text, style, x, y, colW, align, debug);
 	ofSetColor(255,13);
 	ofDrawRectangle(bbox);
+	return bbox.height;
+}
+
+float ofApp::testDrawColumnNVG(float x, float y){
+
+	ofxFontStashStyle style;
+	style.fontID = "Arial";
+	style.fontSize = 22;
+	ofAlignHorz align = getCyclingAlignment();
+
+	string text = "Testing drawColumnNVG(): El català és una llengua de transició entre les llengües iberoromàniques i les llengües gal·loromàniques, encara que antigament fos molt pròxima a l'occità, amb qui comparteix origen i grup: l'occitanoromànic.";
+	drawInsertionPoint(x,y,100);
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	ofSetColor(255,33);
+	float boxH = 300;
+	ofDrawLine(x , y - 15, x, y + boxH);
+	ofDrawLine(x + colW, y - 15, x + colW, y + boxH);
+	fonts.drawColumnNVG(text, style, x, y, colW, align);
+	ofRectangle bounds = fonts.getTextBoundsNVG(text, style, x, y, colW, align);
+	ofSetColor(255,22);
+	ofDrawRectangle(bounds);
+	return bounds.height;
 }
 
 

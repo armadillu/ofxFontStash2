@@ -173,6 +173,44 @@ ofRectangle ofxFontStash2::drawColumn(const string& text,
 	return drawAndLayout(blocks, x, y, targetWidth, horAlign, debug);
 }
 
+void ofxFontStash2::drawColumnNVG(const string& text,
+								  const ofxFontStashStyle& style,
+								  float x, float y, float width,
+								  ofAlignHorz horAlign){
+
+	begin();
+	applyStyle(style);
+	NVGalign hAlign = NVGalign(0);
+	switch(horAlign){
+		case OF_ALIGN_HORZ_LEFT: hAlign = NVG_ALIGN_LEFT; break;
+		case OF_ALIGN_HORZ_CENTER: hAlign = NVG_ALIGN_CENTER; break;
+		case OF_ALIGN_HORZ_RIGHT: hAlign = NVG_ALIGN_RIGHT; break;
+	}
+	ofx_nvgTextAlign(ctx, style.alignmentV | hAlign);
+
+	ofx_nvgTextBox(ctx, x, y, width, text.c_str(), NULL);
+	end();
+}
+
+ofRectangle ofxFontStash2::getTextBoundsNVG(const string& text,
+											const ofxFontStashStyle& style,
+											float x, float y, float width,
+											ofAlignHorz horAlign){
+	//begin();
+	applyStyle(style);
+	NVGalign hAlign = NVGalign(0);
+	switch(horAlign){
+		case OF_ALIGN_HORZ_LEFT: hAlign = NVG_ALIGN_LEFT; break;
+		case OF_ALIGN_HORZ_CENTER: hAlign = NVG_ALIGN_CENTER; break;
+		case OF_ALIGN_HORZ_RIGHT: hAlign = NVG_ALIGN_RIGHT; break;
+	}
+	ofx_nvgTextAlign(ctx, style.alignmentV | hAlign);
+	float bounds[4];
+	ofx_nvgTextBoxBounds(ctx, x, y, width, text.c_str(), NULL, bounds);
+	//end();
+	return ofRectangle(bounds[0], bounds[1], bounds[2]-bounds[0], bounds[3]-bounds[1]);
+}
+
 
 ofRectangle ofxFontStash2::drawFormattedColumn(const string& styledText,
 											   float x, float y, float targetWidth,

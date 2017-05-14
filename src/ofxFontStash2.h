@@ -65,6 +65,15 @@ public:
 
 	 */
 
+	///draw a paragraph relying on NanoVG for layout
+	void drawColumnNVG(const string& text, const ofxFontStashStyle& style,
+					   float x, float y, float width,
+					   ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT);
+
+	ofRectangle getTextBoundsNVG(const string& text,
+								 const ofxFontStashStyle& style,
+								 float x, float y, float width,
+								 ofAlignHorz horAlign);
 
 	// Utils below this line ///////////////////////////////////////////////////////////////////////////////
 
