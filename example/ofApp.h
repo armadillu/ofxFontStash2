@@ -1,5 +1,11 @@
 #pragma once
 
+#define TEST_OFX_NANOVG_COMPAT 
+
+#ifdef TEST_OFX_NANOVG_COMPAT
+#include "ofxNanoVG.h"
+#endif
+
 #include "ofMain.h"
 #include "ofxTimeMeasurements.h"
 #include "ofxRemoteUIServer.h"

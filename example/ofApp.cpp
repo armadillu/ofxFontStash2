@@ -36,6 +36,11 @@ void ofApp::setup(){
 	ofDisableAntiAliasing(); //to get precise lines
 	fonts.pixelDensity = 2.0;
 
+	#ifdef TEST_OFX_NANOVG_COMPAT
+	ofxNanoVG::one().setup(true, true);
+	ofxNanoVG::one().addFont("VeraMono", "fonts/VeraMono.ttf");
+	#endif
+
 }
 
 
@@ -82,6 +87,29 @@ void ofApp::draw(){
 	TS_STOP("drawTabs");
 
 	TSGL_STOP("d");
+
+	#ifdef TEST_OFX_NANOVG_COMPAT
+	ofxNanoVG::one().beginFrame(ofGetWidth(), ofGetHeight(), 1.0);
+
+	ofSetColor(255,0,0);
+	ofxNanoVG::one().applyOFStyle();
+	ofxNanoVG::one().rect(ofRectangle(0,0,200,200));
+	ofxNanoVG::one().fillPath();
+
+	ofSetColor(0,255,0);
+	ofxNanoVG::one().applyOFStyle();
+	ofxNanoVG::one().drawText("VeraMono", 20, 20, "test", 22);
+	ofSetColor(0,0,255,128);
+	ofDrawRectangle(100,100,200,200);
+	ofSetColor(255,128);
+	ofxNanoVG::one().applyOFStyle();
+	ofxNanoVG::one().drawText("VeraMono", 20, 60, "test", 22);
+
+	ofSetColor(255,255,0,128);
+	ofDrawRectangle(200,200,200,200);
+
+	ofxNanoVG::one().endFrame();
+	#endif
 }
 
 

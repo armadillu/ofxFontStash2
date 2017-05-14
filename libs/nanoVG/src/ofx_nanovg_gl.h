@@ -56,41 +56,41 @@ enum NVGcreateFlags {
 
 #if defined NANOVG_GL2
 
-NVGcontext* nvgCreateGL2(int flags);
-void nvgDeleteGL2(NVGcontext* ctx);
+NVGcontext* ofx_nvgCreateGL22(int flags);
+void ofx_nvgDeleteGL2(NVGcontext* ctx);
 
-int nvglCreateImageFromHandleGL2(NVGcontext* ctx, GLuint textureId, int w, int h, int flags);
-GLuint nvglImageHandleGL2(NVGcontext* ctx, int image);
+int ofx_nvglCreateImageFromHandleGL2(NVGcontext* ctx, GLuint textureId, int w, int h, int flags);
+GLuint ofx_nvglImageHandleGL2(NVGcontext* ctx, int image);
 
 #endif
 
 #if defined NANOVG_GL3
 
-NVGcontext* nvgCreateGL3(int flags);
-void nvgDeleteGL3(NVGcontext* ctx);
+NVGcontext* ofx_nvgCreateGL23(int flags);
+void ofx_nvgDeleteGL3(NVGcontext* ctx);
 
-int nvglCreateImageFromHandleGL3(NVGcontext* ctx, GLuint textureId, int w, int h, int flags);
-GLuint nvglImageHandleGL3(NVGcontext* ctx, int image);
+int ofx_nvglCreateImageFromHandleGL3(NVGcontext* ctx, GLuint textureId, int w, int h, int flags);
+GLuint ofx_nvglImageHandleGL3(NVGcontext* ctx, int image);
 
 #endif
 
 #if defined NANOVG_GLES2
 
-NVGcontext* nvgCreateGLES2(int flags);
-void nvgDeleteGLES2(NVGcontext* ctx);
+NVGcontext* ofx_nvgCreateGL2ES2(int flags);
+void ofx_nvgDeleteGLES2(NVGcontext* ctx);
 
-int nvglCreateImageFromHandleGLES2(NVGcontext* ctx, GLuint textureId, int w, int h, int flags);
-GLuint nvglImageHandleGLES2(NVGcontext* ctx, int image);
+int ofx_nvglCreateImageFromHandleGLES2(NVGcontext* ctx, GLuint textureId, int w, int h, int flags);
+GLuint ofx_nvglImageHandleGLES2(NVGcontext* ctx, int image);
 
 #endif
 
 #if defined NANOVG_GLES3
 
-NVGcontext* nvgCreateGLES3(int flags);
-void nvgDeleteGLES3(NVGcontext* ctx);
+NVGcontext* ofx_nvgCreateGL2ES3(int flags);
+void ofx_nvgDeleteGLES3(NVGcontext* ctx);
 
-int nvglCreateImageFromHandleGLES3(NVGcontext* ctx, GLuint textureId, int w, int h, int flags);
-GLuint nvglImageHandleGLES3(NVGcontext* ctx, int image);
+int ofx_nvglCreateImageFromHandleGLES3(NVGcontext* ctx, GLuint textureId, int w, int h, int flags);
+GLuint ofx_nvglImageHandleGLES3(NVGcontext* ctx, int image);
 
 #endif
 
@@ -111,7 +111,7 @@ enum NVGimageFlagsGL {
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "nanovg.h"
+#include "ofx_nanovg.h"
 
 enum GLNVGuniformLoc {
 	GLNVG_LOC_VIEWSIZE,
@@ -918,7 +918,7 @@ static int glnvg__convertPaint(GLNVGcontext* gl, GLNVGfragUniforms* frag, NVGpai
 		frag->scissorScale[0] = 1.0f;
 		frag->scissorScale[1] = 1.0f;
 	} else {
-		nvgTransformInverse(invxform, scissor->xform);
+		ofx_nvgTransformInverse(invxform, scissor->xform);
 		glnvg__xformToMat3x4(frag->scissorMat, invxform);
 		frag->scissorExt[0] = scissor->extent[0];
 		frag->scissorExt[1] = scissor->extent[1];
@@ -935,15 +935,15 @@ static int glnvg__convertPaint(GLNVGcontext* gl, GLNVGfragUniforms* frag, NVGpai
 		if (tex == NULL) return 0;
 		if ((tex->flags & NVG_IMAGE_FLIPY) != 0) {
 			float m1[6], m2[6];
-			nvgTransformTranslate(m1, 0.0f, frag->extent[1] * 0.5f);
-			nvgTransformMultiply(m1, paint->xform);
-			nvgTransformScale(m2, 1.0f, -1.0f);
-			nvgTransformMultiply(m2, m1);
-			nvgTransformTranslate(m1, 0.0f, -frag->extent[1] * 0.5f);
-			nvgTransformMultiply(m1, m2);
-			nvgTransformInverse(invxform, m1);
+			ofx_nvgTransformTranslate(m1, 0.0f, frag->extent[1] * 0.5f);
+			ofx_nvgTransformMultiply(m1, paint->xform);
+			ofx_nvgTransformScale(m2, 1.0f, -1.0f);
+			ofx_nvgTransformMultiply(m2, m1);
+			ofx_nvgTransformTranslate(m1, 0.0f, -frag->extent[1] * 0.5f);
+			ofx_nvgTransformMultiply(m1, m2);
+			ofx_nvgTransformInverse(invxform, m1);
 		} else {
-			nvgTransformInverse(invxform, paint->xform);
+			ofx_nvgTransformInverse(invxform, paint->xform);
 		}
 		frag->type = NSVG_SHADER_FILLIMG;
 
@@ -956,7 +956,7 @@ static int glnvg__convertPaint(GLNVGcontext* gl, GLNVGfragUniforms* frag, NVGpai
 		frag->type = NSVG_SHADER_FILLGRAD;
 		frag->radius = paint->radius;
 		frag->feather = paint->feather;
-		nvgTransformInverse(invxform, paint->xform);
+		ofx_nvgTransformInverse(invxform, paint->xform);
 	}
 
 	glnvg__xformToMat3x4(frag->paintMat, invxform);
@@ -964,14 +964,14 @@ static int glnvg__convertPaint(GLNVGcontext* gl, GLNVGfragUniforms* frag, NVGpai
 	return 1;
 }
 
-static GLNVGfragUniforms* nvg__fragUniformPtr(GLNVGcontext* gl, int i);
+static GLNVGfragUniforms* ofx_nvg__fragUniformPtr(GLNVGcontext* gl, int i);
 
 static void glnvg__setUniforms(GLNVGcontext* gl, int uniformOffset, int image)
 {
 #if NANOVG_GL_USE_UNIFORMBUFFER
 	glBindBufferRange(GL_UNIFORM_BUFFER, GLNVG_FRAG_BINDING, gl->fragBuf, uniformOffset, sizeof(GLNVGfragUniforms));
 #else
-	GLNVGfragUniforms* frag = nvg__fragUniformPtr(gl, uniformOffset);
+	GLNVGfragUniforms* frag = ofx_nvg__fragUniformPtr(gl, uniformOffset);
 	glUniform4fv(gl->shader.loc[GLNVG_LOC_FRAG], NANOVG_GL_UNIFORMARRAY_SIZE, &(frag->uniformArray[0][0]));
 #endif
 
@@ -1088,7 +1088,7 @@ static void glnvg__stroke(GLNVGcontext* gl, GLNVGcall* call)
 
 		glDisable(GL_STENCIL_TEST);
 
-//		glnvg__convertPaint(gl, nvg__fragUniformPtr(gl, call->uniformOffset + gl->fragSize), paint, scissor, strokeWidth, fringe, 1.0f - 0.5f/255.0f);
+//		glnvg__convertPaint(gl, ofx_nvg__fragUniformPtr(gl, call->uniformOffset + gl->fragSize), paint, scissor, strokeWidth, fringe, 1.0f - 0.5f/255.0f);
 
 	} else {
 		glnvg__setUniforms(gl, call->uniformOffset, call->image);
@@ -1323,7 +1323,7 @@ static int glnvg__allocFragUniforms(GLNVGcontext* gl, int n)
 	return ret;
 }
 
-static GLNVGfragUniforms* nvg__fragUniformPtr(GLNVGcontext* gl, int i)
+static GLNVGfragUniforms* ofx_nvg__fragUniformPtr(GLNVGcontext* gl, int i)
 {
 	return (GLNVGfragUniforms*)&gl->uniforms[i];
 }
@@ -1397,17 +1397,17 @@ static void glnvg__renderFill(void* uptr, NVGpaint* paint, NVGcompositeOperation
 		call->uniformOffset = glnvg__allocFragUniforms(gl, 2);
 		if (call->uniformOffset == -1) goto error;
 		// Simple shader for stencil
-		frag = nvg__fragUniformPtr(gl, call->uniformOffset);
+		frag = ofx_nvg__fragUniformPtr(gl, call->uniformOffset);
 		memset(frag, 0, sizeof(*frag));
 		frag->strokeThr = -1.0f;
 		frag->type = NSVG_SHADER_SIMPLE;
 		// Fill shader
-		glnvg__convertPaint(gl, nvg__fragUniformPtr(gl, call->uniformOffset + gl->fragSize), paint, scissor, fringe, fringe, -1.0f);
+		glnvg__convertPaint(gl, ofx_nvg__fragUniformPtr(gl, call->uniformOffset + gl->fragSize), paint, scissor, fringe, fringe, -1.0f);
 	} else {
 		call->uniformOffset = glnvg__allocFragUniforms(gl, 1);
 		if (call->uniformOffset == -1) goto error;
 		// Fill shader
-		glnvg__convertPaint(gl, nvg__fragUniformPtr(gl, call->uniformOffset), paint, scissor, fringe, fringe, -1.0f);
+		glnvg__convertPaint(gl, ofx_nvg__fragUniformPtr(gl, call->uniformOffset), paint, scissor, fringe, fringe, -1.0f);
 	}
 
 	return;
@@ -1456,14 +1456,14 @@ static void glnvg__renderStroke(void* uptr, NVGpaint* paint, NVGcompositeOperati
 		call->uniformOffset = glnvg__allocFragUniforms(gl, 2);
 		if (call->uniformOffset == -1) goto error;
 
-		glnvg__convertPaint(gl, nvg__fragUniformPtr(gl, call->uniformOffset), paint, scissor, strokeWidth, fringe, -1.0f);
-		glnvg__convertPaint(gl, nvg__fragUniformPtr(gl, call->uniformOffset + gl->fragSize), paint, scissor, strokeWidth, fringe, 1.0f - 0.5f/255.0f);
+		glnvg__convertPaint(gl, ofx_nvg__fragUniformPtr(gl, call->uniformOffset), paint, scissor, strokeWidth, fringe, -1.0f);
+		glnvg__convertPaint(gl, ofx_nvg__fragUniformPtr(gl, call->uniformOffset + gl->fragSize), paint, scissor, strokeWidth, fringe, 1.0f - 0.5f/255.0f);
 
 	} else {
 		// Fill shader
 		call->uniformOffset = glnvg__allocFragUniforms(gl, 1);
 		if (call->uniformOffset == -1) goto error;
-		glnvg__convertPaint(gl, nvg__fragUniformPtr(gl, call->uniformOffset), paint, scissor, strokeWidth, fringe, -1.0f);
+		glnvg__convertPaint(gl, ofx_nvg__fragUniformPtr(gl, call->uniformOffset), paint, scissor, strokeWidth, fringe, -1.0f);
 	}
 
 	return;
@@ -1497,7 +1497,7 @@ static void glnvg__renderTriangles(void* uptr, NVGpaint* paint, NVGcompositeOper
 	// Fill shader
 	call->uniformOffset = glnvg__allocFragUniforms(gl, 1);
 	if (call->uniformOffset == -1) goto error;
-	frag = nvg__fragUniformPtr(gl, call->uniformOffset);
+	frag = ofx_nvg__fragUniformPtr(gl, call->uniformOffset);
 	glnvg__convertPaint(gl, frag, paint, scissor, 1.0f, 1.0f, -1.0f);
 	frag->type = NSVG_SHADER_IMG;
 
@@ -1544,13 +1544,13 @@ static void glnvg__renderDelete(void* uptr)
 
 
 #if defined NANOVG_GL2
-NVGcontext* nvgCreateGL2(int flags)
+NVGcontext* ofx_nvgCreateGL22(int flags)
 #elif defined NANOVG_GL3
-NVGcontext* nvgCreateGL3(int flags)
+NVGcontext* ofx_nvgCreateGL23(int flags)
 #elif defined NANOVG_GLES2
-NVGcontext* nvgCreateGLES2(int flags)
+NVGcontext* ofx_nvgCreateGL2ES2(int flags)
 #elif defined NANOVG_GLES3
-NVGcontext* nvgCreateGLES3(int flags)
+NVGcontext* ofx_nvgCreateGL2ES3(int flags)
 #endif
 {
 	NVGparams params;
@@ -1577,41 +1577,41 @@ NVGcontext* nvgCreateGLES3(int flags)
 
 	gl->flags = flags;
 
-	ctx = nvgCreateInternal(&params);
+	ctx = ofx_nvgCreateInternal(&params);
 	if (ctx == NULL) goto error;
 
 	return ctx;
 
 error:
-	// 'gl' is freed by nvgDeleteInternal.
-	if (ctx != NULL) nvgDeleteInternal(ctx);
+	// 'gl' is freed by ofx_nvgDeleteInternal.
+	if (ctx != NULL) ofx_nvgDeleteInternal(ctx);
 	return NULL;
 }
 
 #if defined NANOVG_GL2
-void nvgDeleteGL2(NVGcontext* ctx)
+void ofx_nvgDeleteGL2(NVGcontext* ctx)
 #elif defined NANOVG_GL3
-void nvgDeleteGL3(NVGcontext* ctx)
+void ofx_nvgDeleteGL3(NVGcontext* ctx)
 #elif defined NANOVG_GLES2
-void nvgDeleteGLES2(NVGcontext* ctx)
+void ofx_nvgDeleteGLES2(NVGcontext* ctx)
 #elif defined NANOVG_GLES3
-void nvgDeleteGLES3(NVGcontext* ctx)
+void ofx_nvgDeleteGLES3(NVGcontext* ctx)
 #endif
 {
-	nvgDeleteInternal(ctx);
+	ofx_nvgDeleteInternal(ctx);
 }
 
 #if defined NANOVG_GL2
-int nvglCreateImageFromHandleGL2(NVGcontext* ctx, GLuint textureId, int w, int h, int imageFlags)
+int ofx_nvglCreateImageFromHandleGL2(NVGcontext* ctx, GLuint textureId, int w, int h, int imageFlags)
 #elif defined NANOVG_GL3
-int nvglCreateImageFromHandleGL3(NVGcontext* ctx, GLuint textureId, int w, int h, int imageFlags)
+int ofx_nvglCreateImageFromHandleGL3(NVGcontext* ctx, GLuint textureId, int w, int h, int imageFlags)
 #elif defined NANOVG_GLES2
-int nvglCreateImageFromHandleGLES2(NVGcontext* ctx, GLuint textureId, int w, int h, int imageFlags)
+int ofx_nvglCreateImageFromHandleGLES2(NVGcontext* ctx, GLuint textureId, int w, int h, int imageFlags)
 #elif defined NANOVG_GLES3
-int nvglCreateImageFromHandleGLES3(NVGcontext* ctx, GLuint textureId, int w, int h, int imageFlags)
+int ofx_nvglCreateImageFromHandleGLES3(NVGcontext* ctx, GLuint textureId, int w, int h, int imageFlags)
 #endif
 {
-	GLNVGcontext* gl = (GLNVGcontext*)nvgInternalParams(ctx)->userPtr;
+	GLNVGcontext* gl = (GLNVGcontext*)ofx_nvgInternalParams(ctx)->userPtr;
 	GLNVGtexture* tex = glnvg__allocTexture(gl);
 
 	if (tex == NULL) return 0;
@@ -1626,16 +1626,16 @@ int nvglCreateImageFromHandleGLES3(NVGcontext* ctx, GLuint textureId, int w, int
 }
 
 #if defined NANOVG_GL2
-GLuint nvglImageHandleGL2(NVGcontext* ctx, int image)
+GLuint ofx_nvglImageHandleGL2(NVGcontext* ctx, int image)
 #elif defined NANOVG_GL3
-GLuint nvglImageHandleGL3(NVGcontext* ctx, int image)
+GLuint ofx_nvglImageHandleGL3(NVGcontext* ctx, int image)
 #elif defined NANOVG_GLES2
-GLuint nvglImageHandleGLES2(NVGcontext* ctx, int image)
+GLuint ofx_nvglImageHandleGLES2(NVGcontext* ctx, int image)
 #elif defined NANOVG_GLES3
-GLuint nvglImageHandleGLES3(NVGcontext* ctx, int image)
+GLuint ofx_nvglImageHandleGLES3(NVGcontext* ctx, int image)
 #endif
 {
-	GLNVGcontext* gl = (GLNVGcontext*)nvgInternalParams(ctx)->userPtr;
+	GLNVGcontext* gl = (GLNVGcontext*)ofx_nvgInternalParams(ctx)->userPtr;
 	GLNVGtexture* tex = glnvg__findTexture(gl, image);
 	return tex->tex;
 }

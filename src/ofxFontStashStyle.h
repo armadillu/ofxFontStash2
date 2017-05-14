@@ -9,7 +9,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "nanovg.h"
+#include "ofx_nanovg.h"
 
 struct ofxFontStashStyle{
 
