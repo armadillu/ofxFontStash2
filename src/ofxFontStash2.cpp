@@ -67,7 +67,7 @@ ofxFontStash2::~ofxFontStash2(){
 void ofxFontStash2::setup(){
 
 	bool stencilStrokes = false;
-	bool debug = true;
+	bool debug = false;
 
 	#ifdef NANOVG_GL3_IMPLEMENTATION
 	ctx = ofx_nvgCreateGL23(NVG_ANTIALIAS | (stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
