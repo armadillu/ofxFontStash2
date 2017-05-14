@@ -19,7 +19,6 @@ struct ofxFontStashStyle{
 	ofColor color = ofColor::white;
 	int blur = 0;
 	NVGalign alignmentV = (NVGalign)(NVG_ALIGN_BASELINE); //NOTE H alignment is ignored!
-	ofAlignHorz alignmentH = OF_ALIGN_HORZ_LEFT;
 	float lineHeightMult = 1.0;
 
 	ofxFontStashStyle(string fontID, float fontSize, const ofColor & color){
@@ -43,7 +42,7 @@ struct ofxFontStashStyle{
 		return (fontID == b.fontID &&
 				fontSize == b.fontSize &&
 				blur == b.blur &&
-				alignmentH == b.alignmentH &&
+				//alignmentH == b.alignmentH &&
 				alignmentV == b.alignmentV &&
 				color == b.color &&
 				fabs(lineHeightMult - b.lineHeightMult) < 0.001f

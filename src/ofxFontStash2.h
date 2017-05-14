@@ -46,12 +46,13 @@ public:
 	/// draw string with fixed maximum width
 	/// returns text bbox
 	/// multiline ("\n") supported - and it will break lines on its own given a column width
-	ofRectangle drawColumn(const string& text, const ofxFontStashStyle& style, float x, float y, float width, bool debug=false);
+	ofRectangle drawColumn(const string& text, const ofxFontStashStyle& style, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug=false);
 
 	/// draw xml formatted string with fixed maximum width
 	/// returns height of the text block
 	/// multiline ("\n") supported - and it will break lines on its own given a column width
 	ofRectangle drawFormattedColumn(const string& styledText, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug=false);
+
 
 	///diy layout + draw - so you can inspect intermediate states and do as you wish
 	/// 1 - Parse your text to get the vector<StyledText> blocks.

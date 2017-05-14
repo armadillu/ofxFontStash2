@@ -30,7 +30,7 @@ void ofApp::setup(){
 
 	style.color = ofColor::lightCyan;
 	style.fontID = "veraMono";
-	//style.fontSize = 44;
+	style.fontSize = 55;
 	fonts.addStyle("style3", style);
 
 	ofDisableAntiAliasing(); //to get precise lines
@@ -118,7 +118,6 @@ void ofApp::testDraw(float x, float y){
 	ofxFontStashStyle style;
 	style.fontID = "Arial";
 	style.fontSize = 22;
-	style.alignmentH = getCyclingAlignment();
 	{
 		string text = "testing draw() method with one-line string. バナナのようなサル";
 		ofRectangle bounds = fonts.getTextBounds(text, style, x, y);
@@ -146,7 +145,7 @@ void ofApp::testDrawColumn(float x, float y){
 	ofxFontStashStyle style;
 	style.fontID = "Arial";
 	style.fontSize = 45;
-	style.alignmentH = getCyclingAlignment();
+	ofAlignHorz align = getCyclingAlignment();
 
 	string text = "Testing drawColumn() methods with a long string and no line breaks whatsoever. Also, adding some fancy unicode バナナのようなサル. And back to normal...";
 	drawInsertionPoint(x,y,100);
@@ -155,7 +154,7 @@ void ofApp::testDrawColumn(float x, float y){
 	float boxH = 300;
 	ofDrawLine(x , y - 15, x, y + boxH);
 	ofDrawLine(x + colW, y - 15, x + colW, y + boxH);
-	ofRectangle bbox = fonts.drawColumn(text, style, x, y, colW, debug);
+	ofRectangle bbox = fonts.drawColumn(text, style, x, y, colW, align, debug);
 	ofSetColor(255,13);
 	ofDrawRectangle(bbox);
 }
@@ -170,10 +169,10 @@ void ofApp::testDrawFormatted(float x, float y){
 
 
 void ofApp::testDrawFormattedColumn(float x, float y){
-	string styledText = "<style id='style1'>This is style1 style.</style>\n\n<style id='style2'>And this is Style2, adjusted to the column width.</style>";
+	string styledText = "<style id='style1'>This is style1 style.</style> <style id='style2'>And this is Style2, adjusted to the column width.</style>";
 	styledText += " <style id='style3'>And this is stlye3, which has a bigger font size.</style>";
 	drawInsertionPoint(x,y,100);
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	float colW = 500;// + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
 	ofSetColor(255,33);
 	float boxH = 300;
 	ofDrawLine(x , y - 15, x, y + boxH);
@@ -197,7 +196,7 @@ void ofApp::testDrawTabs(float x, float y){
 	style.fontSize = 16;
 	style.color = ofColor::white;
 
-	fonts.drawColumn(code, style, x, y, ofGetWidth(), debug);
+	fonts.drawColumn(code, style, x, y, ofGetWidth(), OF_ALIGN_HORZ_LEFT, debug);
 }
 
 void ofApp::keyPressed(int key){
@@ -225,6 +224,6 @@ ofAlignHorz ofApp::getCyclingAlignment(){
 	float pct = (ofGetFrameNum()%300 / 300.0f) ;
 	int hIndex = (ofMap(pct, 0, 1, 0, hor.size()));
 
-	hIndex = ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 2, true);
-	return hor[hIndex];
+	hIndex = ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 3, true);
+	return hor[MIN(hIndex, 2)];
 }
