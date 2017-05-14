@@ -222,9 +222,9 @@ void ofApp::drawInsertionPoint(float x, float y, float w){
 ofAlignHorz ofApp::getCyclingAlignment(){
 
 	vector<ofAlignHorz> hor = {OF_ALIGN_HORZ_LEFT, OF_ALIGN_HORZ_CENTER, OF_ALIGN_HORZ_RIGHT};
-	float pct = (ofGetFrameNum()%120 / 120.) ;
-	int hIndex = (ofMap(pct, 0, 1, 0, hor.size()-1));
+	float pct = (ofGetFrameNum()%300 / 300.0f) ;
+	int hIndex = (ofMap(pct, 0, 1, 0, hor.size()));
 
-	//return NVGalign( hor[hIndex] | ver[vIndex] );
-	return hor[0];
+	hIndex = ofMap(ofGetMouseX(), 0, ofGetWidth(), 0, 2, true);
+	return hor[hIndex];
 }

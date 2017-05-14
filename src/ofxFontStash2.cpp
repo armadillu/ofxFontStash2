@@ -182,7 +182,7 @@ ofRectangle ofxFontStash2::drawAndLayout(vector<StyledText> &blocks,
 										 float x, float y, float width,
 										 ofAlignHorz align, bool debug){
 	OFX_FONSTASH2_CHECK
-	return drawLines(layoutLines(blocks, width), x, y, align, debug);
+	return drawLines(layoutLines(blocks, width, align, debug), x, y, align, debug);
 };
 
 
@@ -191,9 +191,9 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 													ofAlignHorz horAlign,
 													bool debug){
 	OFX_FONSTASH2_CHECK
+	if (targetWidth < 0) return vector<StyledLine>();
 	float x = 0;
 	float y = 0;
-	if (targetWidth < 0) return vector<StyledLine>();
 	float xx = x;
 	float yy = y;
 
@@ -221,7 +221,10 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 	float bounds[4];
 	float dx;
 	LineElement le;
-	
+
+	//handle right & center align
+	vector<float> lineOffsets;
+
 	for(int i = 0; i < words.size(); i++){
 		StyledLine &currentLine = lines.back();
 		currentLine.boxW = targetWidth;
@@ -254,9 +257,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 			float lineH = lineHeightMultiplier * currentStyle.lineHeightMult * calcLineHeight(currentLine);
 			currentLine.lineH = lineH;
 			currentLine.lineW = xx - x + dx;
-			
-			// no!
-			//i--; //re-calc dimensions of this word on a new line!
+
 			yy += lineH;
 			
 			lineWidth = 0;
@@ -289,10 +290,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 			}
 			
 			ofRectangle where = ofRectangle(bounds[0], bounds[1] , dx, bounds[3] - bounds[1]);
-			if(debug){
-				if(words[i].type == SEPARATOR_INVISIBLE) where.height = -currentLineH;
-			}
-			
+
 			le = LineElement(words[i], where);
 			le.baseLineY = yy;
 			le.x = xx;
@@ -327,7 +325,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 			float lineH = lineHeightMultiplier * currentStyle.lineHeightMult * calcLineHeight(currentLine);
 			currentLine.lineH = lineH;
 			currentLine.lineW = xx - x;
-			
+
 			i--; //re-calc dimensions of this word on a new line!
 			yy += lineH;
 			
@@ -354,8 +352,35 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 	
 	float lineH = lineHeightMultiplier * currentStyle.lineHeightMult * calcLineHeight(currentLine);
 	currentLine.lineH = lineH;
-	currentLine.lineW = xx - x + dx;
-	
+	currentLine.lineW = xx - x;
+
+	//on right aligned layouts, remove the last space or similar so that right alight really kisses the edge
+	if(horAlign == OF_ALIGN_HORZ_RIGHT || horAlign == OF_ALIGN_HORZ_CENTER){
+
+		for(auto & l : lines){
+			if(l.elements.size() > 0){
+				if(l.elements.back().content.type == SEPARATOR_INVISIBLE){
+					float lastInvW = l.elements.back().area.width;
+					for(auto & el : l.elements){
+						el.x += lastInvW;
+						el.area.x += lastInvW;
+					}
+					l.elements.erase(l.elements.begin() + l.elements.size() - 1);
+					l.boxW -= lastInvW;
+					//l.lineW -= lastInvW;
+				}
+			}
+			float lineOffset = 0.0f;
+			if(horAlign == OF_ALIGN_HORZ_RIGHT) lineOffset = targetWidth - l.lineW;
+			if(horAlign == OF_ALIGN_HORZ_CENTER) lineOffset = (targetWidth - l.lineW) / 2.0f;
+			for(auto & el : l.elements){
+				el.x += lineOffset;
+				el.area.x += lineOffset;
+			}
+		}
+		
+	}
+
 	TS_STOP_ACC("last line");
 
 	TS_STOP_NIF("layoutLines");
@@ -396,20 +421,6 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 	vector<ColoredRect> debugRects;
 	/////////////////////////////////////
 
-	//handle right & center align
-	vector<float> lineOffsets;
-	float maxW = 0;
-	for(const auto & l : lines){
-		if(l.lineW > maxW){
-			maxW = l.boxW;
-		}
-	}
-	for(const auto & l : lines){
-		if(horAlign == OF_ALIGN_HORZ_RIGHT) lineOffsets.push_back(maxW - l.lineW);
-		if(horAlign == OF_ALIGN_HORZ_LEFT) lineOffsets.push_back(0);
-		if(horAlign == OF_ALIGN_HORZ_CENTER) lineOffsets.push_back((maxW - l.lineW) / 2);
-	}
-
 
 	TS_START("draw all lines");
 
@@ -433,7 +444,7 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 				TS_START_ACC("fonsDrawText");
 
 				float dx = ofx_nvgText(ctx,
-								   el.x + offset.x + lineOffsets[i],
+								   el.x + offset.x,
 								   (el.baseLineY + l.lineH - lines[0].lineH) + offset.y,
 								   el.content.styledText.text.c_str(),
 								   NULL);
@@ -447,7 +458,6 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 					case SEPARATOR_INVISIBLE: cr.color = ofColor(0, 255, 255, 30); break;
 				}
 				cr.rect = lines[i].elements[j].area;
-				cr.rect.x += lineOffsets[i];
 				debugRects.push_back(cr);
 			}
 		}
