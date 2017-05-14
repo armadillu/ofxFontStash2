@@ -715,7 +715,7 @@ FONScontext* ofx_fonsCreateInternal(FONSparams* params)
 	if (stash->scratch == NULL) goto error;
 
 	// Initialize implementation library
-	if (!fons__tt_init(stash)) goto error;
+	if (!ofx_fons__tt_init(stash)) goto error;
 
 	if (stash->params.renderCreate != NULL) {
 		if (stash->params.renderCreate(stash->params.userPtr, stash->params.width, stash->params.height) == 0)
