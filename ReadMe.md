@@ -1,29 +1,52 @@
 #ofxFontStash2
 
-in initial development stages, not working 100% yet.
+![](https://farm5.staticflickr.com/4186/34677341675_def1bee422_z_d.jpg)
 
-This includes [fontstash](https://github.com/memononen/fontstash) the [Pugi](https://github.com/zeux/pugixml) xml parser. This can draw both plain strings, or style-formatted paragraph like:
+ofxFontStash2 allows you to draw text. It can draw individual lines of text, or longer texts constrained to a column (to create paragraph, automatically flowing the text for you). 
+
+It offers text alignment (left, center, right).
+
+It also allows you to mix and match different text styles in the same paragraph. You can do so by creating styles that can be applied at an individual word level. You can also inline styles;
+
+Drawing this "formatted" text paragraphs is accomplished with an HTML style syntax (xml), for example:
+
 
 ```
-string formattedText = "<style font='verdana' size='12' color='#ff0000'>this is red verdana size12</style>";
+string formattedText = 
+	
+	//style based on predefined style
+	"<style id='style1'>this is my text in style1</style>";
+	
+	//inline defined style
+	"<style font='verdana' size='12' color='#ff0000'>this is red verdana size12</style>";
 
 ```
+
+It also supports emoji characters (b&w only for now) that you can mix with your main font. You supply your own emoji font together with your main font, and the right pictogram is chosen through a fallback paradigm. If your main font doesn't supply a glyph for an certain unicode sequence, ofxFontStash2 will try fetch it from the fallback font (your emoji font) which most likely have it.
+
+It handles tabs as expected, so you can use it to draw monospaced tabulated code.
+
+It also supports multiple device resolutions, so for example moving your project to a "retina" screen should take zero effort.
+
+
 ![](https://farm1.staticflickr.com/493/19806237826_788c341f9c_z_d.jpg)
 
-![](https://c2.staticflickr.com/2/1575/26432242845_6f6c18686f.jpg)
 
 # Included Libraries
 
-- [fontstash](https://github.com/memononen/fontstash) by Mikko Mononen: zlib license - with tiny modifications
+- [nanovg](https://github.com/memononen/nanovg) by Mikko Mononen: zlib license - with tiny modifications to avoid duplicated symbols
+- [fontstash](https://github.com/memononen/nanovg) by Mikko Mononen: zlib license - with tiny modifications to avoid duplicated symbols
 - [stb_truetype](https://github.com/nothings/stb) by Sean Barrett: Public domain
+- [stb_image](https://github.com/nothings/stb) by Sean Barrett: Public domain
 - [pugi xml](https://github.com/zeux/pugixml) by Google: MIT License
 
+# GL2, GL3 and GLES compatibility
 
-# GL 3.x compatibility
+To use in in a GL* context, define the appropriate preprocessor macro in your project;
 
-This is a WIP, but you this can work in GL 3.2 if you define GL_VERSION_3 in your preprocessor macros.  
+```
+OpenGL 2.x >> NANOVG_GL2_IMPLEMENTATION
+OpenGL 3.x >> NANOVG_GL3_IMPLEMENTATION
+OpenGL ES  >> NANOVG_GLES2_IMPLEMENTATION
+```
 
-*GL_3 formated is broken for now, but it draws readable text.
-
-
-#TODO

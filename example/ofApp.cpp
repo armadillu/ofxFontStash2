@@ -47,10 +47,18 @@ void ofApp::setup(){
 	string emojiPath = "fonts/NotoEmoji-Regular.ttf";
 	fonts.addFont("emoji-fallback", emojiPath);
 	fonts.setGlobalFallbackFont("emoji-fallback");
+
+
+
 }
 
 
 void ofApp::draw(){
+
+	//test global multipliers
+	//fonts.setLineHeightMult(1.5 + 0.5 * sin(ofGetElapsedTimef()));
+	//fonts.fontScale = 1.5 + 0.5 * sin(ofGetElapsedTimef());
+
 
 	float xx = 40;
 	float yy = 40;
@@ -93,21 +101,21 @@ void ofApp::draw(){
 	testDrawFormatted(xx, yy);
 	TS_STOP(tMsg);
 
-	yy += 100;
+	yy += 60;
 	tMsg = ofToString(testID) + " testDrawFormattedColumn";
 	TS_START(tMsg);
 	drawID(testID, xx, yy); testID++;
 	yy += testDrawFormattedColumn(xx, yy);
 	TS_STOP(tMsg);
 
-	yy += 100;
+	yy += 60;
 	tMsg = ofToString(testID) + " testDiyPlainLayout";
 	TS_START(tMsg);
 	drawID(testID, xx, yy); testID++;
 	yy += testDiyPlainLayout(xx, yy);
 	TS_STOP(tMsg);
 
-	yy += 100;
+	yy += 60;
 	tMsg = ofToString(testID) + " testDiyFormattedLayout";
 	TS_START(tMsg);
 	drawID(testID, xx, yy); testID++;

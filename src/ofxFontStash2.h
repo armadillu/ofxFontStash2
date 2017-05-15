@@ -45,18 +45,18 @@ public:
 	/// multiline ("\n") not supported - to use for one-liners with style
 	float drawFormatted(const string& styledText, float x, float y);
 
-	/// draw string with fixed maximum width
+	/// draw string with fixed maximum width, breaking lines to fit the width
 	/// returns text bbox
 	/// multiline ("\n") supported - and it will break lines on its own given a column width
 	ofRectangle drawColumn(const string& text, const ofxFontStashStyle& style, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug=false);
 
-	/// draw xml formatted string with fixed maximum width
-	/// returns height of the text block
+	/// draw xml formatted string with fixed maximum width, breaking lines to fit the width
+	/// returns text bbox
 	/// multiline ("\n") supported - and it will break lines on its own given a column width
 	ofRectangle drawFormattedColumn(const string& styledText, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug=false);
 
 
-	///diy layout + draw - so you can inspect intermediate states and do as you wish
+	// DIY layout + draw - so you can inspect intermediate states and do as you wish //
 	/// 1 - Parse your text to get the vector<StyledText> blocks.
 	/// 2 - Layout the lines to a certain column width; you get a vector of styled words (vectos<StyledText>).
 	///	3 - Draw the layout; its a vector of Lines so you can dig and edit before you draw.
@@ -76,12 +76,12 @@ public:
 
 	 */
 
-	///draw a paragraph relying on NanoVG for layout
+	///draw a paragraph relying on NanoVG for layout & linebreaking
 	void drawColumnNVG(const string& text, const ofxFontStashStyle& style,
 					   float x, float y, float width,
 					   ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT);
 
-	///get the box containing the text laid out in a drawColumnNVG() call
+	///get the bbox containing the text laid out in a drawColumnNVG() call
 	ofRectangle getTextBoundsNVG(const string& text,
 								 const ofxFontStashStyle& style,
 								 float x, float y, float width,
@@ -116,29 +116,31 @@ public:
 	ofRectangle getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y );
 	ofRectangle getTextBounds(const vector<StyledLine> &lines, float x, float y);
 
-
+	///get font metrics for a particular style
 	void getVerticalMetrics( const ofxFontStashStyle& style, float* ascender, float* descender, float* lineH);
 
 	/// a global lineH multiplier that affects all loaded fonts.
 	void setLineHeightMult(float l){lineHeightMultiplier = l;}
 
+	///in case you want to issue nanoVG calls directly
 	NVGcontext * getNanoVGContext(){return ctx;}
 
-	// sets a single font as fallback for all fonts
-	// this can only be set once
+	/// sets a single font as fallback for all fonts
+	/// this can only be set once - useful for emoji
 	void setGlobalFallbackFont(const string& fallbackFontID);
 	string getGlobalFallbackFont();
 	
-	// add fallback variant to a font
-	// removing/listing the fallbacks is currently not possible.
+	/// add fallback variant to a font
+	/// removing/listing the fallbacks is currently not possible.
 	void addFallbackFont(const string& fontID, const string &fallbackFontID);
 	
 	/// allows for higher pixel densities.
 	/// this will increase texture resolution during drawing,
 	/// but will leave all sizes exactly the same
+	/// this can be changed between calls, meaning it's read (and applied) before each draw call
 	float pixelDensity;
 	
-	// width of tabs (measured in spaces)
+	/// width of tabs (measured in spaces)
 	int tabWidth = 4;
 	
 	/// with this option one can scale all fonts up/down by a factor
