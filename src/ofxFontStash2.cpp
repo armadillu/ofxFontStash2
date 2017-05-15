@@ -97,6 +97,9 @@ bool ofxFontStash2::addFont(const string& fontID, const string& fontFile){
 	int id = ofx_nvgCreateFont(ctx, fontID.c_str(), ofToDataPath(fontFile).c_str());
 	if(id != FONS_INVALID){
 		fontIDs[fontID] = id;
+		if(globalFallbackFontID != ""){
+			addFallbackFont(fontID, globalFallbackFontID); 
+		}
 		return true;
 	}else{
 		ofLogError("ofxFontStash2") << "Could not load font '" << fontFile << "'";
@@ -661,6 +664,37 @@ void ofxFontStash2::getVerticalMetrics(const ofxFontStashStyle & style, float* a
 	OFX_FONSTASH2_CHECK
 	applyStyle(style);
 	ofx_nvgTextMetrics(ctx, ascender, descender, lineH);
+}
+
+
+void ofxFontStash2::setGlobalFallbackFont(const string& fallbackFontID){
+	// first remove the existing font
+	if(globalFallbackFontID != ""){
+		// We can't, because afaik fontstash has no way of doing that yet
+		// and i don't want to go to deep into their datastructures (??)
+		ofLogWarning("ofxFontStash2") << "Setting the global fallback font multiple times is currently not supported. Funny behavior might arise" << endl;
+	}
+	
+	int fallbackFontID_fs = fontIDs[fallbackFontID];
+	for( auto font : fontIDs){
+		if(font.second != fallbackFontID_fs){
+			ofx_nvgAddFallbackFontId(ctx, font.second, fallbackFontID_fs);
+		}
+	}
+	globalFallbackFontID = fallbackFontID; 
+}
+
+
+string ofxFontStash2::getGlobalFallbackFont(){
+	return globalFallbackFontID;
+}
+
+
+void ofxFontStash2::addFallbackFont(const string& fontID, const string &fallbackFontID){
+	int fontID_fs = fontIDs[fontID];
+	int fallbackFontID_fs = fontIDs[fallbackFontID];
+
+	ofx_nvgAddFallbackFontId(ctx, fontID_fs, fallbackFontID_fs);
 }
 
 

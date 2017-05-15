@@ -122,6 +122,15 @@ public:
 
 	NVGcontext * getNanoVGContext(){return ctx;}
 
+	// sets a single font as fallback for all fonts
+	// this can only be set once
+	void setGlobalFallbackFont(const string& fallbackFontID);
+	string getGlobalFallbackFont();
+	
+	// add fallback variant to a font
+	// removing/listing the fallbacks is currently not possible.
+	void addFallbackFont(const string& fontID, const string &fallbackFontID);
+	
 	/// allows for higher pixel densities.
 	/// this will increase texture resolution during drawing,
 	/// but will leave all sizes exactly the same
@@ -159,6 +168,8 @@ protected:
 	map<string, int> fontIDs; //userFontID to fontStashFontID
 
 	map<string, ofxFontStashStyle> styleIDs;
+	
+	string globalFallbackFontID; // id of the fallback font for all loaded fonts
 
 	vector<TextBlock> splitWords( const vector<StyledText> & blocks);
 
