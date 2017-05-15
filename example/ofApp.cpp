@@ -185,12 +185,11 @@ float ofApp::testDrawColumn(float x, float y){
 
 	string text = "testDrawColumn(): methods with a long string and no line breaks whatsoever. Also, adding some fancy unicode バナナのようなサル. And back to normal...";
 	drawInsertionPoint(x,y,100);
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.39 + 4)) * 200;
 	ofSetColor(255,33);
-	float boxH = 300;
-	ofDrawLine(x , y - 15, x, y + boxH);
-	ofDrawLine(x + colW, y - 15, x + colW, y + boxH);
 	ofRectangle bbox = fonts.drawColumn(text, style, x, y, colW, align, debug);
+	ofDrawLine(x , y - 15, x, y + bbox.height);
+	ofDrawLine(x + colW, y - 15, x + colW, y + bbox.height);
 	ofSetColor(255,13);
 	ofDrawRectangle(bbox);
 	return bbox.height;
@@ -205,13 +204,12 @@ float ofApp::testDrawColumnNVG(float x, float y){
 
 	string text = "testDrawColumnNVG(): El català és una llengua de transició entre les llengües iberoromàniques i les llengües gal·loromàniques, encara que antigament fos molt pròxima a l'occità, amb qui comparteix origen i grup: l'occitanoromànic.";
 	drawInsertionPoint(x,y,100);
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.24 - 1)) * 200;
 	ofSetColor(255,33);
-	float boxH = 300;
-	ofDrawLine(x , y - 15, x, y + boxH);
-	ofDrawLine(x + colW, y - 15, x + colW, y + boxH);
 	fonts.drawColumnNVG(text, style, x, y, colW, align);
 	ofRectangle bounds = fonts.getTextBoundsNVG(text, style, x, y, colW, align);
+	ofDrawLine(x , y - 15, x, y + bounds.height);
+	ofDrawLine(x + colW, y - 15, x + colW, y + bounds.height);
 	ofSetColor(255,22);
 	ofDrawRectangle(bounds);
 	return bounds.height;
@@ -233,10 +231,10 @@ float ofApp::testDrawFormattedColumn(float x, float y){
 	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
 	ofSetColor(255,33);
 	float boxH = 300;
-	ofDrawLine(x , y - 15, x, y + boxH);
-	ofDrawLine(x + colW, y - 15, x + colW, y + boxH);
 	auto align = getCurrentAlignment();
 	ofRectangle bbox = fonts.drawFormattedColumn(styledText, x, y, colW, align, debug);
+	ofDrawLine(x , y - 15, x, y + bbox.height);
+	ofDrawLine(x + colW, y - 15, x + colW, y + bbox.height);
 	ofSetColor(255,16);
 	ofDrawRectangle(bbox);
 	return bbox.height;
@@ -264,7 +262,7 @@ void ofApp::testDrawTabs(float x, float y){
 float ofApp::testDiyFormattedLayout(float x, float y){
 
 	string myStyledText = "<style id='style1'>testDiyFormattedLayout(): hello</style><style id='style2'>banana</style><style id='style3'>monkey</style>";
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.45 + 2.3)) * 200;
 	auto align = getCurrentAlignment();
 	vector<StyledText> parsed = fonts.parseStyledText(myStyledText);
 	vector<StyledLine> laidOutLines = fonts.layoutLines(parsed, colW, align);
@@ -284,7 +282,7 @@ float ofApp::testDiyPlainLayout(float x, float y){
 
 	ofxFontStashStyle style = fonts.getStyles()["style1"];
 	string text = "testDiyPlainLayout(): L'italiano è una tra le ventiquattro lingue ufficiali dell'Unione europea ed è lingua ufficiale dell'Italia, di San Marino, della Svizzera, della Città del Vaticano e del Sovrano Militare Ordine di Malta.";
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.27)) * 200;
 	auto align = getCurrentAlignment();
 	vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, colW, align);
 
