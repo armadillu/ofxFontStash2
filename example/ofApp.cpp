@@ -41,6 +41,10 @@ void ofApp::setup(){
 	ofxNanoVG::one().addFont("VeraMono", "fonts/VeraMono.ttf");
 	#endif
 
+	//test fallback font with emoji
+	string emojiPath = "fonts/NotoEmoji-Regular.ttf";
+	fonts.addFont("emoji-fallback", emojiPath);
+	fonts.setGlobalFallbackFont("emoji-fallback");
 }
 
 
@@ -221,7 +225,7 @@ void ofApp::testDrawTabs(float x, float y){
 	string code =
 	"class ofApp : public ofBaseApp{\n"
 	"	public:\n"
-	"		void setup();\n"
+	"		void setup(); //some emoji too 😀💩🐙🐵\n"
 	"		void update();\n"
 	"}";
 
