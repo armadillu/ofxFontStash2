@@ -69,10 +69,9 @@ ofxFontStash2::~ofxFontStash2(){
 }
 
 
-void ofxFontStash2::setup(){
+void ofxFontStash2::setup(bool debug){
 
 	bool stencilStrokes = false;
-	bool debug = false;
 
 	#ifdef NANOVG_GL3_IMPLEMENTATION
 	ctx = ofx_nvgCreateGL23(NVG_ANTIALIAS | (stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
@@ -199,7 +198,6 @@ ofRectangle ofxFontStash2::getTextBoundsNVG(const string& text,
 											const ofxFontStashStyle& style,
 											float x, float y, float width,
 											ofAlignHorz horAlign){
-	//begin();
 	applyStyle(style);
 	NVGalign hAlign = NVGalign(0);
 	switch(horAlign){
@@ -210,7 +208,6 @@ ofRectangle ofxFontStash2::getTextBoundsNVG(const string& text,
 	ofx_nvgTextAlign(ctx, style.alignmentV | hAlign);
 	float bounds[4];
 	ofx_nvgTextBoxBounds(ctx, x, y, width, text.c_str(), NULL, bounds);
-	//end();
 	return ofRectangle(bounds[0], bounds[1], bounds[2]-bounds[0], bounds[3]-bounds[1]);
 }
 
@@ -562,7 +559,7 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 	ofRectangle bounds = getTextBounds(lines, x, y);
 	bounds.x += x;
 	bounds.y += y;
-	end();
+	//end();
 	return bounds;
 }
 

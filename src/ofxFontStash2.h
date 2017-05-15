@@ -23,7 +23,7 @@ public:
 	ofxFontStash2();
 	~ofxFontStash2();
 
-	void setup();
+	void setup(bool debug = false);
 
 	/// load fonts
 	bool addFont(const string& fontID, const string& fontFile); //returns fontID
