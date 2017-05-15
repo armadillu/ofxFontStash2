@@ -32,6 +32,7 @@ void ofApp::setup(){
 	style.color = ofColor::lightCyan;
 	style.fontID = "veraMono";
 	style.fontSize = 55;
+	style.blur = 4;
 	fonts.addStyle("style3", style);
 
 	ofDisableAntiAliasing(); //to get precise lines
@@ -55,7 +56,6 @@ void ofApp::draw(){
 	float yy = 40;
 	int testID = 0;
 	ofScale(0.9, 0.9);
-
 	TSGL_START("d");
 
 	string tMsg = ofToString(testID) + " draw";
@@ -113,8 +113,6 @@ void ofApp::draw(){
 	drawID(testID, xx, yy); testID++;
 	yy += testDiyFormattedLayout(xx, yy);
 	TS_STOP(tMsg);
-
-
 
 	TSGL_STOP("d");
 
@@ -276,7 +274,7 @@ float ofApp::testDiyFormattedLayout(float x, float y){
 
 float ofApp::testDiyPlainLayout(float x, float y){
 
-	ofxFontStashStyle style = fonts.getStyleList()["style1"];
+	ofxFontStashStyle style = fonts.getStyles()["style1"];
 	string text = "testDiyPlainLayout(): L'italiano è una tra le ventiquattro lingue ufficiali dell'Unione europea ed è lingua ufficiale dell'Italia, di San Marino, della Svizzera, della Città del Vaticano e del Sovrano Militare Ordine di Malta.";
 	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
 	auto align = getCurrentAlignment();

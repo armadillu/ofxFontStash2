@@ -31,7 +31,9 @@ public:
 
 	/// work with font styles
 	void addStyle(const string& styleID, ofxFontStashStyle style);
-	map<string, ofxFontStashStyle> getStyleList(){ return styleIDs; }
+	bool styleExists(const string& styleID);
+	ofxFontStashStyle getStyle(const string& styleID, bool & exists);
+	map<string, ofxFontStashStyle> getStyles(){ return styleIDs; }
 
 	/// draw single line string
 	/// returns text width

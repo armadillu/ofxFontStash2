@@ -118,6 +118,22 @@ void ofxFontStash2::addStyle(const string& styleID, ofxFontStashStyle style){
 }
 
 
+bool ofxFontStash2::styleExists(const string& styleID){
+	return styleIDs.find(styleID) != styleIDs.end();
+}
+
+
+ofxFontStashStyle ofxFontStash2::getStyle(const string& styleID, bool & exists){
+
+	auto it = styleIDs.find(styleID);
+	if(it != styleIDs.end()){
+		exists = true;
+		return it->second;
+	}
+	exists = false;
+	return ofxFontStashStyle();
+}
+
 void ofxFontStash2::begin(){
 	OFX_FONSTASH2_CHECK
 	//NanoVG sets its own shader to draw text- once done, we need OF to enable back its own
