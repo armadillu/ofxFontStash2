@@ -51,7 +51,7 @@ OpenGL ES  >> NANOVG_GLES2_IMPLEMENTATION
 ```
 
 
-## License
+# License
 
 ofxFontStash2 has been created by Oriol Ferrer Mesià and Hans Raber and is released under [MIT license](http://www.opensource.org/licenses/mit-license.php).
 
