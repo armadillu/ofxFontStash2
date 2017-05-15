@@ -158,7 +158,7 @@ float ofApp::testDrawColumn(float x, float y){
 	ofxFontStashStyle style;
 	style.fontID = "Arial";
 	style.fontSize = 45;
-	ofAlignHorz align = getCyclingAlignment();
+	ofAlignHorz align = getCurrentAlignment();
 
 	string text = "Testing drawColumn() methods with a long string and no line breaks whatsoever. Also, adding some fancy unicode バナナのようなサル. And back to normal...";
 	drawInsertionPoint(x,y,100);
@@ -178,7 +178,7 @@ float ofApp::testDrawColumnNVG(float x, float y){
 	ofxFontStashStyle style;
 	style.fontID = "Arial";
 	style.fontSize = 22;
-	ofAlignHorz align = getCyclingAlignment();
+	ofAlignHorz align = getCurrentAlignment();
 
 	string text = "Testing drawColumnNVG(): El català és una llengua de transició entre les llengües iberoromàniques i les llengües gal·loromàniques, encara que antigament fos molt pròxima a l'occità, amb qui comparteix origen i grup: l'occitanoromànic.";
 	drawInsertionPoint(x,y,100);
@@ -212,7 +212,7 @@ float ofApp::testDrawFormattedColumn(float x, float y){
 	float boxH = 300;
 	ofDrawLine(x , y - 15, x, y + boxH);
 	ofDrawLine(x + colW, y - 15, x + colW, y + boxH);
-	auto align = getCyclingAlignment();
+	auto align = getCurrentAlignment();
 	ofRectangle bbox = fonts.drawFormattedColumn(styledText, x, y, colW, align, debug);
 	ofSetColor(255,16);
 	ofDrawRectangle(bbox);
@@ -241,9 +241,15 @@ float ofApp::testDiyFormattedLayout(float x, float y){
 
 	string myStyledText = "<style id='style1'>hello</style><style id='style2'>banana</style><style id='style3'>monkey</style>";
 	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	auto align = getCurrentAlignment();
 	vector<StyledText> parsed = fonts.parseStyledText(myStyledText);
-	vector<StyledLine> laidOutLines = fonts.layoutLines(parsed, colW);
-	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
+	vector<StyledLine> laidOutLines = fonts.layoutLines(parsed, colW, align);
+
+	//we only want to draw whatever fits in 2 lines
+	int numLines = 2;
+	vector<StyledLine> drawnLines(laidOutLines.begin(), laidOutLines.begin() + MIN(numLines, laidOutLines.size()));
+
+	ofRectangle bbox = fonts.drawLines(drawnLines, x, y);
 	ofSetColor(255,16);
 	ofDrawRectangle(bbox);
 	return bbox.height;
@@ -255,8 +261,14 @@ float ofApp::testDiyPlainLayout(float x, float y){
 	ofxFontStashStyle style = fonts.getStyleList()["style1"];
 	string text = "L'italiano è una tra le ventiquattro lingue ufficiali dell'Unione europea ed è lingua ufficiale dell'Italia, di San Marino, della Svizzera, della Città del Vaticano e del Sovrano Militare Ordine di Malta.";
 	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
-	vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, colW);
-	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
+	auto align = getCurrentAlignment();
+	vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, colW, align);
+
+	//we only want to draw whatever fits in 2 lines
+	int numLines = 2;
+	vector<StyledLine> drawnLines(laidOutLines.begin(), laidOutLines.begin() + MIN(numLines, laidOutLines.size()));
+
+	ofRectangle bbox = fonts.drawLines(drawnLines, x, y);
 	ofSetColor(255,16);
 	ofDrawRectangle(bbox);
 	return bbox.height;
@@ -282,7 +294,7 @@ void ofApp::drawInsertionPoint(float x, float y, float w){
 }
 
 
-ofAlignHorz ofApp::getCyclingAlignment(){
+ofAlignHorz ofApp::getCurrentAlignment(){
 
 	vector<ofAlignHorz> hor = {OF_ALIGN_HORZ_LEFT, OF_ALIGN_HORZ_CENTER, OF_ALIGN_HORZ_RIGHT};
 	float pct = (ofGetFrameNum()%300 / 300.0f) ;

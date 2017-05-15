@@ -40,5 +40,5 @@ class ofApp : public ofBaseApp{
 
 	void drawInsertionPoint(float x, float y, float w);
 
-	ofAlignHorz getCyclingAlignment();
+	ofAlignHorz getCurrentAlignment();
 };
