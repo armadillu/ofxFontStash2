@@ -99,7 +99,7 @@ public:
 										 ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
 										 bool debug=false);
 
-	/// draw already prepared StyledLine«s
+	/// draw already prepared StyledLineÂ´s
 	ofRectangle drawLines(const vector<StyledLine> &lines,
 						  float x, float y,
 						  ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
