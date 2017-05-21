@@ -298,9 +298,6 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 
 	for(int i = 0; i < words.size(); i++){
 
-		if(limitToNLines != 0 && lines.size() > limitToNLines){ //stop early if we reached max N of lines
-			break;
-		}
 		StyledLine &currentLine = lines.back();
 		currentLine.boxW = targetWidth;
 
@@ -344,6 +341,9 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 			lineWidth = 0;
 			wordsThisLine = 0;
 			xx = x;
+			if(limitToNLines != 0 && lines.size() >= limitToNLines){ //stop early if we reached max N of lines
+				break;
+			}
 			lines.push_back(StyledLine());
 			continue;
 
@@ -414,6 +414,10 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 			lineWidth = 0;
 			wordsThisLine = 0;
 			xx = x;
+			if(limitToNLines != 0 && lines.size() >= limitToNLines){ //stop early if we reached max N of lines
+				break;
+			}
+
 			lines.push_back(StyledLine());
 			TS_STOP_ACC("new line");
 		}
