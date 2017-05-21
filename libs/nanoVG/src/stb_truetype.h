@@ -51,10 +51,10 @@
 // VERSION HISTORY
 //
 //   1.09 (2016-01-16) warning fix; avoid crash on outofmem; use allocation userdata properly
-//   1.08 (2015-09-13) document ofx_stbtt_Rasterize(); fixes for vertical & horizontal edges
+//   1.08 (2015-09-13) document ofxfs2_stbtt_Rasterize(); fixes for vertical & horizontal edges
 //   1.07 (2015-08-01) allow PackFontRanges to accept arrays of sparse codepoints;
 //                     variant PackFontRanges to pack and render in separate phases;
-//                     fix ofx_stbtt_GetFontOFfsetForIndex (never worked for non-0 input?);
+//                     fix ofxfs2_stbtt_GetFontOFfsetForIndex (never worked for non-0 input?);
 //                     fixed an assert() bug in the new rasterizer
 //                     replace assert() with STBTT_assert() in new rasterizer
 //   1.06 (2015-07-14) performance improvements (~35% faster on x86 and x64 on test machine)
@@ -84,30 +84,30 @@
 //      #define STBTT_STATIC
 //
 //   Simple 3D API (don't ship this, but it's fine for tools and quick start)
-//           ofx_stbtt_BakeFontBitmap()               -- bake a font to a bitmap for use as texture
-//           ofx_stbtt_GetBakedQuad()                 -- compute quad to draw for a given char
+//           ofxfs2_stbtt_BakeFontBitmap()               -- bake a font to a bitmap for use as texture
+//           ofxfs2_stbtt_GetBakedQuad()                 -- compute quad to draw for a given char
 //
 //   Improved 3D API (more shippable):
 //           #include "stb_rect_pack.h"           -- optional, but you really want it
-//           ofx_stbtt_PackBegin()
-//           ofx_stbtt_PackSetOversample()            -- for improved quality on small fonts
-//           ofx_stbtt_PackFontRanges()               -- pack and renders
-//           ofx_stbtt_PackEnd()
-//           ofx_stbtt_GetPackedQuad()
+//           ofxfs2_stbtt_PackBegin()
+//           ofxfs2_stbtt_PackSetOversample()            -- for improved quality on small fonts
+//           ofxfs2_stbtt_PackFontRanges()               -- pack and renders
+//           ofxfs2_stbtt_PackEnd()
+//           ofxfs2_stbtt_GetPackedQuad()
 //
 //   "Load" a font file from a memory buffer (you have to keep the buffer loaded)
-//           ofx_stbtt_InitFont()
-//           ofx_stbtt_GetFontOffsetForIndex()        -- use for TTC font collections
+//           ofxfs2_stbtt_InitFont()
+//           ofxfs2_stbtt_GetFontOffsetForIndex()        -- use for TTC font collections
 //
 //   Render a unicode codepoint to a bitmap
-//           ofx_stbtt_GetCodepointBitmap()           -- allocates and returns a bitmap
-//           ofx_stbtt_MakeCodepointBitmap()          -- renders into bitmap you provide
-//           ofx_stbtt_GetCodepointBitmapBox()        -- how big the bitmap must be
+//           ofxfs2_stbtt_GetCodepointBitmap()           -- allocates and returns a bitmap
+//           ofxfs2_stbtt_MakeCodepointBitmap()          -- renders into bitmap you provide
+//           ofxfs2_stbtt_GetCodepointBitmapBox()        -- how big the bitmap must be
 //
 //   Character advance/positioning
-//           ofx_stbtt_GetCodepointHMetrics()
-//           ofx_stbtt_GetFontVMetrics()
-//           ofx_stbtt_GetCodepointKernAdvance()
+//           ofxfs2_stbtt_GetCodepointHMetrics()
+//           ofxfs2_stbtt_GetFontVMetrics()
+//           ofxfs2_stbtt_GetCodepointKernAdvance()
 //
 //   Starting with version 1.06, the rasterizer was replaced with a new,
 //   faster and generally-more-precise rasterizer. The new rasterizer more
@@ -151,7 +151,7 @@
 //
 //      Vertical Font Metrics
 //         The vertical qualities of the font, used to vertically position
-//         and space the characters. See docs for ofx_stbtt_GetFontVMetrics.
+//         and space the characters. See docs for ofxfs2_stbtt_GetFontVMetrics.
 //
 //      Font Size in Pixels or Points
 //         The preferred interface for specifying font sizes in stb_truetype
@@ -242,13 +242,13 @@
 unsigned char ttf_buffer[1<<20];
 unsigned char temp_bitmap[512*512];
 
-ofx_stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
+ofxfs2_stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
 GLuint ftex;
 
 void my_stbtt_initfont(void)
 {
    fread(ttf_buffer, 1, 1<<20, fopen("c:/windows/fonts/times.ttf", "rb"));
-   ofx_stbtt_BakeFontBitmap(ttf_buffer,0, 32.0, temp_bitmap,512,512, 32,96, cdata); // no guarantee this fits!
+   ofxfs2_stbtt_BakeFontBitmap(ttf_buffer,0, 32.0, temp_bitmap,512,512, 32,96, cdata); // no guarantee this fits!
    // can free ttf_buffer at this point
    glGenTextures(1, &ftex);
    glBindTexture(GL_TEXTURE_2D, ftex);
@@ -265,8 +265,8 @@ void my_stbtt_print(float x, float y, char *text)
    glBegin(GL_QUADS);
    while (*text) {
       if (*text >= 32 && *text < 128) {
-         ofx_stbtt_aligned_quad q;
-         ofx_stbtt_GetBakedQuad(cdata, 512,512, *text-32, &x,&y,&q,1);//1=opengl & d3d10+,0=d3d9
+         ofxfs2_stbtt_aligned_quad q;
+         ofxfs2_stbtt_GetBakedQuad(cdata, 512,512, *text-32, &x,&y,&q,1);//1=opengl & d3d10+,0=d3d9
          glTexCoord2f(q.s0,q.t1); glVertex2f(q.x0,q.y0);
          glTexCoord2f(q.s1,q.t1); glVertex2f(q.x1,q.y0);
          glTexCoord2f(q.s1,q.t0); glVertex2f(q.x1,q.y1);
@@ -292,14 +292,14 @@ char ttf_buffer[1<<25];
 
 int main(int argc, char **argv)
 {
-   ofx_stbtt_fontinfo font;
+   ofxfs2_stbtt_fontinfo font;
    unsigned char *bitmap;
    int w,h,i,j,c = (argc > 1 ? atoi(argv[1]) : 'a'), s = (argc > 2 ? atoi(argv[2]) : 20);
 
    fread(ttf_buffer, 1, 1<<25, fopen(argc > 3 ? argv[3] : "c:/windows/fonts/arialbd.ttf", "rb"));
 
-   ofx_stbtt_InitFont(&font, ttf_buffer, ofx_stbtt_GetFontOffsetForIndex(ttf_buffer,0));
-   bitmap = ofx_stbtt_GetCodepointBitmap(&font, 0,ofx_stbtt_ScaleForPixelHeight(&font, s), c, &w, &h, 0,0);
+   ofxfs2_stbtt_InitFont(&font, ttf_buffer, ofxfs2_stbtt_GetFontOffsetForIndex(ttf_buffer,0));
+   bitmap = ofxfs2_stbtt_GetCodepointBitmap(&font, 0,ofxfs2_stbtt_ScaleForPixelHeight(&font, s), c, &w, &h, 0,0);
 
    for (j=0; j < h; ++j) {
       for (i=0; i < w; ++i)
@@ -333,31 +333,31 @@ unsigned char screen[20][79];
 
 int main(int arg, char **argv)
 {
-   ofx_stbtt_fontinfo font;
+   ofxfs2_stbtt_fontinfo font;
    int i,j,ascent,baseline,ch=0;
    float scale, xpos=2; // leave a little padding in case the character extends left
    char *text = "Heljo World!"; // intentionally misspelled to show 'lj' brokenness
 
    fread(buffer, 1, 1000000, fopen("c:/windows/fonts/arialbd.ttf", "rb"));
-   ofx_stbtt_InitFont(&font, buffer, 0);
+   ofxfs2_stbtt_InitFont(&font, buffer, 0);
 
-   scale = ofx_stbtt_ScaleForPixelHeight(&font, 15);
-   ofx_stbtt_GetFontVMetrics(&font, &ascent,0,0);
+   scale = ofxfs2_stbtt_ScaleForPixelHeight(&font, 15);
+   ofxfs2_stbtt_GetFontVMetrics(&font, &ascent,0,0);
    baseline = (int) (ascent*scale);
 
    while (text[ch]) {
       int advance,lsb,x0,y0,x1,y1;
       float x_shift = xpos - (float) floor(xpos);
-      ofx_stbtt_GetCodepointHMetrics(&font, text[ch], &advance, &lsb);
-      ofx_stbtt_GetCodepointBitmapBoxSubpixel(&font, text[ch], scale,scale,x_shift,0, &x0,&y0,&x1,&y1);
-      ofx_stbtt_MakeCodepointBitmapSubpixel(&font, &screen[baseline + y0][(int) xpos + x0], x1-x0,y1-y0, 79, scale,scale,x_shift,0, text[ch]);
+      ofxfs2_stbtt_GetCodepointHMetrics(&font, text[ch], &advance, &lsb);
+      ofxfs2_stbtt_GetCodepointBitmapBoxSubpixel(&font, text[ch], scale,scale,x_shift,0, &x0,&y0,&x1,&y1);
+      ofxfs2_stbtt_MakeCodepointBitmapSubpixel(&font, &screen[baseline + y0][(int) xpos + x0], x1-x0,y1-y0, 79, scale,scale,x_shift,0, text[ch]);
       // note that this stomps the old data, so where character boxes overlap (e.g. 'lj') it's wrong
       // because this API is really for baking character bitmaps into textures. if you want to render
       // a sequence of characters, you really need to render each bitmap to a temp buffer, then
       // "alpha blend" that into the working buffer
       xpos += (advance * scale);
       if (text[ch+1])
-         xpos += scale*ofx_stbtt_GetCodepointKernAdvance(&font, text[ch],text[ch+1]);
+         xpos += scale*ofxfs2_stbtt_GetCodepointKernAdvance(&font, text[ch],text[ch+1]);
       ++ch;
    }
 
@@ -381,18 +381,18 @@ int main(int arg, char **argv)
 ////   of C library functions used by stb_truetype.
 
 #ifdef STB_TRUETYPE_IMPLEMENTATION
-   // #define your own (u)ofx_stbtt_int8/16/32 before including to override this
-   #ifndef ofx_stbtt_uint8
-   typedef unsigned char   ofx_stbtt_uint8;
-   typedef signed   char   ofx_stbtt_int8;
-   typedef unsigned short  ofx_stbtt_uint16;
-   typedef signed   short  ofx_stbtt_int16;
-   typedef unsigned int    ofx_stbtt_uint32;
-   typedef signed   int    ofx_stbtt_int32;
+   // #define your own (u)ofxfs2_stbtt_int8/16/32 before including to override this
+   #ifndef ofxfs2_stbtt_uint8
+   typedef unsigned char   ofxfs2_stbtt_uint8;
+   typedef signed   char   ofxfs2_stbtt_int8;
+   typedef unsigned short  ofxfs2_stbtt_uint16;
+   typedef signed   short  ofxfs2_stbtt_int16;
+   typedef unsigned int    ofxfs2_stbtt_uint32;
+   typedef signed   int    ofxfs2_stbtt_int32;
    #endif
 
-   typedef char ofx_stbtt__check_size32[sizeof(ofx_stbtt_int32)==4 ? 1 : -1];
-   typedef char ofx_stbtt__check_size16[sizeof(ofx_stbtt_int16)==2 ? 1 : -1];
+   typedef char ofxfs2_stbtt__check_size32[sizeof(ofxfs2_stbtt_int32)==4 ? 1 : -1];
+   typedef char ofxfs2_stbtt__check_size16[sizeof(ofxfs2_stbtt_int16)==2 ? 1 : -1];
 
    // #define your own STBTT_ifloor/STBTT_iceil() to avoid math.h
    #ifndef STBTT_ifloor
@@ -461,13 +461,13 @@ typedef struct
 {
    unsigned short x0,y0,x1,y1; // coordinates of bbox in bitmap
    float xoff,yoff,xadvance;
-} ofx_stbtt_bakedchar;
+} ofxfs2_stbtt_bakedchar;
 
-STBTT_DEF int ofx_stbtt_BakeFontBitmap(const unsigned char *data, int offset,  // font location (use offset=0 for plain .ttf)
+STBTT_DEF int ofxfs2_stbtt_BakeFontBitmap(const unsigned char *data, int offset,  // font location (use offset=0 for plain .ttf)
                                 float pixel_height,                     // height of font in pixels
                                 unsigned char *pixels, int pw, int ph,  // bitmap to be filled in
                                 int first_char, int num_chars,          // characters to bake
-                                ofx_stbtt_bakedchar *chardata);             // you allocate this, it's num_chars long
+                                ofxfs2_stbtt_bakedchar *chardata);             // you allocate this, it's num_chars long
 // if return is positive, the first unused row of the bitmap
 // if return is negative, returns the negative of the number of characters that fit
 // if return is 0, no characters fit and no rows were used
@@ -477,12 +477,12 @@ typedef struct
 {
    float x0,y0,s0,t0; // top-left
    float x1,y1,s1,t1; // bottom-right
-} ofx_stbtt_aligned_quad;
+} ofxfs2_stbtt_aligned_quad;
 
-STBTT_DEF void ofx_stbtt_GetBakedQuad(ofx_stbtt_bakedchar *chardata, int pw, int ph,  // same data as above
+STBTT_DEF void ofxfs2_stbtt_GetBakedQuad(ofxfs2_stbtt_bakedchar *chardata, int pw, int ph,  // same data as above
                                int char_index,             // character to display
                                float *xpos, float *ypos,   // pointers to current position in screen pixel space
-                               ofx_stbtt_aligned_quad *q,      // output: quad to draw
+                               ofxfs2_stbtt_aligned_quad *q,      // output: quad to draw
                                int opengl_fillrule);       // true if opengl fill rule; false if DX9 or earlier
 // Call GetBakedQuad with char_index = 'character - first_char', and it
 // creates the quad you need to draw and advances the current position.
@@ -508,16 +508,16 @@ typedef struct
    unsigned short x0,y0,x1,y1; // coordinates of bbox in bitmap
    float xoff,yoff,xadvance;
    float xoff2,yoff2;
-} ofx_stbtt_packedchar;
+} ofxfs2_stbtt_packedchar;
 
-typedef struct ofx_stbtt_pack_context ofx_stbtt_pack_context;
-typedef struct ofx_stbtt_fontinfo ofx_stbtt_fontinfo;
+typedef struct ofxfs2_stbtt_pack_context ofxfs2_stbtt_pack_context;
+typedef struct ofxfs2_stbtt_fontinfo ofxfs2_stbtt_fontinfo;
 #ifndef STB_RECT_PACK_VERSION
 typedef struct stbrp_rect stbrp_rect;
 #endif
 
-STBTT_DEF int  ofx_stbtt_PackBegin(ofx_stbtt_pack_context *spc, unsigned char *pixels, int width, int height, int stride_in_bytes, int padding, void *alloc_context);
-// Initializes a packing context stored in the passed-in ofx_stbtt_pack_context.
+STBTT_DEF int  ofxfs2_stbtt_PackBegin(ofxfs2_stbtt_pack_context *spc, unsigned char *pixels, int width, int height, int stride_in_bytes, int padding, void *alloc_context);
+// Initializes a packing context stored in the passed-in ofxfs2_stbtt_pack_context.
 // Future calls using this context will pack characters into the bitmap passed
 // in here: a 1-channel bitmap that is weight x height. stride_in_bytes is
 // the distance from one row to the next (or 0 to mean they are packed tightly
@@ -527,22 +527,22 @@ STBTT_DEF int  ofx_stbtt_PackBegin(ofx_stbtt_pack_context *spc, unsigned char *p
 //
 // Returns 0 on failure, 1 on success.
 
-STBTT_DEF void ofx_stbtt_PackEnd  (ofx_stbtt_pack_context *spc);
+STBTT_DEF void ofxfs2_stbtt_PackEnd  (ofxfs2_stbtt_pack_context *spc);
 // Cleans up the packing context and frees all memory.
 
 #define STBTT_POINT_SIZE(x)   (-(x))
 
-STBTT_DEF int  ofx_stbtt_PackFontRange(ofx_stbtt_pack_context *spc, unsigned char *fontdata, int font_index, float font_size,
-                                int first_unicode_char_in_range, int num_chars_in_range, ofx_stbtt_packedchar *chardata_for_range);
+STBTT_DEF int  ofxfs2_stbtt_PackFontRange(ofxfs2_stbtt_pack_context *spc, unsigned char *fontdata, int font_index, float font_size,
+                                int first_unicode_char_in_range, int num_chars_in_range, ofxfs2_stbtt_packedchar *chardata_for_range);
 // Creates character bitmaps from the font_index'th font found in fontdata (use
 // font_index=0 if you don't know what that is). It creates num_chars_in_range
 // bitmaps for characters with unicode values starting at first_unicode_char_in_range
 // and increasing. Data for how to render them is stored in chardata_for_range;
-// pass these to ofx_stbtt_GetPackedQuad to get back renderable quads.
+// pass these to ofxfs2_stbtt_GetPackedQuad to get back renderable quads.
 //
 // font_size is the full height of the character from ascender to descender,
-// as computed by ofx_stbtt_ScaleForPixelHeight. To use a point size as computed
-// by ofx_stbtt_ScaleForMappingEmToPixels, wrap the point size in STBTT_POINT_SIZE()
+// as computed by ofxfs2_stbtt_ScaleForPixelHeight. To use a point size as computed
+// by ofxfs2_stbtt_ScaleForMappingEmToPixels, wrap the point size in STBTT_POINT_SIZE()
 // and pass that result as 'font_size':
 //       ...,                  20 , ... // font max minus min y is 20 pixels tall
 //       ..., STBTT_POINT_SIZE(20), ... // 'M' is 20 pixels tall
@@ -553,22 +553,22 @@ typedef struct
    int first_unicode_codepoint_in_range;  // if non-zero, then the chars are continuous, and this is the first codepoint
    int *array_of_unicode_codepoints;       // if non-zero, then this is an array of unicode codepoints
    int num_chars;
-   ofx_stbtt_packedchar *chardata_for_range; // output
+   ofxfs2_stbtt_packedchar *chardata_for_range; // output
    unsigned char h_oversample, v_oversample; // don't set these, they're used internally
-} ofx_stbtt_pack_range;
+} ofxfs2_stbtt_pack_range;
 
-STBTT_DEF int  ofx_stbtt_PackFontRanges(ofx_stbtt_pack_context *spc, unsigned char *fontdata, int font_index, ofx_stbtt_pack_range *ranges, int num_ranges);
+STBTT_DEF int  ofxfs2_stbtt_PackFontRanges(ofxfs2_stbtt_pack_context *spc, unsigned char *fontdata, int font_index, ofxfs2_stbtt_pack_range *ranges, int num_ranges);
 // Creates character bitmaps from multiple ranges of characters stored in
 // ranges. This will usually create a better-packed bitmap than multiple
-// calls to ofx_stbtt_PackFontRange. Note that you can call this multiple
+// calls to ofxfs2_stbtt_PackFontRange. Note that you can call this multiple
 // times within a single PackBegin/PackEnd.
 
-STBTT_DEF void ofx_stbtt_PackSetOversampling(ofx_stbtt_pack_context *spc, unsigned int h_oversample, unsigned int v_oversample);
+STBTT_DEF void ofxfs2_stbtt_PackSetOversampling(ofxfs2_stbtt_pack_context *spc, unsigned int h_oversample, unsigned int v_oversample);
 // Oversampling a font increases the quality by allowing higher-quality subpixel
 // positioning, and is especially valuable at smaller text sizes.
 //
 // This function sets the amount of oversampling for all following calls to
-// ofx_stbtt_PackFontRange(s) or ofx_stbtt_PackFontRangesGatherRects for a given
+// ofxfs2_stbtt_PackFontRange(s) or ofxfs2_stbtt_PackFontRangesGatherRects for a given
 // pack context. The default (no oversampling) is achieved by h_oversample=1
 // and v_oversample=1. The total number of pixels required is
 // h_oversample*v_oversample larger than the default; for example, 2x2
@@ -579,19 +579,19 @@ STBTT_DEF void ofx_stbtt_PackSetOversampling(ofx_stbtt_pack_context *spc, unsign
 // To use with PackFontRangesGather etc., you must set it before calls
 // call to PackFontRangesGatherRects.
 
-STBTT_DEF void ofx_stbtt_GetPackedQuad(ofx_stbtt_packedchar *chardata, int pw, int ph,  // same data as above
+STBTT_DEF void ofxfs2_stbtt_GetPackedQuad(ofxfs2_stbtt_packedchar *chardata, int pw, int ph,  // same data as above
                                int char_index,             // character to display
                                float *xpos, float *ypos,   // pointers to current position in screen pixel space
-                               ofx_stbtt_aligned_quad *q,      // output: quad to draw
+                               ofxfs2_stbtt_aligned_quad *q,      // output: quad to draw
                                int align_to_integer);
 
-STBTT_DEF int  ofx_stbtt_PackFontRangesGatherRects(ofx_stbtt_pack_context *spc, ofx_stbtt_fontinfo *info, ofx_stbtt_pack_range *ranges, int num_ranges, stbrp_rect *rects);
-STBTT_DEF void ofx_stbtt_PackFontRangesPackRects(ofx_stbtt_pack_context *spc, stbrp_rect *rects, int num_rects);
-STBTT_DEF int  ofx_stbtt_PackFontRangesRenderIntoRects(ofx_stbtt_pack_context *spc, ofx_stbtt_fontinfo *info, ofx_stbtt_pack_range *ranges, int num_ranges, stbrp_rect *rects);
+STBTT_DEF int  ofxfs2_stbtt_PackFontRangesGatherRects(ofxfs2_stbtt_pack_context *spc, ofxfs2_stbtt_fontinfo *info, ofxfs2_stbtt_pack_range *ranges, int num_ranges, stbrp_rect *rects);
+STBTT_DEF void ofxfs2_stbtt_PackFontRangesPackRects(ofxfs2_stbtt_pack_context *spc, stbrp_rect *rects, int num_rects);
+STBTT_DEF int  ofxfs2_stbtt_PackFontRangesRenderIntoRects(ofxfs2_stbtt_pack_context *spc, ofxfs2_stbtt_fontinfo *info, ofxfs2_stbtt_pack_range *ranges, int num_ranges, stbrp_rect *rects);
 // Calling these functions in sequence is roughly equivalent to calling
-// ofx_stbtt_PackFontRanges(). If you more control over the packing of multiple
+// ofxfs2_stbtt_PackFontRanges(). If you more control over the packing of multiple
 // fonts, or if you want to pack custom data into a font texture, take a look
-// at the source to of ofx_stbtt_PackFontRanges() and create a custom version 
+// at the source to of ofxfs2_stbtt_PackFontRanges() and create a custom version 
 // using these functions, e.g. call GatherRects multiple times,
 // building up a single array of rects, then call PackRects once,
 // then call RenderIntoRects repeatedly. This may result in a
@@ -600,7 +600,7 @@ STBTT_DEF int  ofx_stbtt_PackFontRangesRenderIntoRects(ofx_stbtt_pack_context *s
 
 // this is an opaque structure that you shouldn't mess with which holds
 // all the context needed from PackBegin to PackEnd.
-struct ofx_stbtt_pack_context {
+struct ofxfs2_stbtt_pack_context {
    void *user_allocator_context;
    void *pack_info;
    int   width;
@@ -618,7 +618,7 @@ struct ofx_stbtt_pack_context {
 //
 //
 
-STBTT_DEF int ofx_stbtt_GetFontOffsetForIndex(const unsigned char *data, int index);
+STBTT_DEF int ofxfs2_stbtt_GetFontOffsetForIndex(const unsigned char *data, int index);
 // Each .ttf/.ttc file may have more than one font. Each font has a sequential
 // index number starting from 0. Call this function to get the font offset for
 // a given index; it returns -1 if the index is out of range. A regular .ttf
@@ -629,7 +629,7 @@ STBTT_DEF int ofx_stbtt_GetFontOffsetForIndex(const unsigned char *data, int ind
 
 // The following structure is defined publically so you can declare one on
 // the stack or as a global or etc, but you should treat it as opaque.
-typedef struct ofx_stbtt_fontinfo
+typedef struct ofxfs2_stbtt_fontinfo
 {
    void           * userdata;
    unsigned char  * data;              // pointer to .ttf file
@@ -640,12 +640,12 @@ typedef struct ofx_stbtt_fontinfo
    int loca,head,glyf,hhea,hmtx,kern; // table locations as offset from start of .ttf
    int index_map;                     // a cmap mapping for our chosen character encoding
    int indexToLocFormat;              // format needed to map from glyph index to glyph
-} ofx_stbtt_fontinfo;
+} ofxfs2_stbtt_fontinfo;
 
-STBTT_DEF int ofx_stbtt_InitFont(ofx_stbtt_fontinfo *info, const unsigned char *data, int offset);
+STBTT_DEF int ofxfs2_stbtt_InitFont(ofxfs2_stbtt_fontinfo *info, const unsigned char *data, int offset);
 // Given an offset into the file that defines a font, this function builds
 // the necessary cached info for the rest of the system. You must allocate
-// the ofx_stbtt_fontinfo yourself, and ofx_stbtt_InitFont will fill it out. You don't
+// the ofxfs2_stbtt_fontinfo yourself, and ofxfs2_stbtt_InitFont will fill it out. You don't
 // need to do anything special to free it, because the contents are pure
 // value data with no additional data structures. Returns 0 on failure.
 
@@ -654,7 +654,7 @@ STBTT_DEF int ofx_stbtt_InitFont(ofx_stbtt_fontinfo *info, const unsigned char *
 //
 // CHARACTER TO GLYPH-INDEX CONVERSIOn
 
-STBTT_DEF int ofx_stbtt_FindGlyphIndex(const ofx_stbtt_fontinfo *info, int unicode_codepoint);
+STBTT_DEF int ofxfs2_stbtt_FindGlyphIndex(const ofxfs2_stbtt_fontinfo *info, int unicode_codepoint);
 // If you're going to perform multiple operations on the same character
 // and you want a speed-up, call this function with the character you're
 // going to process, then use glyph-based functions instead of the
@@ -666,20 +666,20 @@ STBTT_DEF int ofx_stbtt_FindGlyphIndex(const ofx_stbtt_fontinfo *info, int unico
 // CHARACTER PROPERTIES
 //
 
-STBTT_DEF float ofx_stbtt_ScaleForPixelHeight(const ofx_stbtt_fontinfo *info, float pixels);
+STBTT_DEF float ofxfs2_stbtt_ScaleForPixelHeight(const ofxfs2_stbtt_fontinfo *info, float pixels);
 // computes a scale factor to produce a font whose "height" is 'pixels' tall.
 // Height is measured as the distance from the highest ascender to the lowest
-// descender; in other words, it's equivalent to calling ofx_stbtt_GetFontVMetrics
+// descender; in other words, it's equivalent to calling ofxfs2_stbtt_GetFontVMetrics
 // and computing:
 //       scale = pixels / (ascent - descent)
 // so if you prefer to measure height by the ascent only, use a similar calculation.
 
-STBTT_DEF float ofx_stbtt_ScaleForMappingEmToPixels(const ofx_stbtt_fontinfo *info, float pixels);
+STBTT_DEF float ofxfs2_stbtt_ScaleForMappingEmToPixels(const ofxfs2_stbtt_fontinfo *info, float pixels);
 // computes a scale factor to produce a font whose EM size is mapped to
 // 'pixels' tall. This is probably what traditional APIs compute, but
 // I'm not positive.
 
-STBTT_DEF void ofx_stbtt_GetFontVMetrics(const ofx_stbtt_fontinfo *info, int *ascent, int *descent, int *lineGap);
+STBTT_DEF void ofxfs2_stbtt_GetFontVMetrics(const ofxfs2_stbtt_fontinfo *info, int *ascent, int *descent, int *lineGap);
 // ascent is the coordinate above the baseline the font extends; descent
 // is the coordinate below the baseline the font extends (i.e. it is typically negative)
 // lineGap is the spacing between one row's descent and the next row's ascent...
@@ -687,23 +687,23 @@ STBTT_DEF void ofx_stbtt_GetFontVMetrics(const ofx_stbtt_fontinfo *info, int *as
 //   these are expressed in unscaled coordinates, so you must multiply by
 //   the scale factor for a given size
 
-STBTT_DEF void ofx_stbtt_GetFontBoundingBox(const ofx_stbtt_fontinfo *info, int *x0, int *y0, int *x1, int *y1);
+STBTT_DEF void ofxfs2_stbtt_GetFontBoundingBox(const ofxfs2_stbtt_fontinfo *info, int *x0, int *y0, int *x1, int *y1);
 // the bounding box around all possible characters
 
-STBTT_DEF void ofx_stbtt_GetCodepointHMetrics(const ofx_stbtt_fontinfo *info, int codepoint, int *advanceWidth, int *leftSideBearing);
+STBTT_DEF void ofxfs2_stbtt_GetCodepointHMetrics(const ofxfs2_stbtt_fontinfo *info, int codepoint, int *advanceWidth, int *leftSideBearing);
 // leftSideBearing is the offset from the current horizontal position to the left edge of the character
 // advanceWidth is the offset from the current horizontal position to the next horizontal position
 //   these are expressed in unscaled coordinates
 
-STBTT_DEF int  ofx_stbtt_GetCodepointKernAdvance(const ofx_stbtt_fontinfo *info, int ch1, int ch2);
+STBTT_DEF int  ofxfs2_stbtt_GetCodepointKernAdvance(const ofxfs2_stbtt_fontinfo *info, int ch1, int ch2);
 // an additional amount to add to the 'advance' value between ch1 and ch2
 
-STBTT_DEF int ofx_stbtt_GetCodepointBox(const ofx_stbtt_fontinfo *info, int codepoint, int *x0, int *y0, int *x1, int *y1);
+STBTT_DEF int ofxfs2_stbtt_GetCodepointBox(const ofxfs2_stbtt_fontinfo *info, int codepoint, int *x0, int *y0, int *x1, int *y1);
 // Gets the bounding box of the visible part of the glyph, in unscaled coordinates
 
-STBTT_DEF void ofx_stbtt_GetGlyphHMetrics(const ofx_stbtt_fontinfo *info, int glyph_index, int *advanceWidth, int *leftSideBearing);
-STBTT_DEF int  ofx_stbtt_GetGlyphKernAdvance(const ofx_stbtt_fontinfo *info, int glyph1, int glyph2);
-STBTT_DEF int  ofx_stbtt_GetGlyphBox(const ofx_stbtt_fontinfo *info, int glyph_index, int *x0, int *y0, int *x1, int *y1);
+STBTT_DEF void ofxfs2_stbtt_GetGlyphHMetrics(const ofxfs2_stbtt_fontinfo *info, int glyph_index, int *advanceWidth, int *leftSideBearing);
+STBTT_DEF int  ofxfs2_stbtt_GetGlyphKernAdvance(const ofxfs2_stbtt_fontinfo *info, int glyph1, int glyph2);
+STBTT_DEF int  ofxfs2_stbtt_GetGlyphBox(const ofxfs2_stbtt_fontinfo *info, int glyph_index, int *x0, int *y0, int *x1, int *y1);
 // as above, but takes one or more glyph indices for greater efficiency
 
 
@@ -721,21 +721,21 @@ STBTT_DEF int  ofx_stbtt_GetGlyphBox(const ofx_stbtt_fontinfo *info, int glyph_i
    };
 #endif
 
-#ifndef ofx_stbtt_vertex // you can predefine this to use different values
+#ifndef ofxfs2_stbtt_vertex // you can predefine this to use different values
                    // (we share this with other code at RAD)
-   #define ofx_stbtt_vertex_type short // can't use ofx_stbtt_int16 because that's not visible in the header file
+   #define ofxfs2_stbtt_vertex_type short // can't use ofxfs2_stbtt_int16 because that's not visible in the header file
    typedef struct
    {
-      ofx_stbtt_vertex_type x,y,cx,cy;
+      ofxfs2_stbtt_vertex_type x,y,cx,cy;
       unsigned char type,padding;
-   } ofx_stbtt_vertex;
+   } ofxfs2_stbtt_vertex;
 #endif
 
-STBTT_DEF int ofx_stbtt_IsGlyphEmpty(const ofx_stbtt_fontinfo *info, int glyph_index);
+STBTT_DEF int ofxfs2_stbtt_IsGlyphEmpty(const ofxfs2_stbtt_fontinfo *info, int glyph_index);
 // returns non-zero if nothing is drawn for this glyph
 
-STBTT_DEF int ofx_stbtt_GetCodepointShape(const ofx_stbtt_fontinfo *info, int unicode_codepoint, ofx_stbtt_vertex **vertices);
-STBTT_DEF int ofx_stbtt_GetGlyphShape(const ofx_stbtt_fontinfo *info, int glyph_index, ofx_stbtt_vertex **vertices);
+STBTT_DEF int ofxfs2_stbtt_GetCodepointShape(const ofxfs2_stbtt_fontinfo *info, int unicode_codepoint, ofxfs2_stbtt_vertex **vertices);
+STBTT_DEF int ofxfs2_stbtt_GetGlyphShape(const ofxfs2_stbtt_fontinfo *info, int glyph_index, ofxfs2_stbtt_vertex **vertices);
 // returns # of vertices and fills *vertices with the pointer to them
 //   these are expressed in "unscaled" coordinates
 //
@@ -746,7 +746,7 @@ STBTT_DEF int ofx_stbtt_GetGlyphShape(const ofx_stbtt_fontinfo *info, int glyph_
 // draws a quadratic bezier from previous endpoint to
 // its x,y, using cx,cy as the bezier control point.
 
-STBTT_DEF void ofx_stbtt_FreeShape(const ofx_stbtt_fontinfo *info, ofx_stbtt_vertex *vertices);
+STBTT_DEF void ofxfs2_stbtt_FreeShape(const ofxfs2_stbtt_fontinfo *info, ofxfs2_stbtt_vertex *vertices);
 // frees the data allocated above
 
 //////////////////////////////////////////////////////////////////////////////
@@ -754,10 +754,10 @@ STBTT_DEF void ofx_stbtt_FreeShape(const ofx_stbtt_fontinfo *info, ofx_stbtt_ver
 // BITMAP RENDERING
 //
 
-STBTT_DEF void ofx_stbtt_FreeBitmap(unsigned char *bitmap, void *userdata);
+STBTT_DEF void ofxfs2_stbtt_FreeBitmap(unsigned char *bitmap, void *userdata);
 // frees the bitmap allocated below
 
-STBTT_DEF unsigned char *ofx_stbtt_GetCodepointBitmap(const ofx_stbtt_fontinfo *info, float scale_x, float scale_y, int codepoint, int *width, int *height, int *xoff, int *yoff);
+STBTT_DEF unsigned char *ofxfs2_stbtt_GetCodepointBitmap(const ofxfs2_stbtt_fontinfo *info, float scale_x, float scale_y, int codepoint, int *width, int *height, int *xoff, int *yoff);
 // allocates a large-enough single-channel 8bpp bitmap and renders the
 // specified character/glyph at the specified scale into it, with
 // antialiasing. 0 is no coverage (transparent), 255 is fully covered (opaque).
@@ -766,39 +766,39 @@ STBTT_DEF unsigned char *ofx_stbtt_GetCodepointBitmap(const ofx_stbtt_fontinfo *
 //
 // xoff/yoff are the offset it pixel space from the glyph origin to the top-left of the bitmap
 
-STBTT_DEF unsigned char *ofx_stbtt_GetCodepointBitmapSubpixel(const ofx_stbtt_fontinfo *info, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint, int *width, int *height, int *xoff, int *yoff);
-// the same as ofx_stbtt_GetCodepoitnBitmap, but you can specify a subpixel
+STBTT_DEF unsigned char *ofxfs2_stbtt_GetCodepointBitmapSubpixel(const ofxfs2_stbtt_fontinfo *info, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint, int *width, int *height, int *xoff, int *yoff);
+// the same as ofxfs2_stbtt_GetCodepoitnBitmap, but you can specify a subpixel
 // shift for the character
 
-STBTT_DEF void ofx_stbtt_MakeCodepointBitmap(const ofx_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int codepoint);
-// the same as ofx_stbtt_GetCodepointBitmap, but you pass in storage for the bitmap
+STBTT_DEF void ofxfs2_stbtt_MakeCodepointBitmap(const ofxfs2_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int codepoint);
+// the same as ofxfs2_stbtt_GetCodepointBitmap, but you pass in storage for the bitmap
 // in the form of 'output', with row spacing of 'out_stride' bytes. the bitmap
-// is clipped to out_w/out_h bytes. Call ofx_stbtt_GetCodepointBitmapBox to get the
+// is clipped to out_w/out_h bytes. Call ofxfs2_stbtt_GetCodepointBitmapBox to get the
 // width and height and positioning info for it first.
 
-STBTT_DEF void ofx_stbtt_MakeCodepointBitmapSubpixel(const ofx_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint);
-// same as ofx_stbtt_MakeCodepointBitmap, but you can specify a subpixel
+STBTT_DEF void ofxfs2_stbtt_MakeCodepointBitmapSubpixel(const ofxfs2_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint);
+// same as ofxfs2_stbtt_MakeCodepointBitmap, but you can specify a subpixel
 // shift for the character
 
-STBTT_DEF void ofx_stbtt_GetCodepointBitmapBox(const ofx_stbtt_fontinfo *font, int codepoint, float scale_x, float scale_y, int *ix0, int *iy0, int *ix1, int *iy1);
+STBTT_DEF void ofxfs2_stbtt_GetCodepointBitmapBox(const ofxfs2_stbtt_fontinfo *font, int codepoint, float scale_x, float scale_y, int *ix0, int *iy0, int *ix1, int *iy1);
 // get the bbox of the bitmap centered around the glyph origin; so the
 // bitmap width is ix1-ix0, height is iy1-iy0, and location to place
 // the bitmap top left is (leftSideBearing*scale,iy0).
 // (Note that the bitmap uses y-increases-down, but the shape uses
 // y-increases-up, so CodepointBitmapBox and CodepointBox are inverted.)
 
-STBTT_DEF void ofx_stbtt_GetCodepointBitmapBoxSubpixel(const ofx_stbtt_fontinfo *font, int codepoint, float scale_x, float scale_y, float shift_x, float shift_y, int *ix0, int *iy0, int *ix1, int *iy1);
-// same as ofx_stbtt_GetCodepointBitmapBox, but you can specify a subpixel
+STBTT_DEF void ofxfs2_stbtt_GetCodepointBitmapBoxSubpixel(const ofxfs2_stbtt_fontinfo *font, int codepoint, float scale_x, float scale_y, float shift_x, float shift_y, int *ix0, int *iy0, int *ix1, int *iy1);
+// same as ofxfs2_stbtt_GetCodepointBitmapBox, but you can specify a subpixel
 // shift for the character
 
 // the following functions are equivalent to the above functions, but operate
 // on glyph indices instead of Unicode codepoints (for efficiency)
-STBTT_DEF unsigned char *ofx_stbtt_GetGlyphBitmap(const ofx_stbtt_fontinfo *info, float scale_x, float scale_y, int glyph, int *width, int *height, int *xoff, int *yoff);
-STBTT_DEF unsigned char *ofx_stbtt_GetGlyphBitmapSubpixel(const ofx_stbtt_fontinfo *info, float scale_x, float scale_y, float shift_x, float shift_y, int glyph, int *width, int *height, int *xoff, int *yoff);
-STBTT_DEF void ofx_stbtt_MakeGlyphBitmap(const ofx_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int glyph);
-STBTT_DEF void ofx_stbtt_MakeGlyphBitmapSubpixel(const ofx_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int glyph);
-STBTT_DEF void ofx_stbtt_GetGlyphBitmapBox(const ofx_stbtt_fontinfo *font, int glyph, float scale_x, float scale_y, int *ix0, int *iy0, int *ix1, int *iy1);
-STBTT_DEF void ofx_stbtt_GetGlyphBitmapBoxSubpixel(const ofx_stbtt_fontinfo *font, int glyph, float scale_x, float scale_y,float shift_x, float shift_y, int *ix0, int *iy0, int *ix1, int *iy1);
+STBTT_DEF unsigned char *ofxfs2_stbtt_GetGlyphBitmap(const ofxfs2_stbtt_fontinfo *info, float scale_x, float scale_y, int glyph, int *width, int *height, int *xoff, int *yoff);
+STBTT_DEF unsigned char *ofxfs2_stbtt_GetGlyphBitmapSubpixel(const ofxfs2_stbtt_fontinfo *info, float scale_x, float scale_y, float shift_x, float shift_y, int glyph, int *width, int *height, int *xoff, int *yoff);
+STBTT_DEF void ofxfs2_stbtt_MakeGlyphBitmap(const ofxfs2_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int glyph);
+STBTT_DEF void ofxfs2_stbtt_MakeGlyphBitmapSubpixel(const ofxfs2_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int glyph);
+STBTT_DEF void ofxfs2_stbtt_GetGlyphBitmapBox(const ofxfs2_stbtt_fontinfo *font, int glyph, float scale_x, float scale_y, int *ix0, int *iy0, int *ix1, int *iy1);
+STBTT_DEF void ofxfs2_stbtt_GetGlyphBitmapBoxSubpixel(const ofxfs2_stbtt_fontinfo *font, int glyph, float scale_x, float scale_y,float shift_x, float shift_y, int *ix0, int *iy0, int *ix1, int *iy1);
 
 
 // @TODO: don't expose this structure
@@ -806,12 +806,12 @@ typedef struct
 {
    int w,h,stride;
    unsigned char *pixels;
-} ofx_stbtt__bitmap;
+} ofxfs2_stbtt__bitmap;
 
 // rasterize a shape with quadratic beziers into a bitmap
-STBTT_DEF void ofx_stbtt_Rasterize(ofx_stbtt__bitmap *result,        // 1-channel bitmap to draw into
+STBTT_DEF void ofxfs2_stbtt_Rasterize(ofxfs2_stbtt__bitmap *result,        // 1-channel bitmap to draw into
                                float flatness_in_pixels,     // allowable error of curve in pixels
-                               ofx_stbtt_vertex *vertices,       // array of vertices defining shape
+                               ofxfs2_stbtt_vertex *vertices,       // array of vertices defining shape
                                int num_verts,                // number of vertices in above array
                                float scale_x, float scale_y, // scale applied to input vertices
                                float shift_x, float shift_y, // translation applied to input vertices
@@ -832,16 +832,16 @@ STBTT_DEF void ofx_stbtt_Rasterize(ofx_stbtt__bitmap *result,        // 1-channe
 // (actually underspecified in truetype, but also gigantic).
 //
 // But you can use the provided functions in two possible ways:
-//     ofx_stbtt_FindMatchingFont() will use *case-sensitive* comparisons on
+//     ofxfs2_stbtt_FindMatchingFont() will use *case-sensitive* comparisons on
 //             unicode-encoded names to try to find the font you want;
-//             you can run this before calling ofx_stbtt_InitFont()
+//             you can run this before calling ofxfs2_stbtt_InitFont()
 //
-//     ofx_stbtt_GetFontNameString() lets you get any of the various strings
+//     ofxfs2_stbtt_GetFontNameString() lets you get any of the various strings
 //             from the file yourself and do your own comparisons on them.
-//             You have to have called ofx_stbtt_InitFont() first.
+//             You have to have called ofxfs2_stbtt_InitFont() first.
 
 
-STBTT_DEF int ofx_stbtt_FindMatchingFont(const unsigned char *fontdata, const char *name, int flags);
+STBTT_DEF int ofxfs2_stbtt_FindMatchingFont(const unsigned char *fontdata, const char *name, int flags);
 // returns the offset (not index) of the font that matches, or -1 if none
 //   if you use STBTT_MACSTYLE_DONTCARE, use a font name like "Arial Bold".
 //   if you use any other flag, use a font name like "Arial"; this checks
@@ -852,11 +852,11 @@ STBTT_DEF int ofx_stbtt_FindMatchingFont(const unsigned char *fontdata, const ch
 #define STBTT_MACSTYLE_UNDERSCORE   4
 #define STBTT_MACSTYLE_NONE         8   // <= not same as 0, this makes us check the bitfield is 0
 
-STBTT_DEF int ofx_stbtt_CompareUTF8toUTF16_bigendian(const char *s1, int len1, const char *s2, int len2);
+STBTT_DEF int ofxfs2_stbtt_CompareUTF8toUTF16_bigendian(const char *s1, int len1, const char *s2, int len2);
 // returns 1/0 whether the first string interpreted as utf8 is identical to
 // the second string interpreted as big-endian utf16... useful for strings from next func
 
-STBTT_DEF const char *ofx_stbtt_GetFontNameString(const ofx_stbtt_fontinfo *font, int *length, int platformID, int encodingID, int languageID, int nameID);
+STBTT_DEF const char *ofxfs2_stbtt_GetFontNameString(const ofxfs2_stbtt_fontinfo *font, int *length, int platformID, int encodingID, int languageID, int nameID);
 // returns the string (which may be big-endian double byte, e.g. for unicode)
 // and puts the length in bytes in *length.
 //
@@ -936,7 +936,7 @@ enum { // languageID for STBTT_PLATFORM_ID_MAC
 #error "STBTT_MAX_OVERSAMPLE cannot be > 255"
 #endif
 
-typedef int ofx_stbtt__test_oversample_pow2[(STBTT_MAX_OVERSAMPLE & (STBTT_MAX_OVERSAMPLE-1)) == 0 ? 1 : -1];
+typedef int ofxfs2_stbtt__test_oversample_pow2[(STBTT_MAX_OVERSAMPLE & (STBTT_MAX_OVERSAMPLE-1)) == 0 ? 1 : -1];
 
 #ifndef STBTT_RASTERIZER_VERSION
 #define STBTT_RASTERIZER_VERSION 2
@@ -950,64 +950,64 @@ typedef int ofx_stbtt__test_oversample_pow2[(STBTT_MAX_OVERSAMPLE & (STBTT_MAX_O
 // on platforms that don't allow misaligned reads, if we want to allow
 // truetype fonts that aren't padded to alignment, define ALLOW_UNALIGNED_TRUETYPE
 
-#define ttBYTE(p)     (* (ofx_stbtt_uint8 *) (p))
-#define ttCHAR(p)     (* (ofx_stbtt_int8 *) (p))
+#define ttBYTE(p)     (* (ofxfs2_stbtt_uint8 *) (p))
+#define ttCHAR(p)     (* (ofxfs2_stbtt_int8 *) (p))
 #define ttFixed(p)    ttLONG(p)
 
 #if defined(STB_TRUETYPE_BIGENDIAN) && !defined(ALLOW_UNALIGNED_TRUETYPE)
 
-   #define ttUSHORT(p)   (* (ofx_stbtt_uint16 *) (p))
-   #define ttSHORT(p)    (* (ofx_stbtt_int16 *) (p))
-   #define ttULONG(p)    (* (ofx_stbtt_uint32 *) (p))
-   #define ttLONG(p)     (* (ofx_stbtt_int32 *) (p))
+   #define ttUSHORT(p)   (* (ofxfs2_stbtt_uint16 *) (p))
+   #define ttSHORT(p)    (* (ofxfs2_stbtt_int16 *) (p))
+   #define ttULONG(p)    (* (ofxfs2_stbtt_uint32 *) (p))
+   #define ttLONG(p)     (* (ofxfs2_stbtt_int32 *) (p))
 
 #else
 
-   static ofx_stbtt_uint16 ttUSHORT(const ofx_stbtt_uint8 *p) { return p[0]*256 + p[1]; }
-   static ofx_stbtt_int16 ttSHORT(const ofx_stbtt_uint8 *p)   { return p[0]*256 + p[1]; }
-   static ofx_stbtt_uint32 ttULONG(const ofx_stbtt_uint8 *p)  { return (p[0]<<24) + (p[1]<<16) + (p[2]<<8) + p[3]; }
-   static ofx_stbtt_int32 ttLONG(const ofx_stbtt_uint8 *p)    { return (p[0]<<24) + (p[1]<<16) + (p[2]<<8) + p[3]; }
+   static ofxfs2_stbtt_uint16 ttUSHORT(const ofxfs2_stbtt_uint8 *p) { return p[0]*256 + p[1]; }
+   static ofxfs2_stbtt_int16 ttSHORT(const ofxfs2_stbtt_uint8 *p)   { return p[0]*256 + p[1]; }
+   static ofxfs2_stbtt_uint32 ttULONG(const ofxfs2_stbtt_uint8 *p)  { return (p[0]<<24) + (p[1]<<16) + (p[2]<<8) + p[3]; }
+   static ofxfs2_stbtt_int32 ttLONG(const ofxfs2_stbtt_uint8 *p)    { return (p[0]<<24) + (p[1]<<16) + (p[2]<<8) + p[3]; }
 
 #endif
 
-#define ofx_stbtt_tag4(p,c0,c1,c2,c3) ((p)[0] == (c0) && (p)[1] == (c1) && (p)[2] == (c2) && (p)[3] == (c3))
-#define ofx_stbtt_tag(p,str)           ofx_stbtt_tag4(p,str[0],str[1],str[2],str[3])
+#define ofxfs2_stbtt_tag4(p,c0,c1,c2,c3) ((p)[0] == (c0) && (p)[1] == (c1) && (p)[2] == (c2) && (p)[3] == (c3))
+#define ofxfs2_stbtt_tag(p,str)           ofxfs2_stbtt_tag4(p,str[0],str[1],str[2],str[3])
 
-static int ofx_stbtt__isfont(const ofx_stbtt_uint8 *font)
+static int ofxfs2_stbtt__isfont(const ofxfs2_stbtt_uint8 *font)
 {
    // check the version number
-   if (ofx_stbtt_tag4(font, '1',0,0,0))  return 1; // TrueType 1
-   if (ofx_stbtt_tag(font, "typ1"))   return 1; // TrueType with type 1 font -- we don't support this!
-   if (ofx_stbtt_tag(font, "OTTO"))   return 1; // OpenType with CFF
-   if (ofx_stbtt_tag4(font, 0,1,0,0)) return 1; // OpenType 1.0
+   if (ofxfs2_stbtt_tag4(font, '1',0,0,0))  return 1; // TrueType 1
+   if (ofxfs2_stbtt_tag(font, "typ1"))   return 1; // TrueType with type 1 font -- we don't support this!
+   if (ofxfs2_stbtt_tag(font, "OTTO"))   return 1; // OpenType with CFF
+   if (ofxfs2_stbtt_tag4(font, 0,1,0,0)) return 1; // OpenType 1.0
    return 0;
 }
 
 // @OPTIMIZE: binary search
-static ofx_stbtt_uint32 ofx_stbtt__find_table(ofx_stbtt_uint8 *data, ofx_stbtt_uint32 fontstart, const char *tag)
+static ofxfs2_stbtt_uint32 ofxfs2_stbtt__find_table(ofxfs2_stbtt_uint8 *data, ofxfs2_stbtt_uint32 fontstart, const char *tag)
 {
-   ofx_stbtt_int32 num_tables = ttUSHORT(data+fontstart+4);
-   ofx_stbtt_uint32 tabledir = fontstart + 12;
-   ofx_stbtt_int32 i;
+   ofxfs2_stbtt_int32 num_tables = ttUSHORT(data+fontstart+4);
+   ofxfs2_stbtt_uint32 tabledir = fontstart + 12;
+   ofxfs2_stbtt_int32 i;
    for (i=0; i < num_tables; ++i) {
-      ofx_stbtt_uint32 loc = tabledir + 16*i;
-      if (ofx_stbtt_tag(data+loc+0, tag))
+      ofxfs2_stbtt_uint32 loc = tabledir + 16*i;
+      if (ofxfs2_stbtt_tag(data+loc+0, tag))
          return ttULONG(data+loc+8);
    }
    return 0;
 }
 
-STBTT_DEF int ofx_stbtt_GetFontOffsetForIndex(const unsigned char *font_collection, int index)
+STBTT_DEF int ofxfs2_stbtt_GetFontOffsetForIndex(const unsigned char *font_collection, int index)
 {
    // if it's just a font, there's only one valid index
-   if (ofx_stbtt__isfont(font_collection))
+   if (ofxfs2_stbtt__isfont(font_collection))
       return index == 0 ? 0 : -1;
 
    // check if it's a TTC
-   if (ofx_stbtt_tag(font_collection, "ttcf")) {
+   if (ofxfs2_stbtt_tag(font_collection, "ttcf")) {
       // version 1?
       if (ttULONG(font_collection+4) == 0x00010000 || ttULONG(font_collection+4) == 0x00020000) {
-         ofx_stbtt_int32 n = ttLONG(font_collection+8);
+         ofxfs2_stbtt_int32 n = ttLONG(font_collection+8);
          if (index >= n)
             return -1;
          return ttULONG(font_collection+12+index*4);
@@ -1016,26 +1016,26 @@ STBTT_DEF int ofx_stbtt_GetFontOffsetForIndex(const unsigned char *font_collecti
    return -1;
 }
 
-STBTT_DEF int ofx_stbtt_InitFont(ofx_stbtt_fontinfo *info, const unsigned char *data2, int fontstart)
+STBTT_DEF int ofxfs2_stbtt_InitFont(ofxfs2_stbtt_fontinfo *info, const unsigned char *data2, int fontstart)
 {
-   ofx_stbtt_uint8 *data = (ofx_stbtt_uint8 *) data2;
-   ofx_stbtt_uint32 cmap, t;
-   ofx_stbtt_int32 i,numTables;
+   ofxfs2_stbtt_uint8 *data = (ofxfs2_stbtt_uint8 *) data2;
+   ofxfs2_stbtt_uint32 cmap, t;
+   ofxfs2_stbtt_int32 i,numTables;
 
    info->data = data;
    info->fontstart = fontstart;
 
-   cmap = ofx_stbtt__find_table(data, fontstart, "cmap");       // required
-   info->loca = ofx_stbtt__find_table(data, fontstart, "loca"); // required
-   info->head = ofx_stbtt__find_table(data, fontstart, "head"); // required
-   info->glyf = ofx_stbtt__find_table(data, fontstart, "glyf"); // required
-   info->hhea = ofx_stbtt__find_table(data, fontstart, "hhea"); // required
-   info->hmtx = ofx_stbtt__find_table(data, fontstart, "hmtx"); // required
-   info->kern = ofx_stbtt__find_table(data, fontstart, "kern"); // not required
+   cmap = ofxfs2_stbtt__find_table(data, fontstart, "cmap");       // required
+   info->loca = ofxfs2_stbtt__find_table(data, fontstart, "loca"); // required
+   info->head = ofxfs2_stbtt__find_table(data, fontstart, "head"); // required
+   info->glyf = ofxfs2_stbtt__find_table(data, fontstart, "glyf"); // required
+   info->hhea = ofxfs2_stbtt__find_table(data, fontstart, "hhea"); // required
+   info->hmtx = ofxfs2_stbtt__find_table(data, fontstart, "hmtx"); // required
+   info->kern = ofxfs2_stbtt__find_table(data, fontstart, "kern"); // not required
    if (!cmap || !info->loca || !info->head || !info->glyf || !info->hhea || !info->hmtx)
       return 0;
 
-   t = ofx_stbtt__find_table(data, fontstart, "maxp");
+   t = ofxfs2_stbtt__find_table(data, fontstart, "maxp");
    if (t)
       info->numGlyphs = ttUSHORT(data+t+4);
    else
@@ -1047,7 +1047,7 @@ STBTT_DEF int ofx_stbtt_InitFont(ofx_stbtt_fontinfo *info, const unsigned char *
    numTables = ttUSHORT(data + cmap + 2);
    info->index_map = 0;
    for (i=0; i < numTables; ++i) {
-      ofx_stbtt_uint32 encoding_record = cmap + 4 + 8 * i;
+      ofxfs2_stbtt_uint32 encoding_record = cmap + 4 + 8 * i;
       // find an encoding we understand:
       switch(ttUSHORT(data+encoding_record)) {
          case STBTT_PLATFORM_ID_MICROSOFT:
@@ -1073,35 +1073,35 @@ STBTT_DEF int ofx_stbtt_InitFont(ofx_stbtt_fontinfo *info, const unsigned char *
    return 1;
 }
 
-STBTT_DEF int ofx_stbtt_FindGlyphIndex(const ofx_stbtt_fontinfo *info, int unicode_codepoint)
+STBTT_DEF int ofxfs2_stbtt_FindGlyphIndex(const ofxfs2_stbtt_fontinfo *info, int unicode_codepoint)
 {
-   ofx_stbtt_uint8 *data = info->data;
-   ofx_stbtt_uint32 index_map = info->index_map;
+   ofxfs2_stbtt_uint8 *data = info->data;
+   ofxfs2_stbtt_uint32 index_map = info->index_map;
 
-   ofx_stbtt_uint16 format = ttUSHORT(data + index_map + 0);
+   ofxfs2_stbtt_uint16 format = ttUSHORT(data + index_map + 0);
    if (format == 0) { // apple byte encoding
-      ofx_stbtt_int32 bytes = ttUSHORT(data + index_map + 2);
+      ofxfs2_stbtt_int32 bytes = ttUSHORT(data + index_map + 2);
       if (unicode_codepoint < bytes-6)
          return ttBYTE(data + index_map + 6 + unicode_codepoint);
       return 0;
    } else if (format == 6) {
-      ofx_stbtt_uint32 first = ttUSHORT(data + index_map + 6);
-      ofx_stbtt_uint32 count = ttUSHORT(data + index_map + 8);
-      if ((ofx_stbtt_uint32) unicode_codepoint >= first && (ofx_stbtt_uint32) unicode_codepoint < first+count)
+      ofxfs2_stbtt_uint32 first = ttUSHORT(data + index_map + 6);
+      ofxfs2_stbtt_uint32 count = ttUSHORT(data + index_map + 8);
+      if ((ofxfs2_stbtt_uint32) unicode_codepoint >= first && (ofxfs2_stbtt_uint32) unicode_codepoint < first+count)
          return ttUSHORT(data + index_map + 10 + (unicode_codepoint - first)*2);
       return 0;
    } else if (format == 2) {
       STBTT_assert(0); // @TODO: high-byte mapping for japanese/chinese/korean
       return 0;
    } else if (format == 4) { // standard mapping for windows fonts: binary search collection of ranges
-      ofx_stbtt_uint16 segcount = ttUSHORT(data+index_map+6) >> 1;
-      ofx_stbtt_uint16 searchRange = ttUSHORT(data+index_map+8) >> 1;
-      ofx_stbtt_uint16 entrySelector = ttUSHORT(data+index_map+10);
-      ofx_stbtt_uint16 rangeShift = ttUSHORT(data+index_map+12) >> 1;
+      ofxfs2_stbtt_uint16 segcount = ttUSHORT(data+index_map+6) >> 1;
+      ofxfs2_stbtt_uint16 searchRange = ttUSHORT(data+index_map+8) >> 1;
+      ofxfs2_stbtt_uint16 entrySelector = ttUSHORT(data+index_map+10);
+      ofxfs2_stbtt_uint16 rangeShift = ttUSHORT(data+index_map+12) >> 1;
 
       // do a binary search of the segments
-      ofx_stbtt_uint32 endCount = index_map + 14;
-      ofx_stbtt_uint32 search = endCount;
+      ofxfs2_stbtt_uint32 endCount = index_map + 14;
+      ofxfs2_stbtt_uint32 search = endCount;
 
       if (unicode_codepoint > 0xffff)
          return 0;
@@ -1114,7 +1114,7 @@ STBTT_DEF int ofx_stbtt_FindGlyphIndex(const ofx_stbtt_fontinfo *info, int unico
       // now decrement to bias correctly to find smallest
       search -= 2;
       while (entrySelector) {
-         ofx_stbtt_uint16 end;
+         ofxfs2_stbtt_uint16 end;
          searchRange >>= 1;
          end = ttUSHORT(data + search + searchRange*2);
          if (unicode_codepoint > end)
@@ -1124,8 +1124,8 @@ STBTT_DEF int ofx_stbtt_FindGlyphIndex(const ofx_stbtt_fontinfo *info, int unico
       search += 2;
 
       {
-         ofx_stbtt_uint16 offset, start;
-         ofx_stbtt_uint16 item = (ofx_stbtt_uint16) ((search - endCount) >> 1);
+         ofxfs2_stbtt_uint16 offset, start;
+         ofxfs2_stbtt_uint16 item = (ofxfs2_stbtt_uint16) ((search - endCount) >> 1);
 
          STBTT_assert(unicode_codepoint <= ttUSHORT(data + endCount + 2*item));
          start = ttUSHORT(data + index_map + 14 + segcount*2 + 2 + 2*item);
@@ -1134,25 +1134,25 @@ STBTT_DEF int ofx_stbtt_FindGlyphIndex(const ofx_stbtt_fontinfo *info, int unico
 
          offset = ttUSHORT(data + index_map + 14 + segcount*6 + 2 + 2*item);
          if (offset == 0)
-            return (ofx_stbtt_uint16) (unicode_codepoint + ttSHORT(data + index_map + 14 + segcount*4 + 2 + 2*item));
+            return (ofxfs2_stbtt_uint16) (unicode_codepoint + ttSHORT(data + index_map + 14 + segcount*4 + 2 + 2*item));
 
          return ttUSHORT(data + offset + (unicode_codepoint-start)*2 + index_map + 14 + segcount*6 + 2 + 2*item);
       }
    } else if (format == 12 || format == 13) {
-      ofx_stbtt_uint32 ngroups = ttULONG(data+index_map+12);
-      ofx_stbtt_int32 low,high;
-      low = 0; high = (ofx_stbtt_int32)ngroups;
+      ofxfs2_stbtt_uint32 ngroups = ttULONG(data+index_map+12);
+      ofxfs2_stbtt_int32 low,high;
+      low = 0; high = (ofxfs2_stbtt_int32)ngroups;
       // Binary search the right group.
       while (low < high) {
-         ofx_stbtt_int32 mid = low + ((high-low) >> 1); // rounds down, so low <= mid < high
-         ofx_stbtt_uint32 start_char = ttULONG(data+index_map+16+mid*12);
-         ofx_stbtt_uint32 end_char = ttULONG(data+index_map+16+mid*12+4);
-         if ((ofx_stbtt_uint32) unicode_codepoint < start_char)
+         ofxfs2_stbtt_int32 mid = low + ((high-low) >> 1); // rounds down, so low <= mid < high
+         ofxfs2_stbtt_uint32 start_char = ttULONG(data+index_map+16+mid*12);
+         ofxfs2_stbtt_uint32 end_char = ttULONG(data+index_map+16+mid*12+4);
+         if ((ofxfs2_stbtt_uint32) unicode_codepoint < start_char)
             high = mid;
-         else if ((ofx_stbtt_uint32) unicode_codepoint > end_char)
+         else if ((ofxfs2_stbtt_uint32) unicode_codepoint > end_char)
             low = mid+1;
          else {
-            ofx_stbtt_uint32 start_glyph = ttULONG(data+index_map+16+mid*12+8);
+            ofxfs2_stbtt_uint32 start_glyph = ttULONG(data+index_map+16+mid*12+8);
             if (format == 12)
                return start_glyph + unicode_codepoint-start_char;
             else // format == 13
@@ -1166,21 +1166,21 @@ STBTT_DEF int ofx_stbtt_FindGlyphIndex(const ofx_stbtt_fontinfo *info, int unico
    return 0;
 }
 
-STBTT_DEF int ofx_stbtt_GetCodepointShape(const ofx_stbtt_fontinfo *info, int unicode_codepoint, ofx_stbtt_vertex **vertices)
+STBTT_DEF int ofxfs2_stbtt_GetCodepointShape(const ofxfs2_stbtt_fontinfo *info, int unicode_codepoint, ofxfs2_stbtt_vertex **vertices)
 {
-   return ofx_stbtt_GetGlyphShape(info, ofx_stbtt_FindGlyphIndex(info, unicode_codepoint), vertices);
+   return ofxfs2_stbtt_GetGlyphShape(info, ofxfs2_stbtt_FindGlyphIndex(info, unicode_codepoint), vertices);
 }
 
-static void ofx_stbtt_setvertex(ofx_stbtt_vertex *v, ofx_stbtt_uint8 type, ofx_stbtt_int32 x, ofx_stbtt_int32 y, ofx_stbtt_int32 cx, ofx_stbtt_int32 cy)
+static void ofxfs2_stbtt_setvertex(ofxfs2_stbtt_vertex *v, ofxfs2_stbtt_uint8 type, ofxfs2_stbtt_int32 x, ofxfs2_stbtt_int32 y, ofxfs2_stbtt_int32 cx, ofxfs2_stbtt_int32 cy)
 {
    v->type = type;
-   v->x = (ofx_stbtt_int16) x;
-   v->y = (ofx_stbtt_int16) y;
-   v->cx = (ofx_stbtt_int16) cx;
-   v->cy = (ofx_stbtt_int16) cy;
+   v->x = (ofxfs2_stbtt_int16) x;
+   v->y = (ofxfs2_stbtt_int16) y;
+   v->cx = (ofxfs2_stbtt_int16) cx;
+   v->cy = (ofxfs2_stbtt_int16) cy;
 }
 
-static int ofx_stbtt__GetGlyfOffset(const ofx_stbtt_fontinfo *info, int glyph_index)
+static int ofxfs2_stbtt__GetGlyfOffset(const ofxfs2_stbtt_fontinfo *info, int glyph_index)
 {
    int g1,g2;
 
@@ -1198,9 +1198,9 @@ static int ofx_stbtt__GetGlyfOffset(const ofx_stbtt_fontinfo *info, int glyph_in
    return g1==g2 ? -1 : g1; // if length is 0, return -1
 }
 
-STBTT_DEF int ofx_stbtt_GetGlyphBox(const ofx_stbtt_fontinfo *info, int glyph_index, int *x0, int *y0, int *x1, int *y1)
+STBTT_DEF int ofxfs2_stbtt_GetGlyphBox(const ofxfs2_stbtt_fontinfo *info, int glyph_index, int *x0, int *y0, int *x1, int *y1)
 {
-   int g = ofx_stbtt__GetGlyfOffset(info, glyph_index);
+   int g = ofxfs2_stbtt__GetGlyfOffset(info, glyph_index);
    if (g < 0) return 0;
 
    if (x0) *x0 = ttSHORT(info->data + g + 2);
@@ -1210,44 +1210,44 @@ STBTT_DEF int ofx_stbtt_GetGlyphBox(const ofx_stbtt_fontinfo *info, int glyph_in
    return 1;
 }
 
-STBTT_DEF int ofx_stbtt_GetCodepointBox(const ofx_stbtt_fontinfo *info, int codepoint, int *x0, int *y0, int *x1, int *y1)
+STBTT_DEF int ofxfs2_stbtt_GetCodepointBox(const ofxfs2_stbtt_fontinfo *info, int codepoint, int *x0, int *y0, int *x1, int *y1)
 {
-   return ofx_stbtt_GetGlyphBox(info, ofx_stbtt_FindGlyphIndex(info,codepoint), x0,y0,x1,y1);
+   return ofxfs2_stbtt_GetGlyphBox(info, ofxfs2_stbtt_FindGlyphIndex(info,codepoint), x0,y0,x1,y1);
 }
 
-STBTT_DEF int ofx_stbtt_IsGlyphEmpty(const ofx_stbtt_fontinfo *info, int glyph_index)
+STBTT_DEF int ofxfs2_stbtt_IsGlyphEmpty(const ofxfs2_stbtt_fontinfo *info, int glyph_index)
 {
-   ofx_stbtt_int16 numberOfContours;
-   int g = ofx_stbtt__GetGlyfOffset(info, glyph_index);
+   ofxfs2_stbtt_int16 numberOfContours;
+   int g = ofxfs2_stbtt__GetGlyfOffset(info, glyph_index);
    if (g < 0) return 1;
    numberOfContours = ttSHORT(info->data + g);
    return numberOfContours == 0;
 }
 
-static int ofx_stbtt__close_shape(ofx_stbtt_vertex *vertices, int num_vertices, int was_off, int start_off,
-    ofx_stbtt_int32 sx, ofx_stbtt_int32 sy, ofx_stbtt_int32 scx, ofx_stbtt_int32 scy, ofx_stbtt_int32 cx, ofx_stbtt_int32 cy)
+static int ofxfs2_stbtt__close_shape(ofxfs2_stbtt_vertex *vertices, int num_vertices, int was_off, int start_off,
+    ofxfs2_stbtt_int32 sx, ofxfs2_stbtt_int32 sy, ofxfs2_stbtt_int32 scx, ofxfs2_stbtt_int32 scy, ofxfs2_stbtt_int32 cx, ofxfs2_stbtt_int32 cy)
 {
    if (start_off) {
       if (was_off)
-         ofx_stbtt_setvertex(&vertices[num_vertices++], STBTT_vcurve, (cx+scx)>>1, (cy+scy)>>1, cx,cy);
-      ofx_stbtt_setvertex(&vertices[num_vertices++], STBTT_vcurve, sx,sy,scx,scy);
+         ofxfs2_stbtt_setvertex(&vertices[num_vertices++], STBTT_vcurve, (cx+scx)>>1, (cy+scy)>>1, cx,cy);
+      ofxfs2_stbtt_setvertex(&vertices[num_vertices++], STBTT_vcurve, sx,sy,scx,scy);
    } else {
       if (was_off)
-         ofx_stbtt_setvertex(&vertices[num_vertices++], STBTT_vcurve,sx,sy,cx,cy);
+         ofxfs2_stbtt_setvertex(&vertices[num_vertices++], STBTT_vcurve,sx,sy,cx,cy);
       else
-         ofx_stbtt_setvertex(&vertices[num_vertices++], STBTT_vline,sx,sy,0,0);
+         ofxfs2_stbtt_setvertex(&vertices[num_vertices++], STBTT_vline,sx,sy,0,0);
    }
    return num_vertices;
 }
 
-STBTT_DEF int ofx_stbtt_GetGlyphShape(const ofx_stbtt_fontinfo *info, int glyph_index, ofx_stbtt_vertex **pvertices)
+STBTT_DEF int ofxfs2_stbtt_GetGlyphShape(const ofxfs2_stbtt_fontinfo *info, int glyph_index, ofxfs2_stbtt_vertex **pvertices)
 {
-   ofx_stbtt_int16 numberOfContours;
-   ofx_stbtt_uint8 *endPtsOfContours;
-   ofx_stbtt_uint8 *data = info->data;
-   ofx_stbtt_vertex *vertices=0;
+   ofxfs2_stbtt_int16 numberOfContours;
+   ofxfs2_stbtt_uint8 *endPtsOfContours;
+   ofxfs2_stbtt_uint8 *data = info->data;
+   ofxfs2_stbtt_vertex *vertices=0;
    int num_vertices=0;
-   int g = ofx_stbtt__GetGlyfOffset(info, glyph_index);
+   int g = ofxfs2_stbtt__GetGlyfOffset(info, glyph_index);
 
    *pvertices = NULL;
 
@@ -1256,10 +1256,10 @@ STBTT_DEF int ofx_stbtt_GetGlyphShape(const ofx_stbtt_fontinfo *info, int glyph_
    numberOfContours = ttSHORT(data + g);
 
    if (numberOfContours > 0) {
-      ofx_stbtt_uint8 flags=0,flagcount;
-      ofx_stbtt_int32 ins, i,j=0,m,n, next_move, was_off=0, off, start_off=0;
-      ofx_stbtt_int32 x,y,cx,cy,sx,sy, scx,scy;
-      ofx_stbtt_uint8 *points;
+      ofxfs2_stbtt_uint8 flags=0,flagcount;
+      ofxfs2_stbtt_int32 ins, i,j=0,m,n, next_move, was_off=0, off, start_off=0;
+      ofxfs2_stbtt_int32 x,y,cx,cy,sx,sy, scx,scy;
+      ofxfs2_stbtt_uint8 *points;
       endPtsOfContours = (data + g + 10);
       ins = ttUSHORT(data + g + 10 + numberOfContours * 2);
       points = data + g + 10 + numberOfContours * 2 + 2 + ins;
@@ -1267,7 +1267,7 @@ STBTT_DEF int ofx_stbtt_GetGlyphShape(const ofx_stbtt_fontinfo *info, int glyph_
       n = 1+ttUSHORT(endPtsOfContours + numberOfContours*2-2);
 
       m = n + 2*numberOfContours;  // a loose bound on how many vertices we might need
-      vertices = (ofx_stbtt_vertex *) STBTT_malloc(m * sizeof(vertices[0]), info->userdata);
+      vertices = (ofxfs2_stbtt_vertex *) STBTT_malloc(m * sizeof(vertices[0]), info->userdata);
       if (vertices == 0)
          return 0;
 
@@ -1297,15 +1297,15 @@ STBTT_DEF int ofx_stbtt_GetGlyphShape(const ofx_stbtt_fontinfo *info, int glyph_
       for (i=0; i < n; ++i) {
          flags = vertices[off+i].type;
          if (flags & 2) {
-            ofx_stbtt_int16 dx = *points++;
+            ofxfs2_stbtt_int16 dx = *points++;
             x += (flags & 16) ? dx : -dx; // ???
          } else {
             if (!(flags & 16)) {
-               x = x + (ofx_stbtt_int16) (points[0]*256 + points[1]);
+               x = x + (ofxfs2_stbtt_int16) (points[0]*256 + points[1]);
                points += 2;
             }
          }
-         vertices[off+i].x = (ofx_stbtt_int16) x;
+         vertices[off+i].x = (ofxfs2_stbtt_int16) x;
       }
 
       // now load y coordinates
@@ -1313,15 +1313,15 @@ STBTT_DEF int ofx_stbtt_GetGlyphShape(const ofx_stbtt_fontinfo *info, int glyph_
       for (i=0; i < n; ++i) {
          flags = vertices[off+i].type;
          if (flags & 4) {
-            ofx_stbtt_int16 dy = *points++;
+            ofxfs2_stbtt_int16 dy = *points++;
             y += (flags & 32) ? dy : -dy; // ???
          } else {
             if (!(flags & 32)) {
-               y = y + (ofx_stbtt_int16) (points[0]*256 + points[1]);
+               y = y + (ofxfs2_stbtt_int16) (points[0]*256 + points[1]);
                points += 2;
             }
          }
-         vertices[off+i].y = (ofx_stbtt_int16) y;
+         vertices[off+i].y = (ofxfs2_stbtt_int16) y;
       }
 
       // now convert them to our format
@@ -1329,12 +1329,12 @@ STBTT_DEF int ofx_stbtt_GetGlyphShape(const ofx_stbtt_fontinfo *info, int glyph_
       sx = sy = cx = cy = scx = scy = 0;
       for (i=0; i < n; ++i) {
          flags = vertices[off+i].type;
-         x     = (ofx_stbtt_int16) vertices[off+i].x;
-         y     = (ofx_stbtt_int16) vertices[off+i].y;
+         x     = (ofxfs2_stbtt_int16) vertices[off+i].x;
+         y     = (ofxfs2_stbtt_int16) vertices[off+i].y;
 
          if (next_move == i) {
             if (i != 0)
-               num_vertices = ofx_stbtt__close_shape(vertices, num_vertices, was_off, start_off, sx,sy,scx,scy,cx,cy);
+               num_vertices = ofxfs2_stbtt__close_shape(vertices, num_vertices, was_off, start_off, sx,sy,scx,scy,cx,cy);
 
             // now start the new one               
             start_off = !(flags & 1);
@@ -1345,49 +1345,49 @@ STBTT_DEF int ofx_stbtt_GetGlyphShape(const ofx_stbtt_fontinfo *info, int glyph_
                scy = y;
                if (!(vertices[off+i+1].type & 1)) {
                   // next point is also a curve point, so interpolate an on-point curve
-                  sx = (x + (ofx_stbtt_int32) vertices[off+i+1].x) >> 1;
-                  sy = (y + (ofx_stbtt_int32) vertices[off+i+1].y) >> 1;
+                  sx = (x + (ofxfs2_stbtt_int32) vertices[off+i+1].x) >> 1;
+                  sy = (y + (ofxfs2_stbtt_int32) vertices[off+i+1].y) >> 1;
                } else {
                   // otherwise just use the next point as our start point
-                  sx = (ofx_stbtt_int32) vertices[off+i+1].x;
-                  sy = (ofx_stbtt_int32) vertices[off+i+1].y;
+                  sx = (ofxfs2_stbtt_int32) vertices[off+i+1].x;
+                  sy = (ofxfs2_stbtt_int32) vertices[off+i+1].y;
                   ++i; // we're using point i+1 as the starting point, so skip it
                }
             } else {
                sx = x;
                sy = y;
             }
-            ofx_stbtt_setvertex(&vertices[num_vertices++], STBTT_vmove,sx,sy,0,0);
+            ofxfs2_stbtt_setvertex(&vertices[num_vertices++], STBTT_vmove,sx,sy,0,0);
             was_off = 0;
             next_move = 1 + ttUSHORT(endPtsOfContours+j*2);
             ++j;
          } else {
             if (!(flags & 1)) { // if it's a curve
                if (was_off) // two off-curve control points in a row means interpolate an on-curve midpoint
-                  ofx_stbtt_setvertex(&vertices[num_vertices++], STBTT_vcurve, (cx+x)>>1, (cy+y)>>1, cx, cy);
+                  ofxfs2_stbtt_setvertex(&vertices[num_vertices++], STBTT_vcurve, (cx+x)>>1, (cy+y)>>1, cx, cy);
                cx = x;
                cy = y;
                was_off = 1;
             } else {
                if (was_off)
-                  ofx_stbtt_setvertex(&vertices[num_vertices++], STBTT_vcurve, x,y, cx, cy);
+                  ofxfs2_stbtt_setvertex(&vertices[num_vertices++], STBTT_vcurve, x,y, cx, cy);
                else
-                  ofx_stbtt_setvertex(&vertices[num_vertices++], STBTT_vline, x,y,0,0);
+                  ofxfs2_stbtt_setvertex(&vertices[num_vertices++], STBTT_vline, x,y,0,0);
                was_off = 0;
             }
          }
       }
-      num_vertices = ofx_stbtt__close_shape(vertices, num_vertices, was_off, start_off, sx,sy,scx,scy,cx,cy);
+      num_vertices = ofxfs2_stbtt__close_shape(vertices, num_vertices, was_off, start_off, sx,sy,scx,scy,cx,cy);
    } else if (numberOfContours == -1) {
       // Compound shapes.
       int more = 1;
-      ofx_stbtt_uint8 *comp = data + g + 10;
+      ofxfs2_stbtt_uint8 *comp = data + g + 10;
       num_vertices = 0;
       vertices = 0;
       while (more) {
-         ofx_stbtt_uint16 flags, gidx;
+         ofxfs2_stbtt_uint16 flags, gidx;
          int comp_num_verts = 0, i;
-         ofx_stbtt_vertex *comp_verts = 0, *tmp = 0;
+         ofxfs2_stbtt_vertex *comp_verts = 0, *tmp = 0;
          float mtx[6] = {1,0,0,1,0,0}, m, n;
          
          flags = ttSHORT(comp); comp+=2;
@@ -1425,28 +1425,28 @@ STBTT_DEF int ofx_stbtt_GetGlyphShape(const ofx_stbtt_fontinfo *info, int glyph_
          n = (float) STBTT_sqrt(mtx[2]*mtx[2] + mtx[3]*mtx[3]);
 
          // Get indexed glyph.
-         comp_num_verts = ofx_stbtt_GetGlyphShape(info, gidx, &comp_verts);
+         comp_num_verts = ofxfs2_stbtt_GetGlyphShape(info, gidx, &comp_verts);
          if (comp_num_verts > 0) {
             // Transform vertices.
             for (i = 0; i < comp_num_verts; ++i) {
-               ofx_stbtt_vertex* v = &comp_verts[i];
-               ofx_stbtt_vertex_type x,y;
+               ofxfs2_stbtt_vertex* v = &comp_verts[i];
+               ofxfs2_stbtt_vertex_type x,y;
                x=v->x; y=v->y;
-               v->x = (ofx_stbtt_vertex_type)(m * (mtx[0]*x + mtx[2]*y + mtx[4]));
-               v->y = (ofx_stbtt_vertex_type)(n * (mtx[1]*x + mtx[3]*y + mtx[5]));
+               v->x = (ofxfs2_stbtt_vertex_type)(m * (mtx[0]*x + mtx[2]*y + mtx[4]));
+               v->y = (ofxfs2_stbtt_vertex_type)(n * (mtx[1]*x + mtx[3]*y + mtx[5]));
                x=v->cx; y=v->cy;
-               v->cx = (ofx_stbtt_vertex_type)(m * (mtx[0]*x + mtx[2]*y + mtx[4]));
-               v->cy = (ofx_stbtt_vertex_type)(n * (mtx[1]*x + mtx[3]*y + mtx[5]));
+               v->cx = (ofxfs2_stbtt_vertex_type)(m * (mtx[0]*x + mtx[2]*y + mtx[4]));
+               v->cy = (ofxfs2_stbtt_vertex_type)(n * (mtx[1]*x + mtx[3]*y + mtx[5]));
             }
             // Append vertices.
-            tmp = (ofx_stbtt_vertex*)STBTT_malloc((num_vertices+comp_num_verts)*sizeof(ofx_stbtt_vertex), info->userdata);
+            tmp = (ofxfs2_stbtt_vertex*)STBTT_malloc((num_vertices+comp_num_verts)*sizeof(ofxfs2_stbtt_vertex), info->userdata);
             if (!tmp) {
                if (vertices) STBTT_free(vertices, info->userdata);
                if (comp_verts) STBTT_free(comp_verts, info->userdata);
                return 0;
             }
-            if (num_vertices > 0) STBTT_memcpy(tmp, vertices, num_vertices*sizeof(ofx_stbtt_vertex));
-            STBTT_memcpy(tmp+num_vertices, comp_verts, comp_num_verts*sizeof(ofx_stbtt_vertex));
+            if (num_vertices > 0) STBTT_memcpy(tmp, vertices, num_vertices*sizeof(ofxfs2_stbtt_vertex));
+            STBTT_memcpy(tmp+num_vertices, comp_verts, comp_num_verts*sizeof(ofxfs2_stbtt_vertex));
             if (vertices) STBTT_free(vertices, info->userdata);
             vertices = tmp;
             STBTT_free(comp_verts, info->userdata);
@@ -1466,9 +1466,9 @@ STBTT_DEF int ofx_stbtt_GetGlyphShape(const ofx_stbtt_fontinfo *info, int glyph_
    return num_vertices;
 }
 
-STBTT_DEF void ofx_stbtt_GetGlyphHMetrics(const ofx_stbtt_fontinfo *info, int glyph_index, int *advanceWidth, int *leftSideBearing)
+STBTT_DEF void ofxfs2_stbtt_GetGlyphHMetrics(const ofxfs2_stbtt_fontinfo *info, int glyph_index, int *advanceWidth, int *leftSideBearing)
 {
-   ofx_stbtt_uint16 numOfLongHorMetrics = ttUSHORT(info->data+info->hhea + 34);
+   ofxfs2_stbtt_uint16 numOfLongHorMetrics = ttUSHORT(info->data+info->hhea + 34);
    if (glyph_index < numOfLongHorMetrics) {
       if (advanceWidth)     *advanceWidth    = ttSHORT(info->data + info->hmtx + 4*glyph_index);
       if (leftSideBearing)  *leftSideBearing = ttSHORT(info->data + info->hmtx + 4*glyph_index + 2);
@@ -1478,10 +1478,10 @@ STBTT_DEF void ofx_stbtt_GetGlyphHMetrics(const ofx_stbtt_fontinfo *info, int gl
    }
 }
 
-STBTT_DEF int  ofx_stbtt_GetGlyphKernAdvance(const ofx_stbtt_fontinfo *info, int glyph1, int glyph2)
+STBTT_DEF int  ofxfs2_stbtt_GetGlyphKernAdvance(const ofxfs2_stbtt_fontinfo *info, int glyph1, int glyph2)
 {
-   ofx_stbtt_uint8 *data = info->data + info->kern;
-   ofx_stbtt_uint32 needle, straw;
+   ofxfs2_stbtt_uint8 *data = info->data + info->kern;
+   ofxfs2_stbtt_uint32 needle, straw;
    int l, r, m;
 
    // we only look at the first table. it must be 'horizontal' and format 0.
@@ -1508,26 +1508,26 @@ STBTT_DEF int  ofx_stbtt_GetGlyphKernAdvance(const ofx_stbtt_fontinfo *info, int
    return 0;
 }
 
-STBTT_DEF int  ofx_stbtt_GetCodepointKernAdvance(const ofx_stbtt_fontinfo *info, int ch1, int ch2)
+STBTT_DEF int  ofxfs2_stbtt_GetCodepointKernAdvance(const ofxfs2_stbtt_fontinfo *info, int ch1, int ch2)
 {
    if (!info->kern) // if no kerning table, don't waste time looking up both codepoint->glyphs
       return 0;
-   return ofx_stbtt_GetGlyphKernAdvance(info, ofx_stbtt_FindGlyphIndex(info,ch1), ofx_stbtt_FindGlyphIndex(info,ch2));
+   return ofxfs2_stbtt_GetGlyphKernAdvance(info, ofxfs2_stbtt_FindGlyphIndex(info,ch1), ofxfs2_stbtt_FindGlyphIndex(info,ch2));
 }
 
-STBTT_DEF void ofx_stbtt_GetCodepointHMetrics(const ofx_stbtt_fontinfo *info, int codepoint, int *advanceWidth, int *leftSideBearing)
+STBTT_DEF void ofxfs2_stbtt_GetCodepointHMetrics(const ofxfs2_stbtt_fontinfo *info, int codepoint, int *advanceWidth, int *leftSideBearing)
 {
-   ofx_stbtt_GetGlyphHMetrics(info, ofx_stbtt_FindGlyphIndex(info,codepoint), advanceWidth, leftSideBearing);
+   ofxfs2_stbtt_GetGlyphHMetrics(info, ofxfs2_stbtt_FindGlyphIndex(info,codepoint), advanceWidth, leftSideBearing);
 }
 
-STBTT_DEF void ofx_stbtt_GetFontVMetrics(const ofx_stbtt_fontinfo *info, int *ascent, int *descent, int *lineGap)
+STBTT_DEF void ofxfs2_stbtt_GetFontVMetrics(const ofxfs2_stbtt_fontinfo *info, int *ascent, int *descent, int *lineGap)
 {
    if (ascent ) *ascent  = ttSHORT(info->data+info->hhea + 4);
    if (descent) *descent = ttSHORT(info->data+info->hhea + 6);
    if (lineGap) *lineGap = ttSHORT(info->data+info->hhea + 8);
 }
 
-STBTT_DEF void ofx_stbtt_GetFontBoundingBox(const ofx_stbtt_fontinfo *info, int *x0, int *y0, int *x1, int *y1)
+STBTT_DEF void ofxfs2_stbtt_GetFontBoundingBox(const ofxfs2_stbtt_fontinfo *info, int *x0, int *y0, int *x1, int *y1)
 {
    *x0 = ttSHORT(info->data + info->head + 36);
    *y0 = ttSHORT(info->data + info->head + 38);
@@ -1535,19 +1535,19 @@ STBTT_DEF void ofx_stbtt_GetFontBoundingBox(const ofx_stbtt_fontinfo *info, int 
    *y1 = ttSHORT(info->data + info->head + 42);
 }
 
-STBTT_DEF float ofx_stbtt_ScaleForPixelHeight(const ofx_stbtt_fontinfo *info, float height)
+STBTT_DEF float ofxfs2_stbtt_ScaleForPixelHeight(const ofxfs2_stbtt_fontinfo *info, float height)
 {
    int fheight = ttSHORT(info->data + info->hhea + 4) - ttSHORT(info->data + info->hhea + 6);
    return (float) height / fheight;
 }
 
-STBTT_DEF float ofx_stbtt_ScaleForMappingEmToPixels(const ofx_stbtt_fontinfo *info, float pixels)
+STBTT_DEF float ofxfs2_stbtt_ScaleForMappingEmToPixels(const ofxfs2_stbtt_fontinfo *info, float pixels)
 {
    int unitsPerEm = ttUSHORT(info->data + info->head + 18);
    return pixels / unitsPerEm;
 }
 
-STBTT_DEF void ofx_stbtt_FreeShape(const ofx_stbtt_fontinfo *info, ofx_stbtt_vertex *v)
+STBTT_DEF void ofxfs2_stbtt_FreeShape(const ofxfs2_stbtt_fontinfo *info, ofxfs2_stbtt_vertex *v)
 {
    STBTT_free(v, info->userdata);
 }
@@ -1557,10 +1557,10 @@ STBTT_DEF void ofx_stbtt_FreeShape(const ofx_stbtt_fontinfo *info, ofx_stbtt_ver
 // antialiasing software rasterizer
 //
 
-STBTT_DEF void ofx_stbtt_GetGlyphBitmapBoxSubpixel(const ofx_stbtt_fontinfo *font, int glyph, float scale_x, float scale_y,float shift_x, float shift_y, int *ix0, int *iy0, int *ix1, int *iy1)
+STBTT_DEF void ofxfs2_stbtt_GetGlyphBitmapBoxSubpixel(const ofxfs2_stbtt_fontinfo *font, int glyph, float scale_x, float scale_y,float shift_x, float shift_y, int *ix0, int *iy0, int *ix1, int *iy1)
 {
    int x0=0,y0=0,x1,y1; // =0 suppresses compiler warning
-   if (!ofx_stbtt_GetGlyphBox(font, glyph, &x0,&y0,&x1,&y1)) {
+   if (!ofxfs2_stbtt_GetGlyphBox(font, glyph, &x0,&y0,&x1,&y1)) {
       // e.g. space character
       if (ix0) *ix0 = 0;
       if (iy0) *iy0 = 0;
@@ -1575,38 +1575,38 @@ STBTT_DEF void ofx_stbtt_GetGlyphBitmapBoxSubpixel(const ofx_stbtt_fontinfo *fon
    }
 }
 
-STBTT_DEF void ofx_stbtt_GetGlyphBitmapBox(const ofx_stbtt_fontinfo *font, int glyph, float scale_x, float scale_y, int *ix0, int *iy0, int *ix1, int *iy1)
+STBTT_DEF void ofxfs2_stbtt_GetGlyphBitmapBox(const ofxfs2_stbtt_fontinfo *font, int glyph, float scale_x, float scale_y, int *ix0, int *iy0, int *ix1, int *iy1)
 {
-   ofx_stbtt_GetGlyphBitmapBoxSubpixel(font, glyph, scale_x, scale_y,0.0f,0.0f, ix0, iy0, ix1, iy1);
+   ofxfs2_stbtt_GetGlyphBitmapBoxSubpixel(font, glyph, scale_x, scale_y,0.0f,0.0f, ix0, iy0, ix1, iy1);
 }
 
-STBTT_DEF void ofx_stbtt_GetCodepointBitmapBoxSubpixel(const ofx_stbtt_fontinfo *font, int codepoint, float scale_x, float scale_y, float shift_x, float shift_y, int *ix0, int *iy0, int *ix1, int *iy1)
+STBTT_DEF void ofxfs2_stbtt_GetCodepointBitmapBoxSubpixel(const ofxfs2_stbtt_fontinfo *font, int codepoint, float scale_x, float scale_y, float shift_x, float shift_y, int *ix0, int *iy0, int *ix1, int *iy1)
 {
-   ofx_stbtt_GetGlyphBitmapBoxSubpixel(font, ofx_stbtt_FindGlyphIndex(font,codepoint), scale_x, scale_y,shift_x,shift_y, ix0,iy0,ix1,iy1);
+   ofxfs2_stbtt_GetGlyphBitmapBoxSubpixel(font, ofxfs2_stbtt_FindGlyphIndex(font,codepoint), scale_x, scale_y,shift_x,shift_y, ix0,iy0,ix1,iy1);
 }
 
-STBTT_DEF void ofx_stbtt_GetCodepointBitmapBox(const ofx_stbtt_fontinfo *font, int codepoint, float scale_x, float scale_y, int *ix0, int *iy0, int *ix1, int *iy1)
+STBTT_DEF void ofxfs2_stbtt_GetCodepointBitmapBox(const ofxfs2_stbtt_fontinfo *font, int codepoint, float scale_x, float scale_y, int *ix0, int *iy0, int *ix1, int *iy1)
 {
-   ofx_stbtt_GetCodepointBitmapBoxSubpixel(font, codepoint, scale_x, scale_y,0.0f,0.0f, ix0,iy0,ix1,iy1);
+   ofxfs2_stbtt_GetCodepointBitmapBoxSubpixel(font, codepoint, scale_x, scale_y,0.0f,0.0f, ix0,iy0,ix1,iy1);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Rasterizer
 
-typedef struct ofx_stbtt__hheap_chunk
+typedef struct ofxfs2_stbtt__hheap_chunk
 {
-   struct ofx_stbtt__hheap_chunk *next;
-} ofx_stbtt__hheap_chunk;
+   struct ofxfs2_stbtt__hheap_chunk *next;
+} ofxfs2_stbtt__hheap_chunk;
 
-typedef struct ofx_stbtt__hheap
+typedef struct ofxfs2_stbtt__hheap
 {
-   struct ofx_stbtt__hheap_chunk *head;
+   struct ofxfs2_stbtt__hheap_chunk *head;
    void   *first_free;
    int    num_remaining_in_head_chunk;
-} ofx_stbtt__hheap;
+} ofxfs2_stbtt__hheap;
 
-static void *ofx_stbtt__hheap_alloc(ofx_stbtt__hheap *hh, size_t size, void *userdata)
+static void *ofxfs2_stbtt__hheap_alloc(ofxfs2_stbtt__hheap *hh, size_t size, void *userdata)
 {
    if (hh->first_free) {
       void *p = hh->first_free;
@@ -1615,7 +1615,7 @@ static void *ofx_stbtt__hheap_alloc(ofx_stbtt__hheap *hh, size_t size, void *use
    } else {
       if (hh->num_remaining_in_head_chunk == 0) {
          int count = (size < 32 ? 2000 : size < 128 ? 800 : 100);
-         ofx_stbtt__hheap_chunk *c = (ofx_stbtt__hheap_chunk *) STBTT_malloc(sizeof(ofx_stbtt__hheap_chunk) + size * count, userdata);
+         ofxfs2_stbtt__hheap_chunk *c = (ofxfs2_stbtt__hheap_chunk *) STBTT_malloc(sizeof(ofxfs2_stbtt__hheap_chunk) + size * count, userdata);
          if (c == NULL)
             return NULL;
          c->next = hh->head;
@@ -1627,31 +1627,31 @@ static void *ofx_stbtt__hheap_alloc(ofx_stbtt__hheap *hh, size_t size, void *use
    }
 }
 
-static void ofx_stbtt__hheap_free(ofx_stbtt__hheap *hh, void *p)
+static void ofxfs2_stbtt__hheap_free(ofxfs2_stbtt__hheap *hh, void *p)
 {
    *(void **) p = hh->first_free;
    hh->first_free = p;
 }
 
-static void ofx_stbtt__hheap_cleanup(ofx_stbtt__hheap *hh, void *userdata)
+static void ofxfs2_stbtt__hheap_cleanup(ofxfs2_stbtt__hheap *hh, void *userdata)
 {
-   ofx_stbtt__hheap_chunk *c = hh->head;
+   ofxfs2_stbtt__hheap_chunk *c = hh->head;
    while (c) {
-      ofx_stbtt__hheap_chunk *n = c->next;
+      ofxfs2_stbtt__hheap_chunk *n = c->next;
       STBTT_free(c, userdata);
       c = n;
    }
 }
 
-typedef struct ofx_stbtt__edge {
+typedef struct ofxfs2_stbtt__edge {
    float x0,y0, x1,y1;
    int invert;
-} ofx_stbtt__edge;
+} ofxfs2_stbtt__edge;
 
 
-typedef struct ofx_stbtt__active_edge
+typedef struct ofxfs2_stbtt__active_edge
 {
-   struct ofx_stbtt__active_edge *next;
+   struct ofxfs2_stbtt__active_edge *next;
    #if STBTT_RASTERIZER_VERSION==1
    int x,dx;
    float ey;
@@ -1664,16 +1664,16 @@ typedef struct ofx_stbtt__active_edge
    #else
    #error "Unrecognized value of STBTT_RASTERIZER_VERSION"
    #endif
-} ofx_stbtt__active_edge;
+} ofxfs2_stbtt__active_edge;
 
 #if STBTT_RASTERIZER_VERSION == 1
 #define STBTT_FIXSHIFT   10
 #define STBTT_FIX        (1 << STBTT_FIXSHIFT)
 #define STBTT_FIXMASK    (STBTT_FIX-1)
 
-static ofx_stbtt__active_edge *ofx_stbtt__new_active(ofx_stbtt__hheap *hh, ofx_stbtt__edge *e, int off_x, float start_point, void *userdata)
+static ofxfs2_stbtt__active_edge *ofxfs2_stbtt__new_active(ofxfs2_stbtt__hheap *hh, ofxfs2_stbtt__edge *e, int off_x, float start_point, void *userdata)
 {
-   ofx_stbtt__active_edge *z = (ofx_stbtt__active_edge *) ofx_stbtt__hheap_alloc(hh, sizeof(*z), userdata);
+   ofxfs2_stbtt__active_edge *z = (ofxfs2_stbtt__active_edge *) ofxfs2_stbtt__hheap_alloc(hh, sizeof(*z), userdata);
    float dxdy = (e->x1 - e->x0) / (e->y1 - e->y0);
    STBTT_assert(z != NULL);
    if (!z) return z;
@@ -1693,9 +1693,9 @@ static ofx_stbtt__active_edge *ofx_stbtt__new_active(ofx_stbtt__hheap *hh, ofx_s
    return z;
 }
 #elif STBTT_RASTERIZER_VERSION == 2
-static ofx_stbtt__active_edge *ofx_stbtt__new_active(ofx_stbtt__hheap *hh, ofx_stbtt__edge *e, int off_x, float start_point, void *userdata)
+static ofxfs2_stbtt__active_edge *ofxfs2_stbtt__new_active(ofxfs2_stbtt__hheap *hh, ofxfs2_stbtt__edge *e, int off_x, float start_point, void *userdata)
 {
-   ofx_stbtt__active_edge *z = (ofx_stbtt__active_edge *) ofx_stbtt__hheap_alloc(hh, sizeof(*z), userdata);
+   ofxfs2_stbtt__active_edge *z = (ofxfs2_stbtt__active_edge *) ofxfs2_stbtt__hheap_alloc(hh, sizeof(*z), userdata);
    float dxdy = (e->x1 - e->x0) / (e->y1 - e->y0);
    STBTT_assert(z != NULL);
    //STBTT_assert(e->y0 <= start_point);
@@ -1718,7 +1718,7 @@ static ofx_stbtt__active_edge *ofx_stbtt__new_active(ofx_stbtt__hheap *hh, ofx_s
 // note: this routine clips fills that extend off the edges... ideally this
 // wouldn't happen, but it could happen if the truetype glyph bounding boxes
 // are wrong, or if the user supplies a too-small bitmap
-static void ofx_stbtt__fill_active_edges(unsigned char *scanline, int len, ofx_stbtt__active_edge *e, int max_weight)
+static void ofxfs2_stbtt__fill_active_edges(unsigned char *scanline, int len, ofxfs2_stbtt__active_edge *e, int max_weight)
 {
    // non-zero winding fill
    int x0=0, w=0;
@@ -1737,20 +1737,20 @@ static void ofx_stbtt__fill_active_edges(unsigned char *scanline, int len, ofx_s
             if (i < len && j >= 0) {
                if (i == j) {
                   // x0,x1 are the same pixel, so compute combined coverage
-                  scanline[i] = scanline[i] + (ofx_stbtt_uint8) ((x1 - x0) * max_weight >> STBTT_FIXSHIFT);
+                  scanline[i] = scanline[i] + (ofxfs2_stbtt_uint8) ((x1 - x0) * max_weight >> STBTT_FIXSHIFT);
                } else {
                   if (i >= 0) // add antialiasing for x0
-                     scanline[i] = scanline[i] + (ofx_stbtt_uint8) (((STBTT_FIX - (x0 & STBTT_FIXMASK)) * max_weight) >> STBTT_FIXSHIFT);
+                     scanline[i] = scanline[i] + (ofxfs2_stbtt_uint8) (((STBTT_FIX - (x0 & STBTT_FIXMASK)) * max_weight) >> STBTT_FIXSHIFT);
                   else
                      i = -1; // clip
 
                   if (j < len) // add antialiasing for x1
-                     scanline[j] = scanline[j] + (ofx_stbtt_uint8) (((x1 & STBTT_FIXMASK) * max_weight) >> STBTT_FIXSHIFT);
+                     scanline[j] = scanline[j] + (ofxfs2_stbtt_uint8) (((x1 & STBTT_FIXMASK) * max_weight) >> STBTT_FIXSHIFT);
                   else
                      j = len; // clip
 
                   for (++i; i < j; ++i) // fill pixels between x0 and x1
-                     scanline[i] = scanline[i] + (ofx_stbtt_uint8) max_weight;
+                     scanline[i] = scanline[i] + (ofxfs2_stbtt_uint8) max_weight;
                }
             }
          }
@@ -1760,10 +1760,10 @@ static void ofx_stbtt__fill_active_edges(unsigned char *scanline, int len, ofx_s
    }
 }
 
-static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stbtt__edge *e, int n, int vsubsample, int off_x, int off_y, void *userdata)
+static void ofxfs2_stbtt__rasterize_sorted_edges(ofxfs2_stbtt__bitmap *result, ofxfs2_stbtt__edge *e, int n, int vsubsample, int off_x, int off_y, void *userdata)
 {
-   ofx_stbtt__hheap hh = { 0, 0, 0 };
-   ofx_stbtt__active_edge *active = NULL;
+   ofxfs2_stbtt__hheap hh = { 0, 0, 0 };
+   ofxfs2_stbtt__active_edge *active = NULL;
    int y,j=0;
    int max_weight = (255 / vsubsample);  // weight per vertical scanline
    int s; // vertical subsample index
@@ -1782,17 +1782,17 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
       for (s=0; s < vsubsample; ++s) {
          // find center of pixel for this scanline
          float scan_y = y + 0.5f;
-         ofx_stbtt__active_edge **step = &active;
+         ofxfs2_stbtt__active_edge **step = &active;
 
          // update all active edges;
          // remove all active edges that terminate before the center of this scanline
          while (*step) {
-            ofx_stbtt__active_edge * z = *step;
+            ofxfs2_stbtt__active_edge * z = *step;
             if (z->ey <= scan_y) {
                *step = z->next; // delete from list
                STBTT_assert(z->direction);
                z->direction = 0;
-               ofx_stbtt__hheap_free(&hh, z);
+               ofxfs2_stbtt__hheap_free(&hh, z);
             } else {
                z->x += z->dx; // advance to position for current scanline
                step = &((*step)->next); // advance through list
@@ -1805,8 +1805,8 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
             step = &active;
             while (*step && (*step)->next) {
                if ((*step)->x > (*step)->next->x) {
-                  ofx_stbtt__active_edge *t = *step;
-                  ofx_stbtt__active_edge *q = t->next;
+                  ofxfs2_stbtt__active_edge *t = *step;
+                  ofxfs2_stbtt__active_edge *q = t->next;
 
                   t->next = q->next;
                   q->next = t;
@@ -1821,7 +1821,7 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
          // insert all edges that start before the center of this scanline -- omit ones that also end on this scanline
          while (e->y0 <= scan_y) {
             if (e->y1 > scan_y) {
-               ofx_stbtt__active_edge *z = ofx_stbtt__new_active(&hh, e, off_x, scan_y, userdata);
+               ofxfs2_stbtt__active_edge *z = ofxfs2_stbtt__new_active(&hh, e, off_x, scan_y, userdata);
                if (z != NULL) {
                   // find insertion point
                   if (active == NULL)
@@ -1832,7 +1832,7 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
                      active = z;
                   } else {
                      // find thing to insert AFTER
-                     ofx_stbtt__active_edge *p = active;
+                     ofxfs2_stbtt__active_edge *p = active;
                      while (p->next && p->next->x < z->x)
                         p = p->next;
                      // at this point, p->next->x is NOT < z->x
@@ -1846,7 +1846,7 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
 
          // now process all active edges in XOR fashion
          if (active)
-            ofx_stbtt__fill_active_edges(scanline, result->w, active, max_weight);
+            ofxfs2_stbtt__fill_active_edges(scanline, result->w, active, max_weight);
 
          ++y;
       }
@@ -1854,7 +1854,7 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
       ++j;
    }
 
-   ofx_stbtt__hheap_cleanup(&hh, userdata);
+   ofxfs2_stbtt__hheap_cleanup(&hh, userdata);
 
    if (scanline != scanline_data)
       STBTT_free(scanline, userdata);
@@ -1864,7 +1864,7 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
 
 // the edge passed in here does not cross the vertical line at x or the vertical line at x+1
 // (i.e. it has already been clipped to those)
-static void ofx_stbtt__handle_clipped_edge(float *scanline, int x, ofx_stbtt__active_edge *e, float x0, float y0, float x1, float y1)
+static void ofxfs2_stbtt__handle_clipped_edge(float *scanline, int x, ofxfs2_stbtt__active_edge *e, float x0, float y0, float x1, float y1)
 {
    if (y0 == y1) return;
    STBTT_assert(y0 < y1);
@@ -1901,7 +1901,7 @@ static void ofx_stbtt__handle_clipped_edge(float *scanline, int x, ofx_stbtt__ac
    }
 }
 
-static void ofx_stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, int len, ofx_stbtt__active_edge *e, float y_top)
+static void ofxfs2_stbtt__fill_active_edges_new(float *scanline, float *scanline_fill, int len, ofxfs2_stbtt__active_edge *e, float y_top)
 {
    float y_bottom = y_top+1;
 
@@ -1915,10 +1915,10 @@ static void ofx_stbtt__fill_active_edges_new(float *scanline, float *scanline_fi
          float x0 = e->fx;
          if (x0 < len) {
             if (x0 >= 0) {
-               ofx_stbtt__handle_clipped_edge(scanline,(int) x0,e, x0,y_top, x0,y_bottom);
-               ofx_stbtt__handle_clipped_edge(scanline_fill-1,(int) x0+1,e, x0,y_top, x0,y_bottom);
+               ofxfs2_stbtt__handle_clipped_edge(scanline,(int) x0,e, x0,y_top, x0,y_bottom);
+               ofxfs2_stbtt__handle_clipped_edge(scanline_fill-1,(int) x0+1,e, x0,y_top, x0,y_bottom);
             } else {
-               ofx_stbtt__handle_clipped_edge(scanline_fill-1,0,e, x0,y_top, x0,y_bottom);
+               ofxfs2_stbtt__handle_clipped_edge(scanline_fill-1,0,e, x0,y_top, x0,y_bottom);
             }
          }
       } else {
@@ -2034,27 +2034,27 @@ static void ofx_stbtt__fill_active_edges_new(float *scanline, float *scanline_fi
                y2 = (x+1 - x0) / dx + y_top;
 
                if (x0 < x1 && x3 > x2) {         // three segments descending down-right
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x1,y1);
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x1,y1, x2,y2);
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x2,y2, x3,y3);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x1,y1);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x1,y1, x2,y2);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x2,y2, x3,y3);
                } else if (x3 < x1 && x0 > x2) {  // three segments descending down-left
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x2,y2);
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x2,y2, x1,y1);
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x1,y1, x3,y3);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x2,y2);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x2,y2, x1,y1);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x1,y1, x3,y3);
                } else if (x0 < x1 && x3 > x1) {  // two segments across x, down-right
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x1,y1);
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x1,y1, x3,y3);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x1,y1);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x1,y1, x3,y3);
                } else if (x3 < x1 && x0 > x1) {  // two segments across x, down-left
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x1,y1);
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x1,y1, x3,y3);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x1,y1);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x1,y1, x3,y3);
                } else if (x0 < x2 && x3 > x2) {  // two segments across x+1, down-right
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x2,y2);
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x2,y2, x3,y3);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x2,y2);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x2,y2, x3,y3);
                } else if (x3 < x2 && x0 > x2) {  // two segments across x+1, down-left
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x2,y2);
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x2,y2, x3,y3);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x2,y2);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x2,y2, x3,y3);
                } else {  // one segment
-                  ofx_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x3,y3);
+                  ofxfs2_stbtt__handle_clipped_edge(scanline,x,e, x0,y0, x3,y3);
                }
             }
          }
@@ -2064,10 +2064,10 @@ static void ofx_stbtt__fill_active_edges_new(float *scanline, float *scanline_fi
 }
 
 // directly AA rasterize edges w/o supersampling
-static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stbtt__edge *e, int n, int vsubsample, int off_x, int off_y, void *userdata)
+static void ofxfs2_stbtt__rasterize_sorted_edges(ofxfs2_stbtt__bitmap *result, ofxfs2_stbtt__edge *e, int n, int vsubsample, int off_x, int off_y, void *userdata)
 {
-   ofx_stbtt__hheap hh = { 0, 0, 0 };
-   ofx_stbtt__active_edge *active = NULL;
+   ofxfs2_stbtt__hheap hh = { 0, 0, 0 };
+   ofxfs2_stbtt__active_edge *active = NULL;
    int y,j=0, i;
    float scanline_data[129], *scanline, *scanline2;
 
@@ -2085,7 +2085,7 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
       // find center of pixel for this scanline
       float scan_y_top    = y + 0.0f;
       float scan_y_bottom = y + 1.0f;
-      ofx_stbtt__active_edge **step = &active;
+      ofxfs2_stbtt__active_edge **step = &active;
 
       STBTT_memset(scanline , 0, result->w*sizeof(scanline[0]));
       STBTT_memset(scanline2, 0, (result->w+1)*sizeof(scanline[0]));
@@ -2093,12 +2093,12 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
       // update all active edges;
       // remove all active edges that terminate before the top of this scanline
       while (*step) {
-         ofx_stbtt__active_edge * z = *step;
+         ofxfs2_stbtt__active_edge * z = *step;
          if (z->ey <= scan_y_top) {
             *step = z->next; // delete from list
             STBTT_assert(z->direction);
             z->direction = 0;
-            ofx_stbtt__hheap_free(&hh, z);
+            ofxfs2_stbtt__hheap_free(&hh, z);
          } else {
             step = &((*step)->next); // advance through list
          }
@@ -2107,7 +2107,7 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
       // insert all edges that start before the bottom of this scanline
       while (e->y0 <= scan_y_bottom) {
          if (e->y0 != e->y1) {
-            ofx_stbtt__active_edge *z = ofx_stbtt__new_active(&hh, e, off_x, scan_y_top, userdata);
+            ofxfs2_stbtt__active_edge *z = ofxfs2_stbtt__new_active(&hh, e, off_x, scan_y_top, userdata);
             if (z != NULL) {
                STBTT_assert(z->ey >= scan_y_top);
                // insert at front
@@ -2120,7 +2120,7 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
 
       // now process all active edges
       if (active)
-         ofx_stbtt__fill_active_edges_new(scanline, scanline2+1, result->w, active, scan_y_top);
+         ofxfs2_stbtt__fill_active_edges_new(scanline, scanline2+1, result->w, active, scan_y_top);
 
       {
          float sum = 0;
@@ -2138,7 +2138,7 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
       // advance all the edges
       step = &active;
       while (*step) {
-         ofx_stbtt__active_edge *z = *step;
+         ofxfs2_stbtt__active_edge *z = *step;
          z->fx += z->fdx; // advance to position for current scanline
          step = &((*step)->next); // advance through list
       }
@@ -2147,7 +2147,7 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
       ++j;
    }
 
-   ofx_stbtt__hheap_cleanup(&hh, userdata);
+   ofxfs2_stbtt__hheap_cleanup(&hh, userdata);
 
    if (scanline != scanline_data)
       STBTT_free(scanline, userdata);
@@ -2158,14 +2158,14 @@ static void ofx_stbtt__rasterize_sorted_edges(ofx_stbtt__bitmap *result, ofx_stb
 
 #define STBTT__COMPARE(a,b)  ((a)->y0 < (b)->y0)
 
-static void ofx_stbtt__sort_edges_ins_sort(ofx_stbtt__edge *p, int n)
+static void ofxfs2_stbtt__sort_edges_ins_sort(ofxfs2_stbtt__edge *p, int n)
 {
    int i,j;
    for (i=1; i < n; ++i) {
-      ofx_stbtt__edge t = p[i], *a = &t;
+      ofxfs2_stbtt__edge t = p[i], *a = &t;
       j = i;
       while (j > 0) {
-         ofx_stbtt__edge *b = &p[j-1];
+         ofxfs2_stbtt__edge *b = &p[j-1];
          int c = STBTT__COMPARE(a,b);
          if (!c) break;
          p[j] = p[j-1];
@@ -2176,11 +2176,11 @@ static void ofx_stbtt__sort_edges_ins_sort(ofx_stbtt__edge *p, int n)
    }
 }
 
-static void ofx_stbtt__sort_edges_quicksort(ofx_stbtt__edge *p, int n)
+static void ofxfs2_stbtt__sort_edges_quicksort(ofxfs2_stbtt__edge *p, int n)
 {
    /* threshhold for transitioning to insertion sort */
    while (n > 12) {
-      ofx_stbtt__edge t;
+      ofxfs2_stbtt__edge t;
       int c01,c12,c,m,i,j;
 
       /* compute median of three */
@@ -2228,31 +2228,31 @@ static void ofx_stbtt__sort_edges_quicksort(ofx_stbtt__edge *p, int n)
       }
       /* recurse on smaller side, iterate on larger */
       if (j < (n-i)) {
-         ofx_stbtt__sort_edges_quicksort(p,j);
+         ofxfs2_stbtt__sort_edges_quicksort(p,j);
          p = p+i;
          n = n-i;
       } else {
-         ofx_stbtt__sort_edges_quicksort(p+i, n-i);
+         ofxfs2_stbtt__sort_edges_quicksort(p+i, n-i);
          n = j;
       }
    }
 }
 
-static void ofx_stbtt__sort_edges(ofx_stbtt__edge *p, int n)
+static void ofxfs2_stbtt__sort_edges(ofxfs2_stbtt__edge *p, int n)
 {
-   ofx_stbtt__sort_edges_quicksort(p, n);
-   ofx_stbtt__sort_edges_ins_sort(p, n);
+   ofxfs2_stbtt__sort_edges_quicksort(p, n);
+   ofxfs2_stbtt__sort_edges_ins_sort(p, n);
 }
 
 typedef struct
 {
    float x,y;
-} ofx_stbtt__point;
+} ofxfs2_stbtt__point;
 
-static void ofx_stbtt__rasterize(ofx_stbtt__bitmap *result, ofx_stbtt__point *pts, int *wcount, int windings, float scale_x, float scale_y, float shift_x, float shift_y, int off_x, int off_y, int invert, void *userdata)
+static void ofxfs2_stbtt__rasterize(ofxfs2_stbtt__bitmap *result, ofxfs2_stbtt__point *pts, int *wcount, int windings, float scale_x, float scale_y, float shift_x, float shift_y, int off_x, int off_y, int invert, void *userdata)
 {
    float y_scale_inv = invert ? -scale_y : scale_y;
-   ofx_stbtt__edge *e;
+   ofxfs2_stbtt__edge *e;
    int n,i,j,k,m;
 #if STBTT_RASTERIZER_VERSION == 1
    int vsubsample = result->h < 8 ? 15 : 5;
@@ -2268,13 +2268,13 @@ static void ofx_stbtt__rasterize(ofx_stbtt__bitmap *result, ofx_stbtt__point *pt
    for (i=0; i < windings; ++i)
       n += wcount[i];
 
-   e = (ofx_stbtt__edge *) STBTT_malloc(sizeof(*e) * (n+1), userdata); // add an extra one as a sentinel
+   e = (ofxfs2_stbtt__edge *) STBTT_malloc(sizeof(*e) * (n+1), userdata); // add an extra one as a sentinel
    if (e == 0) return;
    n = 0;
 
    m=0;
    for (i=0; i < windings; ++i) {
-      ofx_stbtt__point *p = pts + m;
+      ofxfs2_stbtt__point *p = pts + m;
       m += wcount[i];
       j = wcount[i]-1;
       for (k=0; k < wcount[i]; j=k++) {
@@ -2297,16 +2297,16 @@ static void ofx_stbtt__rasterize(ofx_stbtt__bitmap *result, ofx_stbtt__point *pt
    }
 
    // now sort the edges by their highest point (should snap to integer, and then by x)
-   //STBTT_sort(e, n, sizeof(e[0]), ofx_stbtt__edge_compare);
-   ofx_stbtt__sort_edges(e, n);
+   //STBTT_sort(e, n, sizeof(e[0]), ofxfs2_stbtt__edge_compare);
+   ofxfs2_stbtt__sort_edges(e, n);
 
    // now, traverse the scanlines and find the intersections on each scanline, use xor winding rule
-   ofx_stbtt__rasterize_sorted_edges(result, e, n, vsubsample, off_x, off_y, userdata);
+   ofxfs2_stbtt__rasterize_sorted_edges(result, e, n, vsubsample, off_x, off_y, userdata);
 
    STBTT_free(e, userdata);
 }
 
-static void ofx_stbtt__add_point(ofx_stbtt__point *points, int n, float x, float y)
+static void ofxfs2_stbtt__add_point(ofxfs2_stbtt__point *points, int n, float x, float y)
 {
    if (!points) return; // during first pass, it's unallocated
    points[n].x = x;
@@ -2314,7 +2314,7 @@ static void ofx_stbtt__add_point(ofx_stbtt__point *points, int n, float x, float
 }
 
 // tesselate until threshhold p is happy... @TODO warped to compensate for non-linear stretching
-static int ofx_stbtt__tesselate_curve(ofx_stbtt__point *points, int *num_points, float x0, float y0, float x1, float y1, float x2, float y2, float objspace_flatness_squared, int n)
+static int ofxfs2_stbtt__tesselate_curve(ofxfs2_stbtt__point *points, int *num_points, float x0, float y0, float x1, float y1, float x2, float y2, float objspace_flatness_squared, int n)
 {
    // midpoint
    float mx = (x0 + 2*x1 + x2)/4;
@@ -2325,19 +2325,19 @@ static int ofx_stbtt__tesselate_curve(ofx_stbtt__point *points, int *num_points,
    if (n > 16) // 65536 segments on one curve better be enough!
       return 1;
    if (dx*dx+dy*dy > objspace_flatness_squared) { // half-pixel error allowed... need to be smaller if AA
-      ofx_stbtt__tesselate_curve(points, num_points, x0,y0, (x0+x1)/2.0f,(y0+y1)/2.0f, mx,my, objspace_flatness_squared,n+1);
-      ofx_stbtt__tesselate_curve(points, num_points, mx,my, (x1+x2)/2.0f,(y1+y2)/2.0f, x2,y2, objspace_flatness_squared,n+1);
+      ofxfs2_stbtt__tesselate_curve(points, num_points, x0,y0, (x0+x1)/2.0f,(y0+y1)/2.0f, mx,my, objspace_flatness_squared,n+1);
+      ofxfs2_stbtt__tesselate_curve(points, num_points, mx,my, (x1+x2)/2.0f,(y1+y2)/2.0f, x2,y2, objspace_flatness_squared,n+1);
    } else {
-      ofx_stbtt__add_point(points, *num_points,x2,y2);
+      ofxfs2_stbtt__add_point(points, *num_points,x2,y2);
       *num_points = *num_points+1;
    }
    return 1;
 }
 
 // returns number of contours
-static ofx_stbtt__point *ofx_stbtt_FlattenCurves(ofx_stbtt_vertex *vertices, int num_verts, float objspace_flatness, int **contour_lengths, int *num_contours, void *userdata)
+static ofxfs2_stbtt__point *ofxfs2_stbtt_FlattenCurves(ofxfs2_stbtt_vertex *vertices, int num_verts, float objspace_flatness, int **contour_lengths, int *num_contours, void *userdata)
 {
-   ofx_stbtt__point *points=0;
+   ofxfs2_stbtt__point *points=0;
    int num_points=0;
 
    float objspace_flatness_squared = objspace_flatness * objspace_flatness;
@@ -2362,7 +2362,7 @@ static ofx_stbtt__point *ofx_stbtt_FlattenCurves(ofx_stbtt_vertex *vertices, int
    for (pass=0; pass < 2; ++pass) {
       float x=0,y=0;
       if (pass == 1) {
-         points = (ofx_stbtt__point *) STBTT_malloc(num_points * sizeof(points[0]), userdata);
+         points = (ofxfs2_stbtt__point *) STBTT_malloc(num_points * sizeof(points[0]), userdata);
          if (points == NULL) goto error;
       }
       num_points = 0;
@@ -2377,14 +2377,14 @@ static ofx_stbtt__point *ofx_stbtt_FlattenCurves(ofx_stbtt_vertex *vertices, int
                start = num_points;
 
                x = vertices[i].x, y = vertices[i].y;
-               ofx_stbtt__add_point(points, num_points++, x,y);
+               ofxfs2_stbtt__add_point(points, num_points++, x,y);
                break;
             case STBTT_vline:
                x = vertices[i].x, y = vertices[i].y;
-               ofx_stbtt__add_point(points, num_points++, x, y);
+               ofxfs2_stbtt__add_point(points, num_points++, x, y);
                break;
             case STBTT_vcurve:
-               ofx_stbtt__tesselate_curve(points, &num_points, x,y,
+               ofxfs2_stbtt__tesselate_curve(points, &num_points, x,y,
                                         vertices[i].cx, vertices[i].cy,
                                         vertices[i].x,  vertices[i].y,
                                         objspace_flatness_squared, 0);
@@ -2404,29 +2404,29 @@ error:
    return NULL;
 }
 
-STBTT_DEF void ofx_stbtt_Rasterize(ofx_stbtt__bitmap *result, float flatness_in_pixels, ofx_stbtt_vertex *vertices, int num_verts, float scale_x, float scale_y, float shift_x, float shift_y, int x_off, int y_off, int invert, void *userdata)
+STBTT_DEF void ofxfs2_stbtt_Rasterize(ofxfs2_stbtt__bitmap *result, float flatness_in_pixels, ofxfs2_stbtt_vertex *vertices, int num_verts, float scale_x, float scale_y, float shift_x, float shift_y, int x_off, int y_off, int invert, void *userdata)
 {
    float scale = scale_x > scale_y ? scale_y : scale_x;
    int winding_count, *winding_lengths;
-   ofx_stbtt__point *windings = ofx_stbtt_FlattenCurves(vertices, num_verts, flatness_in_pixels / scale, &winding_lengths, &winding_count, userdata);
+   ofxfs2_stbtt__point *windings = ofxfs2_stbtt_FlattenCurves(vertices, num_verts, flatness_in_pixels / scale, &winding_lengths, &winding_count, userdata);
    if (windings) {
-      ofx_stbtt__rasterize(result, windings, winding_lengths, winding_count, scale_x, scale_y, shift_x, shift_y, x_off, y_off, invert, userdata);
+      ofxfs2_stbtt__rasterize(result, windings, winding_lengths, winding_count, scale_x, scale_y, shift_x, shift_y, x_off, y_off, invert, userdata);
       STBTT_free(winding_lengths, userdata);
       STBTT_free(windings, userdata);
    }
 }
 
-STBTT_DEF void ofx_stbtt_FreeBitmap(unsigned char *bitmap, void *userdata)
+STBTT_DEF void ofxfs2_stbtt_FreeBitmap(unsigned char *bitmap, void *userdata)
 {
    STBTT_free(bitmap, userdata);
 }
 
-STBTT_DEF unsigned char *ofx_stbtt_GetGlyphBitmapSubpixel(const ofx_stbtt_fontinfo *info, float scale_x, float scale_y, float shift_x, float shift_y, int glyph, int *width, int *height, int *xoff, int *yoff)
+STBTT_DEF unsigned char *ofxfs2_stbtt_GetGlyphBitmapSubpixel(const ofxfs2_stbtt_fontinfo *info, float scale_x, float scale_y, float shift_x, float shift_y, int glyph, int *width, int *height, int *xoff, int *yoff)
 {
    int ix0,iy0,ix1,iy1;
-   ofx_stbtt__bitmap gbm;
-   ofx_stbtt_vertex *vertices;   
-   int num_verts = ofx_stbtt_GetGlyphShape(info, glyph, &vertices);
+   ofxfs2_stbtt__bitmap gbm;
+   ofxfs2_stbtt_vertex *vertices;   
+   int num_verts = ofxfs2_stbtt_GetGlyphShape(info, glyph, &vertices);
 
    if (scale_x == 0) scale_x = scale_y;
    if (scale_y == 0) {
@@ -2434,7 +2434,7 @@ STBTT_DEF unsigned char *ofx_stbtt_GetGlyphBitmapSubpixel(const ofx_stbtt_fontin
       scale_y = scale_x;
    }
 
-   ofx_stbtt_GetGlyphBitmapBoxSubpixel(info, glyph, scale_x, scale_y, shift_x, shift_y, &ix0,&iy0,&ix1,&iy1);
+   ofxfs2_stbtt_GetGlyphBitmapBoxSubpixel(info, glyph, scale_x, scale_y, shift_x, shift_y, &ix0,&iy0,&ix1,&iy1);
 
    // now we get the size
    gbm.w = (ix1 - ix0);
@@ -2451,60 +2451,60 @@ STBTT_DEF unsigned char *ofx_stbtt_GetGlyphBitmapSubpixel(const ofx_stbtt_fontin
       if (gbm.pixels) {
          gbm.stride = gbm.w;
 
-         ofx_stbtt_Rasterize(&gbm, 0.35f, vertices, num_verts, scale_x, scale_y, shift_x, shift_y, ix0, iy0, 1, info->userdata);
+         ofxfs2_stbtt_Rasterize(&gbm, 0.35f, vertices, num_verts, scale_x, scale_y, shift_x, shift_y, ix0, iy0, 1, info->userdata);
       }
    }
    STBTT_free(vertices, info->userdata);
    return gbm.pixels;
 }   
 
-STBTT_DEF unsigned char *ofx_stbtt_GetGlyphBitmap(const ofx_stbtt_fontinfo *info, float scale_x, float scale_y, int glyph, int *width, int *height, int *xoff, int *yoff)
+STBTT_DEF unsigned char *ofxfs2_stbtt_GetGlyphBitmap(const ofxfs2_stbtt_fontinfo *info, float scale_x, float scale_y, int glyph, int *width, int *height, int *xoff, int *yoff)
 {
-   return ofx_stbtt_GetGlyphBitmapSubpixel(info, scale_x, scale_y, 0.0f, 0.0f, glyph, width, height, xoff, yoff);
+   return ofxfs2_stbtt_GetGlyphBitmapSubpixel(info, scale_x, scale_y, 0.0f, 0.0f, glyph, width, height, xoff, yoff);
 }
 
-STBTT_DEF void ofx_stbtt_MakeGlyphBitmapSubpixel(const ofx_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int glyph)
+STBTT_DEF void ofxfs2_stbtt_MakeGlyphBitmapSubpixel(const ofxfs2_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int glyph)
 {
    int ix0,iy0;
-   ofx_stbtt_vertex *vertices;
-   int num_verts = ofx_stbtt_GetGlyphShape(info, glyph, &vertices);
-   ofx_stbtt__bitmap gbm;   
+   ofxfs2_stbtt_vertex *vertices;
+   int num_verts = ofxfs2_stbtt_GetGlyphShape(info, glyph, &vertices);
+   ofxfs2_stbtt__bitmap gbm;   
 
-   ofx_stbtt_GetGlyphBitmapBoxSubpixel(info, glyph, scale_x, scale_y, shift_x, shift_y, &ix0,&iy0,0,0);
+   ofxfs2_stbtt_GetGlyphBitmapBoxSubpixel(info, glyph, scale_x, scale_y, shift_x, shift_y, &ix0,&iy0,0,0);
    gbm.pixels = output;
    gbm.w = out_w;
    gbm.h = out_h;
    gbm.stride = out_stride;
 
    if (gbm.w && gbm.h)
-      ofx_stbtt_Rasterize(&gbm, 0.35f, vertices, num_verts, scale_x, scale_y, shift_x, shift_y, ix0,iy0, 1, info->userdata);
+      ofxfs2_stbtt_Rasterize(&gbm, 0.35f, vertices, num_verts, scale_x, scale_y, shift_x, shift_y, ix0,iy0, 1, info->userdata);
 
    STBTT_free(vertices, info->userdata);
 }
 
-STBTT_DEF void ofx_stbtt_MakeGlyphBitmap(const ofx_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int glyph)
+STBTT_DEF void ofxfs2_stbtt_MakeGlyphBitmap(const ofxfs2_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int glyph)
 {
-   ofx_stbtt_MakeGlyphBitmapSubpixel(info, output, out_w, out_h, out_stride, scale_x, scale_y, 0.0f,0.0f, glyph);
+   ofxfs2_stbtt_MakeGlyphBitmapSubpixel(info, output, out_w, out_h, out_stride, scale_x, scale_y, 0.0f,0.0f, glyph);
 }
 
-STBTT_DEF unsigned char *ofx_stbtt_GetCodepointBitmapSubpixel(const ofx_stbtt_fontinfo *info, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint, int *width, int *height, int *xoff, int *yoff)
+STBTT_DEF unsigned char *ofxfs2_stbtt_GetCodepointBitmapSubpixel(const ofxfs2_stbtt_fontinfo *info, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint, int *width, int *height, int *xoff, int *yoff)
 {
-   return ofx_stbtt_GetGlyphBitmapSubpixel(info, scale_x, scale_y,shift_x,shift_y, ofx_stbtt_FindGlyphIndex(info,codepoint), width,height,xoff,yoff);
+   return ofxfs2_stbtt_GetGlyphBitmapSubpixel(info, scale_x, scale_y,shift_x,shift_y, ofxfs2_stbtt_FindGlyphIndex(info,codepoint), width,height,xoff,yoff);
 }   
 
-STBTT_DEF void ofx_stbtt_MakeCodepointBitmapSubpixel(const ofx_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint)
+STBTT_DEF void ofxfs2_stbtt_MakeCodepointBitmapSubpixel(const ofxfs2_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, float shift_x, float shift_y, int codepoint)
 {
-   ofx_stbtt_MakeGlyphBitmapSubpixel(info, output, out_w, out_h, out_stride, scale_x, scale_y, shift_x, shift_y, ofx_stbtt_FindGlyphIndex(info,codepoint));
+   ofxfs2_stbtt_MakeGlyphBitmapSubpixel(info, output, out_w, out_h, out_stride, scale_x, scale_y, shift_x, shift_y, ofxfs2_stbtt_FindGlyphIndex(info,codepoint));
 }
 
-STBTT_DEF unsigned char *ofx_stbtt_GetCodepointBitmap(const ofx_stbtt_fontinfo *info, float scale_x, float scale_y, int codepoint, int *width, int *height, int *xoff, int *yoff)
+STBTT_DEF unsigned char *ofxfs2_stbtt_GetCodepointBitmap(const ofxfs2_stbtt_fontinfo *info, float scale_x, float scale_y, int codepoint, int *width, int *height, int *xoff, int *yoff)
 {
-   return ofx_stbtt_GetCodepointBitmapSubpixel(info, scale_x, scale_y, 0.0f,0.0f, codepoint, width,height,xoff,yoff);
+   return ofxfs2_stbtt_GetCodepointBitmapSubpixel(info, scale_x, scale_y, 0.0f,0.0f, codepoint, width,height,xoff,yoff);
 }   
 
-STBTT_DEF void ofx_stbtt_MakeCodepointBitmap(const ofx_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int codepoint)
+STBTT_DEF void ofxfs2_stbtt_MakeCodepointBitmap(const ofxfs2_stbtt_fontinfo *info, unsigned char *output, int out_w, int out_h, int out_stride, float scale_x, float scale_y, int codepoint)
 {
-   ofx_stbtt_MakeCodepointBitmapSubpixel(info, output, out_w, out_h, out_stride, scale_x, scale_y, 0.0f,0.0f, codepoint);
+   ofxfs2_stbtt_MakeCodepointBitmapSubpixel(info, output, out_w, out_h, out_stride, scale_x, scale_y, 0.0f,0.0f, codepoint);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2513,29 +2513,29 @@ STBTT_DEF void ofx_stbtt_MakeCodepointBitmap(const ofx_stbtt_fontinfo *info, uns
 //
 // This is SUPER-CRAPPY packing to keep source code small
 
-STBTT_DEF int ofx_stbtt_BakeFontBitmap(const unsigned char *data, int offset,  // font location (use offset=0 for plain .ttf)
+STBTT_DEF int ofxfs2_stbtt_BakeFontBitmap(const unsigned char *data, int offset,  // font location (use offset=0 for plain .ttf)
                                 float pixel_height,                     // height of font in pixels
                                 unsigned char *pixels, int pw, int ph,  // bitmap to be filled in
                                 int first_char, int num_chars,          // characters to bake
-                                ofx_stbtt_bakedchar *chardata)
+                                ofxfs2_stbtt_bakedchar *chardata)
 {
    float scale;
    int x,y,bottom_y, i;
-   ofx_stbtt_fontinfo f;
+   ofxfs2_stbtt_fontinfo f;
    f.userdata = NULL;
-   if (!ofx_stbtt_InitFont(&f, data, offset))
+   if (!ofxfs2_stbtt_InitFont(&f, data, offset))
       return -1;
    STBTT_memset(pixels, 0, pw*ph); // background of 0 around pixels
    x=y=1;
    bottom_y = 1;
 
-   scale = ofx_stbtt_ScaleForPixelHeight(&f, pixel_height);
+   scale = ofxfs2_stbtt_ScaleForPixelHeight(&f, pixel_height);
 
    for (i=0; i < num_chars; ++i) {
       int advance, lsb, x0,y0,x1,y1,gw,gh;
-      int g = ofx_stbtt_FindGlyphIndex(&f, first_char + i);
-      ofx_stbtt_GetGlyphHMetrics(&f, g, &advance, &lsb);
-      ofx_stbtt_GetGlyphBitmapBox(&f, g, scale,scale, &x0,&y0,&x1,&y1);
+      int g = ofxfs2_stbtt_FindGlyphIndex(&f, first_char + i);
+      ofxfs2_stbtt_GetGlyphHMetrics(&f, g, &advance, &lsb);
+      ofxfs2_stbtt_GetGlyphBitmapBox(&f, g, scale,scale, &x0,&y0,&x1,&y1);
       gw = x1-x0;
       gh = y1-y0;
       if (x + gw + 1 >= pw)
@@ -2544,11 +2544,11 @@ STBTT_DEF int ofx_stbtt_BakeFontBitmap(const unsigned char *data, int offset,  /
          return -i;
       STBTT_assert(x+gw < pw);
       STBTT_assert(y+gh < ph);
-      ofx_stbtt_MakeGlyphBitmap(&f, pixels+x+y*pw, gw,gh,pw, scale,scale, g);
-      chardata[i].x0 = (ofx_stbtt_int16) x;
-      chardata[i].y0 = (ofx_stbtt_int16) y;
-      chardata[i].x1 = (ofx_stbtt_int16) (x + gw);
-      chardata[i].y1 = (ofx_stbtt_int16) (y + gh);
+      ofxfs2_stbtt_MakeGlyphBitmap(&f, pixels+x+y*pw, gw,gh,pw, scale,scale, g);
+      chardata[i].x0 = (ofxfs2_stbtt_int16) x;
+      chardata[i].y0 = (ofxfs2_stbtt_int16) y;
+      chardata[i].x1 = (ofxfs2_stbtt_int16) (x + gw);
+      chardata[i].y1 = (ofxfs2_stbtt_int16) (y + gh);
       chardata[i].xadvance = scale * advance;
       chardata[i].xoff     = (float) x0;
       chardata[i].yoff     = (float) y0;
@@ -2559,11 +2559,11 @@ STBTT_DEF int ofx_stbtt_BakeFontBitmap(const unsigned char *data, int offset,  /
    return bottom_y;
 }
 
-STBTT_DEF void ofx_stbtt_GetBakedQuad(ofx_stbtt_bakedchar *chardata, int pw, int ph, int char_index, float *xpos, float *ypos, ofx_stbtt_aligned_quad *q, int opengl_fillrule)
+STBTT_DEF void ofxfs2_stbtt_GetBakedQuad(ofxfs2_stbtt_bakedchar *chardata, int pw, int ph, int char_index, float *xpos, float *ypos, ofxfs2_stbtt_aligned_quad *q, int opengl_fillrule)
 {
    float d3d_bias = opengl_fillrule ? 0 : -0.5f;
    float ipw = 1.0f / pw, iph = 1.0f / ph;
-   ofx_stbtt_bakedchar *b = chardata + char_index;
+   ofxfs2_stbtt_bakedchar *b = chardata + char_index;
    int round_x = STBTT_ifloor((*xpos + b->xoff) + 0.5f);
    int round_y = STBTT_ifloor((*ypos + b->yoff) + 0.5f);
 
@@ -2662,7 +2662,7 @@ static void stbrp_pack_rects(stbrp_context *con, stbrp_rect *rects, int num_rect
 // This is SUPER-AWESOME (tm Ryan Gordon) packing using stb_rect_pack.h. If
 // stb_rect_pack.h isn't available, it uses the BakeFontBitmap strategy.
 
-STBTT_DEF int ofx_stbtt_PackBegin(ofx_stbtt_pack_context *spc, unsigned char *pixels, int pw, int ph, int stride_in_bytes, int padding, void *alloc_context)
+STBTT_DEF int ofxfs2_stbtt_PackBegin(ofxfs2_stbtt_pack_context *spc, unsigned char *pixels, int pw, int ph, int stride_in_bytes, int padding, void *alloc_context)
 {
    stbrp_context *context = (stbrp_context *) STBTT_malloc(sizeof(*context)            ,alloc_context);
    int            num_nodes = pw - padding;
@@ -2693,13 +2693,13 @@ STBTT_DEF int ofx_stbtt_PackBegin(ofx_stbtt_pack_context *spc, unsigned char *pi
    return 1;
 }
 
-STBTT_DEF void ofx_stbtt_PackEnd  (ofx_stbtt_pack_context *spc)
+STBTT_DEF void ofxfs2_stbtt_PackEnd  (ofxfs2_stbtt_pack_context *spc)
 {
    STBTT_free(spc->nodes    , spc->user_allocator_context);
    STBTT_free(spc->pack_info, spc->user_allocator_context);
 }
 
-STBTT_DEF void ofx_stbtt_PackSetOversampling(ofx_stbtt_pack_context *spc, unsigned int h_oversample, unsigned int v_oversample)
+STBTT_DEF void ofxfs2_stbtt_PackSetOversampling(ofxfs2_stbtt_pack_context *spc, unsigned int h_oversample, unsigned int v_oversample)
 {
    STBTT_assert(h_oversample <= STBTT_MAX_OVERSAMPLE);
    STBTT_assert(v_oversample <= STBTT_MAX_OVERSAMPLE);
@@ -2711,7 +2711,7 @@ STBTT_DEF void ofx_stbtt_PackSetOversampling(ofx_stbtt_pack_context *spc, unsign
 
 #define STBTT__OVER_MASK  (STBTT_MAX_OVERSAMPLE-1)
 
-static void ofx_stbtt__h_prefilter(unsigned char *pixels, int w, int h, int stride_in_bytes, unsigned int kernel_width)
+static void ofxfs2_stbtt__h_prefilter(unsigned char *pixels, int w, int h, int stride_in_bytes, unsigned int kernel_width)
 {
    unsigned char buffer[STBTT_MAX_OVERSAMPLE];
    int safe_w = w - kernel_width;
@@ -2773,7 +2773,7 @@ static void ofx_stbtt__h_prefilter(unsigned char *pixels, int w, int h, int stri
    }
 }
 
-static void ofx_stbtt__v_prefilter(unsigned char *pixels, int w, int h, int stride_in_bytes, unsigned int kernel_width)
+static void ofxfs2_stbtt__v_prefilter(unsigned char *pixels, int w, int h, int stride_in_bytes, unsigned int kernel_width)
 {
    unsigned char buffer[STBTT_MAX_OVERSAMPLE];
    int safe_h = h - kernel_width;
@@ -2835,7 +2835,7 @@ static void ofx_stbtt__v_prefilter(unsigned char *pixels, int w, int h, int stri
    }
 }
 
-static float ofx_stbtt__oversample_shift(int oversample)
+static float ofxfs2_stbtt__oversample_shift(int oversample)
 {
    if (!oversample)
       return 0.0f;
@@ -2848,21 +2848,21 @@ static float ofx_stbtt__oversample_shift(int oversample)
 }
 
 // rects array must be big enough to accommodate all characters in the given ranges
-STBTT_DEF int ofx_stbtt_PackFontRangesGatherRects(ofx_stbtt_pack_context *spc, ofx_stbtt_fontinfo *info, ofx_stbtt_pack_range *ranges, int num_ranges, stbrp_rect *rects)
+STBTT_DEF int ofxfs2_stbtt_PackFontRangesGatherRects(ofxfs2_stbtt_pack_context *spc, ofxfs2_stbtt_fontinfo *info, ofxfs2_stbtt_pack_range *ranges, int num_ranges, stbrp_rect *rects)
 {
    int i,j,k;
 
    k=0;
    for (i=0; i < num_ranges; ++i) {
       float fh = ranges[i].font_size;
-      float scale = fh > 0 ? ofx_stbtt_ScaleForPixelHeight(info, fh) : ofx_stbtt_ScaleForMappingEmToPixels(info, -fh);
+      float scale = fh > 0 ? ofxfs2_stbtt_ScaleForPixelHeight(info, fh) : ofxfs2_stbtt_ScaleForMappingEmToPixels(info, -fh);
       ranges[i].h_oversample = (unsigned char) spc->h_oversample;
       ranges[i].v_oversample = (unsigned char) spc->v_oversample;
       for (j=0; j < ranges[i].num_chars; ++j) {
          int x0,y0,x1,y1;
          int codepoint = ranges[i].array_of_unicode_codepoints == NULL ? ranges[i].first_unicode_codepoint_in_range + j : ranges[i].array_of_unicode_codepoints[j];
-         int glyph = ofx_stbtt_FindGlyphIndex(info, codepoint);
-         ofx_stbtt_GetGlyphBitmapBoxSubpixel(info,glyph,
+         int glyph = ofxfs2_stbtt_FindGlyphIndex(info, codepoint);
+         ofxfs2_stbtt_GetGlyphBitmapBoxSubpixel(info,glyph,
                                          scale * spc->h_oversample,
                                          scale * spc->v_oversample,
                                          0,0,
@@ -2877,7 +2877,7 @@ STBTT_DEF int ofx_stbtt_PackFontRangesGatherRects(ofx_stbtt_pack_context *spc, o
 }
 
 // rects array must be big enough to accommodate all characters in the given ranges
-STBTT_DEF int ofx_stbtt_PackFontRangesRenderIntoRects(ofx_stbtt_pack_context *spc, ofx_stbtt_fontinfo *info, ofx_stbtt_pack_range *ranges, int num_ranges, stbrp_rect *rects)
+STBTT_DEF int ofxfs2_stbtt_PackFontRangesRenderIntoRects(ofxfs2_stbtt_pack_context *spc, ofxfs2_stbtt_fontinfo *info, ofxfs2_stbtt_pack_range *ranges, int num_ranges, stbrp_rect *rects)
 {
    int i,j,k, return_value = 1;
 
@@ -2888,21 +2888,21 @@ STBTT_DEF int ofx_stbtt_PackFontRangesRenderIntoRects(ofx_stbtt_pack_context *sp
    k = 0;
    for (i=0; i < num_ranges; ++i) {
       float fh = ranges[i].font_size;
-      float scale = fh > 0 ? ofx_stbtt_ScaleForPixelHeight(info, fh) : ofx_stbtt_ScaleForMappingEmToPixels(info, -fh);
+      float scale = fh > 0 ? ofxfs2_stbtt_ScaleForPixelHeight(info, fh) : ofxfs2_stbtt_ScaleForMappingEmToPixels(info, -fh);
       float recip_h,recip_v,sub_x,sub_y;
       spc->h_oversample = ranges[i].h_oversample;
       spc->v_oversample = ranges[i].v_oversample;
       recip_h = 1.0f / spc->h_oversample;
       recip_v = 1.0f / spc->v_oversample;
-      sub_x = ofx_stbtt__oversample_shift(spc->h_oversample);
-      sub_y = ofx_stbtt__oversample_shift(spc->v_oversample);
+      sub_x = ofxfs2_stbtt__oversample_shift(spc->h_oversample);
+      sub_y = ofxfs2_stbtt__oversample_shift(spc->v_oversample);
       for (j=0; j < ranges[i].num_chars; ++j) {
          stbrp_rect *r = &rects[k];
          if (r->was_packed) {
-            ofx_stbtt_packedchar *bc = &ranges[i].chardata_for_range[j];
+            ofxfs2_stbtt_packedchar *bc = &ranges[i].chardata_for_range[j];
             int advance, lsb, x0,y0,x1,y1;
             int codepoint = ranges[i].array_of_unicode_codepoints == NULL ? ranges[i].first_unicode_codepoint_in_range + j : ranges[i].array_of_unicode_codepoints[j];
-            int glyph = ofx_stbtt_FindGlyphIndex(info, codepoint);
+            int glyph = ofxfs2_stbtt_FindGlyphIndex(info, codepoint);
             stbrp_coord pad = (stbrp_coord) spc->padding;
 
             // pad on left and top
@@ -2910,12 +2910,12 @@ STBTT_DEF int ofx_stbtt_PackFontRangesRenderIntoRects(ofx_stbtt_pack_context *sp
             r->y += pad;
             r->w -= pad;
             r->h -= pad;
-            ofx_stbtt_GetGlyphHMetrics(info, glyph, &advance, &lsb);
-            ofx_stbtt_GetGlyphBitmapBox(info, glyph,
+            ofxfs2_stbtt_GetGlyphHMetrics(info, glyph, &advance, &lsb);
+            ofxfs2_stbtt_GetGlyphBitmapBox(info, glyph,
                                     scale * spc->h_oversample,
                                     scale * spc->v_oversample,
                                     &x0,&y0,&x1,&y1);
-            ofx_stbtt_MakeGlyphBitmapSubpixel(info,
+            ofxfs2_stbtt_MakeGlyphBitmapSubpixel(info,
                                           spc->pixels + r->x + r->y*spc->stride_in_bytes,
                                           r->w - spc->h_oversample+1,
                                           r->h - spc->v_oversample+1,
@@ -2926,19 +2926,19 @@ STBTT_DEF int ofx_stbtt_PackFontRangesRenderIntoRects(ofx_stbtt_pack_context *sp
                                           glyph);
 
             if (spc->h_oversample > 1)
-               ofx_stbtt__h_prefilter(spc->pixels + r->x + r->y*spc->stride_in_bytes,
+               ofxfs2_stbtt__h_prefilter(spc->pixels + r->x + r->y*spc->stride_in_bytes,
                                   r->w, r->h, spc->stride_in_bytes,
                                   spc->h_oversample);
 
             if (spc->v_oversample > 1)
-               ofx_stbtt__v_prefilter(spc->pixels + r->x + r->y*spc->stride_in_bytes,
+               ofxfs2_stbtt__v_prefilter(spc->pixels + r->x + r->y*spc->stride_in_bytes,
                                   r->w, r->h, spc->stride_in_bytes,
                                   spc->v_oversample);
 
-            bc->x0       = (ofx_stbtt_int16)  r->x;
-            bc->y0       = (ofx_stbtt_int16)  r->y;
-            bc->x1       = (ofx_stbtt_int16) (r->x + r->w);
-            bc->y1       = (ofx_stbtt_int16) (r->y + r->h);
+            bc->x0       = (ofxfs2_stbtt_int16)  r->x;
+            bc->y0       = (ofxfs2_stbtt_int16)  r->y;
+            bc->x1       = (ofxfs2_stbtt_int16) (r->x + r->w);
+            bc->y1       = (ofxfs2_stbtt_int16) (r->y + r->h);
             bc->xadvance =                scale * advance;
             bc->xoff     =       (float)  x0 * recip_h + sub_x;
             bc->yoff     =       (float)  y0 * recip_v + sub_y;
@@ -2959,14 +2959,14 @@ STBTT_DEF int ofx_stbtt_PackFontRangesRenderIntoRects(ofx_stbtt_pack_context *sp
    return return_value;
 }
 
-STBTT_DEF void ofx_stbtt_PackFontRangesPackRects(ofx_stbtt_pack_context *spc, stbrp_rect *rects, int num_rects)
+STBTT_DEF void ofxfs2_stbtt_PackFontRangesPackRects(ofxfs2_stbtt_pack_context *spc, stbrp_rect *rects, int num_rects)
 {
    stbrp_pack_rects((stbrp_context *) spc->pack_info, rects, num_rects);
 }
 
-STBTT_DEF int ofx_stbtt_PackFontRanges(ofx_stbtt_pack_context *spc, unsigned char *fontdata, int font_index, ofx_stbtt_pack_range *ranges, int num_ranges)
+STBTT_DEF int ofxfs2_stbtt_PackFontRanges(ofxfs2_stbtt_pack_context *spc, unsigned char *fontdata, int font_index, ofxfs2_stbtt_pack_range *ranges, int num_ranges)
 {
-   ofx_stbtt_fontinfo info;
+   ofxfs2_stbtt_fontinfo info;
    int i,j,n, return_value = 1;
    //stbrp_context *context = (stbrp_context *) spc->pack_info;
    stbrp_rect    *rects;
@@ -2988,34 +2988,34 @@ STBTT_DEF int ofx_stbtt_PackFontRanges(ofx_stbtt_pack_context *spc, unsigned cha
       return 0;
 
    info.userdata = spc->user_allocator_context;
-   ofx_stbtt_InitFont(&info, fontdata, ofx_stbtt_GetFontOffsetForIndex(fontdata,font_index));
+   ofxfs2_stbtt_InitFont(&info, fontdata, ofxfs2_stbtt_GetFontOffsetForIndex(fontdata,font_index));
 
-   n = ofx_stbtt_PackFontRangesGatherRects(spc, &info, ranges, num_ranges, rects);
+   n = ofxfs2_stbtt_PackFontRangesGatherRects(spc, &info, ranges, num_ranges, rects);
 
-   ofx_stbtt_PackFontRangesPackRects(spc, rects, n);
+   ofxfs2_stbtt_PackFontRangesPackRects(spc, rects, n);
   
-   return_value = ofx_stbtt_PackFontRangesRenderIntoRects(spc, &info, ranges, num_ranges, rects);
+   return_value = ofxfs2_stbtt_PackFontRangesRenderIntoRects(spc, &info, ranges, num_ranges, rects);
 
    STBTT_free(rects, spc->user_allocator_context);
    return return_value;
 }
 
-STBTT_DEF int ofx_stbtt_PackFontRange(ofx_stbtt_pack_context *spc, unsigned char *fontdata, int font_index, float font_size,
-            int first_unicode_codepoint_in_range, int num_chars_in_range, ofx_stbtt_packedchar *chardata_for_range)
+STBTT_DEF int ofxfs2_stbtt_PackFontRange(ofxfs2_stbtt_pack_context *spc, unsigned char *fontdata, int font_index, float font_size,
+            int first_unicode_codepoint_in_range, int num_chars_in_range, ofxfs2_stbtt_packedchar *chardata_for_range)
 {
-   ofx_stbtt_pack_range range;
+   ofxfs2_stbtt_pack_range range;
    range.first_unicode_codepoint_in_range = first_unicode_codepoint_in_range;
    range.array_of_unicode_codepoints = NULL;
    range.num_chars                   = num_chars_in_range;
    range.chardata_for_range          = chardata_for_range;
    range.font_size                   = font_size;
-   return ofx_stbtt_PackFontRanges(spc, fontdata, font_index, &range, 1);
+   return ofxfs2_stbtt_PackFontRanges(spc, fontdata, font_index, &range, 1);
 }
 
-STBTT_DEF void ofx_stbtt_GetPackedQuad(ofx_stbtt_packedchar *chardata, int pw, int ph, int char_index, float *xpos, float *ypos, ofx_stbtt_aligned_quad *q, int align_to_integer)
+STBTT_DEF void ofxfs2_stbtt_GetPackedQuad(ofxfs2_stbtt_packedchar *chardata, int pw, int ph, int char_index, float *xpos, float *ypos, ofxfs2_stbtt_aligned_quad *q, int align_to_integer)
 {
    float ipw = 1.0f / pw, iph = 1.0f / ph;
-   ofx_stbtt_packedchar *b = chardata + char_index;
+   ofxfs2_stbtt_packedchar *b = chardata + char_index;
 
    if (align_to_integer) {
       float x = (float) STBTT_ifloor((*xpos + b->xoff) + 0.5f);
@@ -3046,13 +3046,13 @@ STBTT_DEF void ofx_stbtt_GetPackedQuad(ofx_stbtt_packedchar *chardata, int pw, i
 //
 
 // check if a utf8 string contains a prefix which is the utf16 string; if so return length of matching utf8 string
-static ofx_stbtt_int32 ofx_stbtt__CompareUTF8toUTF16_bigendian_prefix(const ofx_stbtt_uint8 *s1, ofx_stbtt_int32 len1, const ofx_stbtt_uint8 *s2, ofx_stbtt_int32 len2) 
+static ofxfs2_stbtt_int32 ofxfs2_stbtt__CompareUTF8toUTF16_bigendian_prefix(const ofxfs2_stbtt_uint8 *s1, ofxfs2_stbtt_int32 len1, const ofxfs2_stbtt_uint8 *s2, ofxfs2_stbtt_int32 len2) 
 {
-   ofx_stbtt_int32 i=0;
+   ofxfs2_stbtt_int32 i=0;
 
    // convert utf16 to utf8 and compare the results while converting
    while (len2) {
-      ofx_stbtt_uint16 ch = s2[0]*256 + s2[1];
+      ofxfs2_stbtt_uint16 ch = s2[0]*256 + s2[1];
       if (ch < 0x80) {
          if (i >= len1) return -1;
          if (s1[i++] != ch) return -1;
@@ -3061,8 +3061,8 @@ static ofx_stbtt_int32 ofx_stbtt__CompareUTF8toUTF16_bigendian_prefix(const ofx_
          if (s1[i++] != 0xc0 + (ch >> 6)) return -1;
          if (s1[i++] != 0x80 + (ch & 0x3f)) return -1;
       } else if (ch >= 0xd800 && ch < 0xdc00) {
-         ofx_stbtt_uint32 c;
-         ofx_stbtt_uint16 ch2 = s2[2]*256 + s2[3];
+         ofxfs2_stbtt_uint32 c;
+         ofxfs2_stbtt_uint16 ch2 = s2[2]*256 + s2[3];
          if (i+3 >= len1) return -1;
          c = ((ch - 0xd800) << 10) + (ch2 - 0xdc00) + 0x10000;
          if (s1[i++] != 0xf0 + (c >> 18)) return -1;
@@ -3085,25 +3085,25 @@ static ofx_stbtt_int32 ofx_stbtt__CompareUTF8toUTF16_bigendian_prefix(const ofx_
    return i;
 }
 
-STBTT_DEF int ofx_stbtt_CompareUTF8toUTF16_bigendian(const char *s1, int len1, const char *s2, int len2) 
+STBTT_DEF int ofxfs2_stbtt_CompareUTF8toUTF16_bigendian(const char *s1, int len1, const char *s2, int len2) 
 {
-   return len1 == ofx_stbtt__CompareUTF8toUTF16_bigendian_prefix((const ofx_stbtt_uint8*) s1, len1, (const ofx_stbtt_uint8*) s2, len2);
+   return len1 == ofxfs2_stbtt__CompareUTF8toUTF16_bigendian_prefix((const ofxfs2_stbtt_uint8*) s1, len1, (const ofxfs2_stbtt_uint8*) s2, len2);
 }
 
 // returns results in whatever encoding you request... but note that 2-byte encodings
-// will be BIG-ENDIAN... use ofx_stbtt_CompareUTF8toUTF16_bigendian() to compare
-STBTT_DEF const char *ofx_stbtt_GetFontNameString(const ofx_stbtt_fontinfo *font, int *length, int platformID, int encodingID, int languageID, int nameID)
+// will be BIG-ENDIAN... use ofxfs2_stbtt_CompareUTF8toUTF16_bigendian() to compare
+STBTT_DEF const char *ofxfs2_stbtt_GetFontNameString(const ofxfs2_stbtt_fontinfo *font, int *length, int platformID, int encodingID, int languageID, int nameID)
 {
-   ofx_stbtt_int32 i,count,stringOffset;
-   ofx_stbtt_uint8 *fc = font->data;
-   ofx_stbtt_uint32 offset = font->fontstart;
-   ofx_stbtt_uint32 nm = ofx_stbtt__find_table(fc, offset, "name");
+   ofxfs2_stbtt_int32 i,count,stringOffset;
+   ofxfs2_stbtt_uint8 *fc = font->data;
+   ofxfs2_stbtt_uint32 offset = font->fontstart;
+   ofxfs2_stbtt_uint32 nm = ofxfs2_stbtt__find_table(fc, offset, "name");
    if (!nm) return NULL;
 
    count = ttUSHORT(fc+nm+2);
    stringOffset = nm + ttUSHORT(fc+nm+4);
    for (i=0; i < count; ++i) {
-      ofx_stbtt_uint32 loc = nm + 6 + 12 * i;
+      ofxfs2_stbtt_uint32 loc = nm + 6 + 12 * i;
       if (platformID == ttUSHORT(fc+loc+0) && encodingID == ttUSHORT(fc+loc+2)
           && languageID == ttUSHORT(fc+loc+4) && nameID == ttUSHORT(fc+loc+6)) {
          *length = ttUSHORT(fc+loc+8);
@@ -3113,26 +3113,26 @@ STBTT_DEF const char *ofx_stbtt_GetFontNameString(const ofx_stbtt_fontinfo *font
    return NULL;
 }
 
-static int ofx_stbtt__matchpair(ofx_stbtt_uint8 *fc, ofx_stbtt_uint32 nm, ofx_stbtt_uint8 *name, ofx_stbtt_int32 nlen, ofx_stbtt_int32 target_id, ofx_stbtt_int32 next_id)
+static int ofxfs2_stbtt__matchpair(ofxfs2_stbtt_uint8 *fc, ofxfs2_stbtt_uint32 nm, ofxfs2_stbtt_uint8 *name, ofxfs2_stbtt_int32 nlen, ofxfs2_stbtt_int32 target_id, ofxfs2_stbtt_int32 next_id)
 {
-   ofx_stbtt_int32 i;
-   ofx_stbtt_int32 count = ttUSHORT(fc+nm+2);
-   ofx_stbtt_int32 stringOffset = nm + ttUSHORT(fc+nm+4);
+   ofxfs2_stbtt_int32 i;
+   ofxfs2_stbtt_int32 count = ttUSHORT(fc+nm+2);
+   ofxfs2_stbtt_int32 stringOffset = nm + ttUSHORT(fc+nm+4);
 
    for (i=0; i < count; ++i) {
-      ofx_stbtt_uint32 loc = nm + 6 + 12 * i;
-      ofx_stbtt_int32 id = ttUSHORT(fc+loc+6);
+      ofxfs2_stbtt_uint32 loc = nm + 6 + 12 * i;
+      ofxfs2_stbtt_int32 id = ttUSHORT(fc+loc+6);
       if (id == target_id) {
          // find the encoding
-         ofx_stbtt_int32 platform = ttUSHORT(fc+loc+0), encoding = ttUSHORT(fc+loc+2), language = ttUSHORT(fc+loc+4);
+         ofxfs2_stbtt_int32 platform = ttUSHORT(fc+loc+0), encoding = ttUSHORT(fc+loc+2), language = ttUSHORT(fc+loc+4);
 
          // is this a Unicode encoding?
          if (platform == 0 || (platform == 3 && encoding == 1) || (platform == 3 && encoding == 10)) {
-            ofx_stbtt_int32 slen = ttUSHORT(fc+loc+8);
-            ofx_stbtt_int32 off = ttUSHORT(fc+loc+10);
+            ofxfs2_stbtt_int32 slen = ttUSHORT(fc+loc+8);
+            ofxfs2_stbtt_int32 off = ttUSHORT(fc+loc+10);
 
             // check if there's a prefix match
-            ofx_stbtt_int32 matchlen = ofx_stbtt__CompareUTF8toUTF16_bigendian_prefix(name, nlen, fc+stringOffset+off,slen);
+            ofxfs2_stbtt_int32 matchlen = ofxfs2_stbtt__CompareUTF8toUTF16_bigendian_prefix(name, nlen, fc+stringOffset+off,slen);
             if (matchlen >= 0) {
                // check for target_id+1 immediately following, with same encoding & language
                if (i+1 < count && ttUSHORT(fc+loc+12+6) == next_id && ttUSHORT(fc+loc+12) == platform && ttUSHORT(fc+loc+12+2) == encoding && ttUSHORT(fc+loc+12+4) == language) {
@@ -3143,7 +3143,7 @@ static int ofx_stbtt__matchpair(ofx_stbtt_uint8 *fc, ofx_stbtt_uint32 nm, ofx_st
                         return 1;
                   } else if (matchlen < nlen && name[matchlen] == ' ') {
                      ++matchlen;
-                     if (ofx_stbtt_CompareUTF8toUTF16_bigendian((char*) (name+matchlen), nlen-matchlen, (char*)(fc+stringOffset+off),slen))
+                     if (ofxfs2_stbtt_CompareUTF8toUTF16_bigendian((char*) (name+matchlen), nlen-matchlen, (char*)(fc+stringOffset+off),slen))
                         return 1;
                   }
                } else {
@@ -3160,42 +3160,42 @@ static int ofx_stbtt__matchpair(ofx_stbtt_uint8 *fc, ofx_stbtt_uint32 nm, ofx_st
    return 0;
 }
 
-static int ofx_stbtt__matches(ofx_stbtt_uint8 *fc, ofx_stbtt_uint32 offset, ofx_stbtt_uint8 *name, ofx_stbtt_int32 flags)
+static int ofxfs2_stbtt__matches(ofxfs2_stbtt_uint8 *fc, ofxfs2_stbtt_uint32 offset, ofxfs2_stbtt_uint8 *name, ofxfs2_stbtt_int32 flags)
 {
-   ofx_stbtt_int32 nlen = (ofx_stbtt_int32) STBTT_strlen((char *) name);
-   ofx_stbtt_uint32 nm,hd;
-   if (!ofx_stbtt__isfont(fc+offset)) return 0;
+   ofxfs2_stbtt_int32 nlen = (ofxfs2_stbtt_int32) STBTT_strlen((char *) name);
+   ofxfs2_stbtt_uint32 nm,hd;
+   if (!ofxfs2_stbtt__isfont(fc+offset)) return 0;
 
    // check italics/bold/underline flags in macStyle...
    if (flags) {
-      hd = ofx_stbtt__find_table(fc, offset, "head");
+      hd = ofxfs2_stbtt__find_table(fc, offset, "head");
       if ((ttUSHORT(fc+hd+44) & 7) != (flags & 7)) return 0;
    }
 
-   nm = ofx_stbtt__find_table(fc, offset, "name");
+   nm = ofxfs2_stbtt__find_table(fc, offset, "name");
    if (!nm) return 0;
 
    if (flags) {
       // if we checked the macStyle flags, then just check the family and ignore the subfamily
-      if (ofx_stbtt__matchpair(fc, nm, name, nlen, 16, -1))  return 1;
-      if (ofx_stbtt__matchpair(fc, nm, name, nlen,  1, -1))  return 1;
-      if (ofx_stbtt__matchpair(fc, nm, name, nlen,  3, -1))  return 1;
+      if (ofxfs2_stbtt__matchpair(fc, nm, name, nlen, 16, -1))  return 1;
+      if (ofxfs2_stbtt__matchpair(fc, nm, name, nlen,  1, -1))  return 1;
+      if (ofxfs2_stbtt__matchpair(fc, nm, name, nlen,  3, -1))  return 1;
    } else {
-      if (ofx_stbtt__matchpair(fc, nm, name, nlen, 16, 17))  return 1;
-      if (ofx_stbtt__matchpair(fc, nm, name, nlen,  1,  2))  return 1;
-      if (ofx_stbtt__matchpair(fc, nm, name, nlen,  3, -1))  return 1;
+      if (ofxfs2_stbtt__matchpair(fc, nm, name, nlen, 16, 17))  return 1;
+      if (ofxfs2_stbtt__matchpair(fc, nm, name, nlen,  1,  2))  return 1;
+      if (ofxfs2_stbtt__matchpair(fc, nm, name, nlen,  3, -1))  return 1;
    }
 
    return 0;
 }
 
-STBTT_DEF int ofx_stbtt_FindMatchingFont(const unsigned char *font_collection, const char *name_utf8, ofx_stbtt_int32 flags)
+STBTT_DEF int ofxfs2_stbtt_FindMatchingFont(const unsigned char *font_collection, const char *name_utf8, ofxfs2_stbtt_int32 flags)
 {
-   ofx_stbtt_int32 i;
+   ofxfs2_stbtt_int32 i;
    for (i=0;;++i) {
-      ofx_stbtt_int32 off = ofx_stbtt_GetFontOffsetForIndex(font_collection, i);
+      ofxfs2_stbtt_int32 off = ofxfs2_stbtt_GetFontOffsetForIndex(font_collection, i);
       if (off < 0) return off;
-      if (ofx_stbtt__matches((ofx_stbtt_uint8 *) font_collection, off, (ofx_stbtt_uint8*) name_utf8, flags))
+      if (ofxfs2_stbtt__matches((ofxfs2_stbtt_uint8 *) font_collection, off, (ofxfs2_stbtt_uint8*) name_utf8, flags))
          return off;
    }
 }
@@ -3206,10 +3206,10 @@ STBTT_DEF int ofx_stbtt_FindMatchingFont(const unsigned char *font_collection, c
 // FULL VERSION HISTORY
 //
 //   1.09 (2016-01-16) warning fix; avoid crash on outofmem; use alloc userdata for PackFontRanges
-//   1.08 (2015-09-13) document ofx_stbtt_Rasterize(); fixes for vertical & horizontal edges
+//   1.08 (2015-09-13) document ofxfs2_stbtt_Rasterize(); fixes for vertical & horizontal edges
 //   1.07 (2015-08-01) allow PackFontRanges to accept arrays of sparse codepoints;
 //                     allow PackFontRanges to pack and render in separate phases;
-//                     fix ofx_stbtt_GetFontOFfsetForIndex (never worked for non-0 input?);
+//                     fix ofxfs2_stbtt_GetFontOFfsetForIndex (never worked for non-0 input?);
 //                     fixed an assert() bug in the new rasterizer
 //                     replace assert() with STBTT_assert() in new rasterizer
 //   1.06 (2015-07-14) performance improvements (~35% faster on x86 and x64 on test machine)
@@ -3229,8 +3229,8 @@ STBTT_DEF int ofx_stbtt_FindMatchingFont(const unsigned char *font_collection, c
 //   0.7  (2013-09-25) bugfix: subpixel glyph bug fixed in 0.5 had come back
 //   0.6c (2012-07-24) improve documentation
 //   0.6b (2012-07-20) fix a few more warnings
-//   0.6  (2012-07-17) fix warnings; added ofx_stbtt_ScaleForMappingEmToPixels,
-//                        ofx_stbtt_GetFontBoundingBox, ofx_stbtt_IsGlyphEmpty
+//   0.6  (2012-07-17) fix warnings; added ofxfs2_stbtt_ScaleForMappingEmToPixels,
+//                        ofxfs2_stbtt_GetFontBoundingBox, ofxfs2_stbtt_IsGlyphEmpty
 //   0.5  (2011-12-09) bugfixes:
 //                        subpixel glyph renderer computed wrong bounding box
 //                        first vertex of shape can be off-curve (FreeSans)
@@ -3239,7 +3239,7 @@ STBTT_DEF int ofx_stbtt_FindMatchingFont(const unsigned char *font_collection, c
 //                    bugfixes for:
 //                        codepoint-to-glyph conversion using table fmt=12
 //                        codepoint-to-glyph conversion using table fmt=4
-//                        ofx_stbtt_GetBakedQuad with non-square texture (Zer)
+//                        ofxfs2_stbtt_GetBakedQuad with non-square texture (Zer)
 //                    updated Hello World! sample to use kerning and subpixel
 //                    fixed some warnings
 //   0.3  (2009-06-24) cmap fmt=12, compound shapes (MM)

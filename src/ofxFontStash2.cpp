@@ -11,9 +11,9 @@
 #define NVG_DISABLE_FACE_CULL_FOR_TRIANGLES
 
 #define FONTSTASH_IMPLEMENTATION
-#include "ofx_nanovg.h"
-#include "ofx_nanovg_gl.h"
-#include "ofx_nanovg_gl_utils.h"
+#include "ofxfs2_nanovg.h"
+#include "ofxfs2_nanovg_gl.h"
+#include "ofxfs2_nanovg_gl_utils.h"
 #undef FONTSTASH_IMPLEMENTATION
 
 #if !defined(NANOVG_GL3_IMPLEMENTATION) && !defined(NANOVG_GLES2_IMPLEMENTATION) && !defined(NANOVG_GL2_IMPLEMENTATION)
@@ -60,11 +60,11 @@ ofxFontStash2::ofxFontStash2(){
 
 ofxFontStash2::~ofxFontStash2(){
 	#ifdef NANOVG_GL3_IMPLEMENTATION
-	ofx_nvgDeleteGL3(ctx);
+	ofxfs2_nvgDeleteGL3(ctx);
 	#elif defined NANOVG_GL2_IMPLEMENTATION
-	ofx_nvgDeleteGL2(ctx);
+	ofxfs2_nvgDeleteGL2(ctx);
 	#elif defined NANOVG_GLES2_IMPLEMENTATION
-	ofx_nvgDeleteGLES2(ctx);
+	ofxfs2_nvgDeleteGLES2(ctx);
 	#endif
 }
 
@@ -75,11 +75,11 @@ void ofxFontStash2::setup(){
 	bool debug = false;
 
 	#ifdef NANOVG_GL3_IMPLEMENTATION
-	ctx = ofx_nvgCreateGL23(NVG_ANTIALIAS | (stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
+	ctx = ofxfs2_nvgCreateGL23(NVG_ANTIALIAS | (stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
 	#elif NANOVG_GL2_IMPLEMENTATION
-	ctx = ofx_nvgCreateGL22(NVG_ANTIALIAS | (stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
+	ctx = ofxfs2_nvgCreateGL22(NVG_ANTIALIAS | (stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
 	#elif defined NANOVG_GLES2_IMPLEMENTATION
-	ctx = ofx_nvgCreateGL2ES2(NVG_ANTIALIAS | (stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
+	ctx = ofxfs2_nvgCreateGL2ES2(NVG_ANTIALIAS | (stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
 	#endif
 
 	if (!ctx) {
@@ -94,7 +94,7 @@ bool ofxFontStash2::addFont(const string& fontID, const string& fontFile){
 	bool ret = false;
 	OFX_FONSTASH2_CHECK_RET
 
-	int id = ofx_nvgCreateFont(ctx, fontID.c_str(), ofToDataPath(fontFile).c_str());
+	int id = ofxfs2_nvgCreateFont(ctx, fontID.c_str(), ofToDataPath(fontFile).c_str());
 	if(id != FONS_INVALID){
 		fontIDs[fontID] = id;
 		if(globalFallbackFontID != ""){
@@ -125,14 +125,14 @@ void ofxFontStash2::begin(){
 	//there's no way to do that in the current API, the hacky workaround is to unbind() an empty shader
 	//that we keep around - which end up doing what we ultimatelly want
 	nullShader.begin();
-	ofx_nvgBeginFrame(ctx, ofGetViewportWidth(), ofGetViewportHeight(), pixelDensity);
+	ofxfs2_nvgBeginFrame(ctx, ofGetViewportWidth(), ofGetViewportHeight(), pixelDensity);
 	applyOFMatrix();
 	//ofLogNotice("ofxFontStash2") << "begin() " << ofGetFrameNum();
 }
 
 void ofxFontStash2::end(){
 	OFX_FONSTASH2_CHECK
-	ofx_nvgEndFrame(ctx);
+	ofxfs2_nvgEndFrame(ctx);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	nullShader.end(); //shader wrap
 }
@@ -144,7 +144,7 @@ float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, fl
 	begin();
 		ofRectangle bounds = getTextBounds(text, style, x, y);
 		//applyStyle(style); //getTextBounds already applies style
-		float dx = ofx_nvgText(ctx, x, y, text.c_str(), NULL); //TODO dx is bugged? why?
+		float dx = ofxfs2_nvgText(ctx, x, y, text.c_str(), NULL); //TODO dx is bugged? why?
 	end();
 	return bounds.width;
 }
@@ -189,9 +189,9 @@ void ofxFontStash2::drawColumnNVG(const string& text,
 		case OF_ALIGN_HORZ_CENTER: hAlign = NVG_ALIGN_CENTER; break;
 		case OF_ALIGN_HORZ_RIGHT: hAlign = NVG_ALIGN_RIGHT; break;
 	}
-	ofx_nvgTextAlign(ctx, style.alignmentV | hAlign);
+	ofxfs2_nvgTextAlign(ctx, style.alignmentV | hAlign);
 
-	ofx_nvgTextBox(ctx, x, y, width, text.c_str(), NULL);
+	ofxfs2_nvgTextBox(ctx, x, y, width, text.c_str(), NULL);
 	end();
 }
 
@@ -207,9 +207,9 @@ ofRectangle ofxFontStash2::getTextBoundsNVG(const string& text,
 		case OF_ALIGN_HORZ_CENTER: hAlign = NVG_ALIGN_CENTER; break;
 		case OF_ALIGN_HORZ_RIGHT: hAlign = NVG_ALIGN_RIGHT; break;
 	}
-	ofx_nvgTextAlign(ctx, style.alignmentV | hAlign);
+	ofxfs2_nvgTextAlign(ctx, style.alignmentV | hAlign);
 	float bounds[4];
-	ofx_nvgTextBoxBounds(ctx, x, y, width, text.c_str(), NULL, bounds);
+	ofxfs2_nvgTextBoxBounds(ctx, x, y, width, text.c_str(), NULL, bounds);
 	//end();
 	return ofRectangle(bounds[0], bounds[1], bounds[2]-bounds[0], bounds[3]-bounds[1]);
 }
@@ -287,7 +287,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 		if(words[i].styledText.style.valid && currentStyle != words[i].styledText.style ){
 			currentStyle = words[i].styledText.style;
 			if(applyStyle(currentStyle)){
-				ofx_nvgTextMetrics(ctx, NULL, NULL, &currentWordLineH);
+				ofxfs2_nvgTextMetrics(ctx, NULL, NULL, &currentWordLineH);
 			}else{
 				ofLogError("ofxFontStash2") << "no style font defined!";
 			}
@@ -329,7 +329,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 		}else{ //non-linebreaks
 
 			TS_START_ACC("fonsTextBounds");
-			dx = ofx_nvgTextBounds(ctx,
+			dx = ofxfs2_nvgTextBounds(ctx,
 								xx,
 								yy,
 								words[i].styledText.text.c_str(),
@@ -521,7 +521,7 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 
 				TS_START_ACC("fonsDrawText");
 
-				float dx = ofx_nvgText(ctx,
+				float dx = ofxfs2_nvgText(ctx,
 								   el.x + offset.x,
 								   (el.baseLineY + l.lineH - lines[0].lineH) + offset.y,
 								   el.content.styledText.text.c_str(),
@@ -652,7 +652,7 @@ ofRectangle ofxFontStash2::getTextBounds( const string &text, const ofxFontStash
 	applyStyle(style);
 	float bounds[4]={0,0,0,0};
 
-	float advance = ofx_nvgTextBounds( ctx, x, y, text.c_str(), NULL, bounds );
+	float advance = ofxfs2_nvgTextBounds( ctx, x, y, text.c_str(), NULL, bounds );
 	// here we use the "text advance" instead of the width of the rectangle,
 	// because this includes spaces at the end correctly (the text bounds "x" and "x " are the same,
 	// the text advance isn't). 
@@ -663,7 +663,7 @@ ofRectangle ofxFontStash2::getTextBounds( const string &text, const ofxFontStash
 void ofxFontStash2::getVerticalMetrics(const ofxFontStashStyle & style, float* ascender, float* descender, float* lineH){
 	OFX_FONSTASH2_CHECK
 	applyStyle(style);
-	ofx_nvgTextMetrics(ctx, ascender, descender, lineH);
+	ofxfs2_nvgTextMetrics(ctx, ascender, descender, lineH);
 }
 
 
@@ -678,7 +678,7 @@ void ofxFontStash2::setGlobalFallbackFont(const string& fallbackFontID){
 	int fallbackFontID_fs = fontIDs[fallbackFontID];
 	for( auto font : fontIDs){
 		if(font.second != fallbackFontID_fs){
-			ofx_nvgAddFallbackFontId(ctx, font.second, fallbackFontID_fs);
+			ofxfs2_nvgAddFallbackFontId(ctx, font.second, fallbackFontID_fs);
 		}
 	}
 	globalFallbackFontID = fallbackFontID; 
@@ -694,7 +694,7 @@ void ofxFontStash2::addFallbackFont(const string& fontID, const string &fallback
 	int fontID_fs = fontIDs[fontID];
 	int fallbackFontID_fs = fontIDs[fallbackFontID];
 
-	ofx_nvgAddFallbackFontId(ctx, fontID_fs, fallbackFontID_fs);
+	ofxfs2_nvgAddFallbackFontId(ctx, fontID_fs, fallbackFontID_fs);
 }
 
 
@@ -703,11 +703,11 @@ bool ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
 	OFX_FONSTASH2_CHECK_RET
 	int id = getFsID(style.fontID);
 	if(id != FONS_INVALID){
-		ofx_nvgFontFaceId(ctx, id);
-		ofx_nvgFontSize(ctx, style.fontSize * fontScale);
-		ofx_nvgFillColor(ctx, toFScolor(style.color));
-		ofx_nvgTextAlign(ctx, style.alignmentV);
-		ofx_nvgFontBlur(ctx, style.blur);
+		ofxfs2_nvgFontFaceId(ctx, id);
+		ofxfs2_nvgFontSize(ctx, style.fontSize * fontScale);
+		ofxfs2_nvgFillColor(ctx, toFScolor(style.color));
+		ofxfs2_nvgTextAlign(ctx, style.alignmentV);
+		ofxfs2_nvgFontBlur(ctx, style.blur);
 		return true;
 	}
 	return false;
@@ -746,13 +746,13 @@ void ofxFontStash2::applyOFMatrix(){ //from ofxNanoVG
 
 	// handle OF style vFlipped inside FBO
 	if (ofGetCurrentRenderer()->getCurrentOrientationMatrix()[1][1] == 1) {
-		translate.y = ofGetViewportHeight() - translate.y;
+		translate.y = (ofGetViewportHeight() - translate.y);
 		scale.y *= -1;
 		skew.y *= -1;
 	}
 
-	ofx_nvgResetTransform(ctx);
-	ofx_nvgTransform(ctx, scale.x, -skew.y, -skew.x, scale.y, translate.x, translate.y);
+	ofxfs2_nvgResetTransform(ctx);
+	ofxfs2_nvgTransform(ctx, scale.x, -skew.y, -skew.x, scale.y, translate.x, translate.y);
 }
 
 

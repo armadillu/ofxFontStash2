@@ -45,10 +45,18 @@ void ofApp::setup(){
 	string emojiPath = "fonts/NotoEmoji-Regular.ttf";
 	fonts.addFont("emoji-fallback", emojiPath);
 	fonts.setGlobalFallbackFont("emoji-fallback");
+
+	fbo.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
 }
 
 
 void ofApp::draw(){
+
+	#ifdef TEST_FBO
+	fbo.begin();
+	ofClear(0,0,0,255);
+	#endif
+
 
 	float xx = 40;
 	float yy = 40;
@@ -97,8 +105,6 @@ void ofApp::draw(){
 	yy += testDiyFormattedLayout(xx, yy);
 	TS_STOP("testDiyFormattedLayout");
 
-
-
 	TSGL_STOP("d");
 
 	#ifdef TEST_OFX_NANOVG_COMPAT
@@ -122,6 +128,12 @@ void ofApp::draw(){
 	ofDrawRectangle(200,200,200,200);
 
 	ofxNanoVG::one().endFrame();
+	#endif
+
+
+	#ifdef TEST_FBO
+	fbo.end();
+	fbo.draw(0,0);
 	#endif
 }
 

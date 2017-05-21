@@ -1,10 +1,12 @@
 #pragma once
 
 //#define TEST_OFX_NANOVG_COMPAT
+//#define TEST_FBO
 
 #ifdef TEST_OFX_NANOVG_COMPAT
 #include "ofxNanoVG.h"
 #endif
+
 
 #include "ofMain.h"
 #include "ofxTimeMeasurements.h"
@@ -41,4 +43,6 @@ class ofApp : public ofBaseApp{
 	void drawInsertionPoint(float x, float y, float w);
 
 	ofAlignHorz getCurrentAlignment();
+
+	ofFbo fbo;
 };

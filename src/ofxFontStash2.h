@@ -12,8 +12,8 @@
 #include "ofxFontStashParser.h"
 #include "ofxFontStashStyle.h"
 
-#include "ofx_fontstash.h"
-#include "ofx_nanovg.h"
+#include "ofxfs2_fontstash.h"
+#include "ofxfs2_nanovg.h"
 
 class ofxFontStash2{
 

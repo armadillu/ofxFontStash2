@@ -43,9 +43,9 @@ enum FONSerrorCode {
 	FONS_ATLAS_FULL = 1,
 	// Scratch memory used to render glyphs is full, requested size reported in 'val', you may need to bump up FONS_SCRATCH_BUF_SIZE.
 	FONS_SCRATCH_FULL = 2,
-	// Calls to ofx_fonsPushState has created too large stack, if you need deep state stack bump up FONS_MAX_STATES.
+	// Calls to ofxfs2_fonsPushState has created too large stack, if you need deep state stack bump up FONS_MAX_STATES.
 	FONS_STATES_OVERFLOW = 3,
-	// Trying to pop too many states ofx_fonsPopState().
+	// Trying to pop too many states ofxfs2_fonsPopState().
 	FONS_STATES_UNDERFLOW = 4,
 };
 
@@ -84,53 +84,53 @@ typedef struct FONStextIter FONStextIter;
 typedef struct FONScontext FONScontext;
 
 // Constructor and destructor.
-FONScontext* ofx_fonsCreateInternal(FONSparams* params);
-void ofx_fonsDeleteInternal(FONScontext* s);
+FONScontext* ofxfs2_fonsCreateInternal(FONSparams* params);
+void ofxfs2_fonsDeleteInternal(FONScontext* s);
 
-void ofx_fonsSetErrorCallback(FONScontext* s, void (*callback)(void* uptr, int error, int val), void* uptr);
+void ofxfs2_fonsSetErrorCallback(FONScontext* s, void (*callback)(void* uptr, int error, int val), void* uptr);
 // Returns current atlas size.
-void ofx_fonsGetAtlasSize(FONScontext* s, int* width, int* height);
+void ofxfs2_fonsGetAtlasSize(FONScontext* s, int* width, int* height);
 // Expands the atlas size.
-int ofx_fonsExpandAtlas(FONScontext* s, int width, int height);
+int ofxfs2_fonsExpandAtlas(FONScontext* s, int width, int height);
 // Resets the whole stash.
-int ofx_fonsResetAtlas(FONScontext* stash, int width, int height);
+int ofxfs2_fonsResetAtlas(FONScontext* stash, int width, int height);
 
 // Add fonts
-int ofx_fonsAddFont(FONScontext* s, const char* name, const char* path);
-int ofx_fonsAddFontMem(FONScontext* s, const char* name, unsigned char* data, int ndata, int freeData);
-int ofx_fonsGetFontByName(FONScontext* s, const char* name);
+int ofxfs2_fonsAddFont(FONScontext* s, const char* name, const char* path);
+int ofxfs2_fonsAddFontMem(FONScontext* s, const char* name, unsigned char* data, int ndata, int freeData);
+int ofxfs2_fonsGetFontByName(FONScontext* s, const char* name);
 
 // State handling
-void ofx_fonsPushState(FONScontext* s);
-void ofx_fonsPopState(FONScontext* s);
-void ofx_fonsClearState(FONScontext* s);
+void ofxfs2_fonsPushState(FONScontext* s);
+void ofxfs2_fonsPopState(FONScontext* s);
+void ofxfs2_fonsClearState(FONScontext* s);
 
 // State setting
-void ofx_fonsSetSize(FONScontext* s, float size);
-void ofx_fonsSetColor(FONScontext* s, unsigned int color);
-void ofx_fonsSetSpacing(FONScontext* s, float spacing);
-void ofx_fonsSetBlur(FONScontext* s, float blur);
-void ofx_fonsSetAlign(FONScontext* s, int align);
-void ofx_fonsSetFont(FONScontext* s, int font);
+void ofxfs2_fonsSetSize(FONScontext* s, float size);
+void ofxfs2_fonsSetColor(FONScontext* s, unsigned int color);
+void ofxfs2_fonsSetSpacing(FONScontext* s, float spacing);
+void ofxfs2_fonsSetBlur(FONScontext* s, float blur);
+void ofxfs2_fonsSetAlign(FONScontext* s, int align);
+void ofxfs2_fonsSetFont(FONScontext* s, int font);
 
 // Draw text
-float ofx_fonsDrawText(FONScontext* s, float x, float y, const char* string, const char* end);
+float ofxfs2_fonsDrawText(FONScontext* s, float x, float y, const char* string, const char* end);
 
 // Measure text
-float ofx_fonsTextBounds(FONScontext* s, float x, float y, const char* string, const char* end, float* bounds);
-void ofx_fonsLineBounds(FONScontext* s, float y, float* miny, float* maxy);
-void ofx_fonsVertMetrics(FONScontext* s, float* ascender, float* descender, float* lineh);
+float ofxfs2_fonsTextBounds(FONScontext* s, float x, float y, const char* string, const char* end, float* bounds);
+void ofxfs2_fonsLineBounds(FONScontext* s, float y, float* miny, float* maxy);
+void ofxfs2_fonsVertMetrics(FONScontext* s, float* ascender, float* descender, float* lineh);
 
 // Text iterator
-int ofx_fonsTextIterInit(FONScontext* stash, FONStextIter* iter, float x, float y, const char* str, const char* end);
-int ofx_fonsTextIterNext(FONScontext* stash, FONStextIter* iter, struct FONSquad* quad);
+int ofxfs2_fonsTextIterInit(FONScontext* stash, FONStextIter* iter, float x, float y, const char* str, const char* end);
+int ofxfs2_fonsTextIterNext(FONScontext* stash, FONStextIter* iter, struct FONSquad* quad);
 
 // Pull texture changes
-const unsigned char* ofx_fonsGetTextureData(FONScontext* stash, int* width, int* height);
-int ofx_fonsValidateTexture(FONScontext* s, int* dirty);
+const unsigned char* ofxfs2_fonsGetTextureData(FONScontext* stash, int* width, int* height);
+int ofxfs2_fonsValidateTexture(FONScontext* s, int* dirty);
 
 // Draws the stash texture for debugging
-void ofx_fonsDrawDebug(FONScontext* s, float x, float y);
+void ofxfs2_fonsDrawDebug(FONScontext* s, float x, float y);
 
 #endif // FONTSTASH_H
 
@@ -153,7 +153,7 @@ typedef struct FONSttFontImpl FONSttFontImpl;
 
 static FT_Library ftLibrary;
 
-int ofx_fons__tt_init(FONScontext *context)
+int ofxfs2_fons__tt_init(FONScontext *context)
 {
 	FT_Error ftError;
         FONS_NOTUSED(context);
@@ -161,7 +161,7 @@ int ofx_fons__tt_init(FONScontext *context)
 	return ftError == 0;
 }
 
-int ofx_fons__tt_loadFont(FONScontext *context, FONSttFontImpl *font, unsigned char *data, int dataSize)
+int ofxfs2_fons__tt_loadFont(FONScontext *context, FONSttFontImpl *font, unsigned char *data, int dataSize)
 {
 	FT_Error ftError;
 	FONS_NOTUSED(context);
@@ -171,24 +171,24 @@ int ofx_fons__tt_loadFont(FONScontext *context, FONSttFontImpl *font, unsigned c
 	return ftError == 0;
 }
 
-void ofx_fons__tt_getFontVMetrics(FONSttFontImpl *font, int *ascent, int *descent, int *lineGap)
+void ofxfs2_fons__tt_getFontVMetrics(FONSttFontImpl *font, int *ascent, int *descent, int *lineGap)
 {
 	*ascent = font->font->ascender;
 	*descent = font->font->descender;
 	*lineGap = font->font->height - (*ascent - *descent);
 }
 
-float ofx_fons__tt_getPixelHeightScale(FONSttFontImpl *font, float size)
+float ofxfs2_fons__tt_getPixelHeightScale(FONSttFontImpl *font, float size)
 {
 	return size / (font->font->ascender - font->font->descender);
 }
 
-int ofx_fons__tt_getGlyphIndex(FONSttFontImpl *font, int codepoint)
+int ofxfs2_fons__tt_getGlyphIndex(FONSttFontImpl *font, int codepoint)
 {
 	return FT_Get_Char_Index(font->font, codepoint);
 }
 
-int ofx_fons__tt_buildGlyphBitmap(FONSttFontImpl *font, int glyph, float size, float scale,
+int ofxfs2_fons__tt_buildGlyphBitmap(FONSttFontImpl *font, int glyph, float size, float scale,
 							  int *advance, int *lsb, int *x0, int *y0, int *x1, int *y1)
 {
 	FT_Error ftError;
@@ -212,7 +212,7 @@ int ofx_fons__tt_buildGlyphBitmap(FONSttFontImpl *font, int glyph, float size, f
 	return 1;
 }
 
-void ofx_fons__tt_renderGlyphBitmap(FONSttFontImpl *font, unsigned char *output, int outWidth, int outHeight, int outStride,
+void ofxfs2_fons__tt_renderGlyphBitmap(FONSttFontImpl *font, unsigned char *output, int outWidth, int outHeight, int outStride,
 								float scaleX, float scaleY, int glyph)
 {
 	FT_GlyphSlot ftGlyph = font->font->glyph;
@@ -222,7 +222,7 @@ void ofx_fons__tt_renderGlyphBitmap(FONSttFontImpl *font, unsigned char *output,
 	FONS_NOTUSED(outHeight);
 	FONS_NOTUSED(scaleX);
 	FONS_NOTUSED(scaleY);
-	FONS_NOTUSED(glyph);	// glyph has already been loaded by ofx_fons__tt_buildGlyphBitmap
+	FONS_NOTUSED(glyph);	// glyph has already been loaded by ofxfs2_fons__tt_buildGlyphBitmap
 
 	for ( y = 0; y < ftGlyph->bitmap.rows; y++ ) {
 		for ( x = 0; x < ftGlyph->bitmap.width; x++ ) {
@@ -231,7 +231,7 @@ void ofx_fons__tt_renderGlyphBitmap(FONSttFontImpl *font, unsigned char *output,
 	}
 }
 
-int ofx_fons__tt_getGlyphKernAdvance(FONSttFontImpl *font, int glyph1, int glyph2)
+int ofxfs2_fons__tt_getGlyphKernAdvance(FONSttFontImpl *font, int glyph1, int glyph2)
 {
 	FT_Vector ftKerning;
 	FT_Get_Kerning(font->font, glyph1, glyph2, FT_KERNING_DEFAULT, &ftKerning);
@@ -241,66 +241,66 @@ int ofx_fons__tt_getGlyphKernAdvance(FONSttFontImpl *font, int glyph1, int glyph
 #else
 
 #define STB_TRUETYPE_IMPLEMENTATION
-static void* ofx_fons__tmpalloc(size_t size, void* up);
-static void ofx_fons__tmpfree(void* ptr, void* up);
-#define STBTT_malloc(x,u)    ofx_fons__tmpalloc(x,u)
-#define STBTT_free(x,u)      ofx_fons__tmpfree(x,u)
+static void* ofxfs2_fons__tmpalloc(size_t size, void* up);
+static void ofxfs2_fons__tmpfree(void* ptr, void* up);
+#define STBTT_malloc(x,u)    ofxfs2_fons__tmpalloc(x,u)
+#define STBTT_free(x,u)      ofxfs2_fons__tmpfree(x,u)
 #include "stb_truetype.h"
 
 struct FONSttFontImpl {
-	ofx_stbtt_fontinfo font;
+	ofxfs2_stbtt_fontinfo font;
 };
 typedef struct FONSttFontImpl FONSttFontImpl;
 
-int ofx_fons__tt_init(FONScontext *context)
+int ofxfs2_fons__tt_init(FONScontext *context)
 {
 	FONS_NOTUSED(context);
 	return 1;
 }
 
-int ofx_fons__tt_loadFont(FONScontext *context, FONSttFontImpl *font, unsigned char *data, int dataSize)
+int ofxfs2_fons__tt_loadFont(FONScontext *context, FONSttFontImpl *font, unsigned char *data, int dataSize)
 {
 	int stbError;
 	FONS_NOTUSED(dataSize);
 
 	font->font.userdata = context;
-	stbError = ofx_stbtt_InitFont(&font->font, data, 0);
+	stbError = ofxfs2_stbtt_InitFont(&font->font, data, 0);
 	return stbError;
 }
 
-void ofx_fons__tt_getFontVMetrics(FONSttFontImpl *font, int *ascent, int *descent, int *lineGap)
+void ofxfs2_fons__tt_getFontVMetrics(FONSttFontImpl *font, int *ascent, int *descent, int *lineGap)
 {
-	ofx_stbtt_GetFontVMetrics(&font->font, ascent, descent, lineGap);
+	ofxfs2_stbtt_GetFontVMetrics(&font->font, ascent, descent, lineGap);
 }
 
-float ofx_fons__tt_getPixelHeightScale(FONSttFontImpl *font, float size)
+float ofxfs2_fons__tt_getPixelHeightScale(FONSttFontImpl *font, float size)
 {
-	return ofx_stbtt_ScaleForPixelHeight(&font->font, size);
+	return ofxfs2_stbtt_ScaleForPixelHeight(&font->font, size);
 }
 
-int ofx_fons__tt_getGlyphIndex(FONSttFontImpl *font, int codepoint)
+int ofxfs2_fons__tt_getGlyphIndex(FONSttFontImpl *font, int codepoint)
 {
-	return ofx_stbtt_FindGlyphIndex(&font->font, codepoint);
+	return ofxfs2_stbtt_FindGlyphIndex(&font->font, codepoint);
 }
 
-int ofx_fons__tt_buildGlyphBitmap(FONSttFontImpl *font, int glyph, float size, float scale,
+int ofxfs2_fons__tt_buildGlyphBitmap(FONSttFontImpl *font, int glyph, float size, float scale,
 							  int *advance, int *lsb, int *x0, int *y0, int *x1, int *y1)
 {
 	FONS_NOTUSED(size);
-	ofx_stbtt_GetGlyphHMetrics(&font->font, glyph, advance, lsb);
-	ofx_stbtt_GetGlyphBitmapBox(&font->font, glyph, scale, scale, x0, y0, x1, y1);
+	ofxfs2_stbtt_GetGlyphHMetrics(&font->font, glyph, advance, lsb);
+	ofxfs2_stbtt_GetGlyphBitmapBox(&font->font, glyph, scale, scale, x0, y0, x1, y1);
 	return 1;
 }
 
-void ofx_fons__tt_renderGlyphBitmap(FONSttFontImpl *font, unsigned char *output, int outWidth, int outHeight, int outStride,
+void ofxfs2_fons__tt_renderGlyphBitmap(FONSttFontImpl *font, unsigned char *output, int outWidth, int outHeight, int outStride,
 								float scaleX, float scaleY, int glyph)
 {
-	ofx_stbtt_MakeGlyphBitmap(&font->font, output, outWidth, outHeight, outStride, scaleX, scaleY, glyph);
+	ofxfs2_stbtt_MakeGlyphBitmap(&font->font, output, outWidth, outHeight, outStride, scaleX, scaleY, glyph);
 }
 
-int ofx_fons__tt_getGlyphKernAdvance(FONSttFontImpl *font, int glyph1, int glyph2)
+int ofxfs2_fons__tt_getGlyphKernAdvance(FONSttFontImpl *font, int glyph1, int glyph2)
 {
-	return ofx_stbtt_GetGlyphKernAdvance(&font->font, glyph1, glyph2);
+	return ofxfs2_stbtt_GetGlyphKernAdvance(&font->font, glyph1, glyph2);
 }
 
 #endif
@@ -330,7 +330,7 @@ int ofx_fons__tt_getGlyphKernAdvance(FONSttFontImpl *font, int glyph1, int glyph
 #	define FONS_MAX_FALLBACKS 20
 #endif
 
-static unsigned int ofx_fons__hashint(unsigned int a)
+static unsigned int ofxfs2_fons__hashint(unsigned int a)
 {
 	a += ~(a<<15);
 	a ^=  (a>>10);
@@ -341,12 +341,12 @@ static unsigned int ofx_fons__hashint(unsigned int a)
 	return a;
 }
 
-static int ofx_fons__mini(int a, int b)
+static int ofxfs2_fons__mini(int a, int b)
 {
 	return a < b ? a : b;
 }
 
-static int ofx_fons__maxi(int a, int b)
+static int ofxfs2_fons__maxi(int a, int b)
 {
 	return a > b ? a : b;
 }
@@ -430,7 +430,7 @@ struct FONScontext
 
 #ifdef STB_TRUETYPE_IMPLEMENTATION
 
-static void* ofx_fons__tmpalloc(size_t size, void* up)
+static void* ofxfs2_fons__tmpalloc(size_t size, void* up)
 {
 	unsigned char* ptr;
 	FONScontext* stash = (FONScontext*)up;
@@ -448,7 +448,7 @@ static void* ofx_fons__tmpalloc(size_t size, void* up)
 	return ptr;
 }
 
-static void ofx_fons__tmpfree(void* ptr, void* up)
+static void ofxfs2_fons__tmpfree(void* ptr, void* up)
 {
 	(void)ptr;
 	(void)up;
@@ -463,7 +463,7 @@ static void ofx_fons__tmpfree(void* ptr, void* up)
 #define FONS_UTF8_ACCEPT 0
 #define FONS_UTF8_REJECT 12
 
-static unsigned int ofx_fons__decutf8(unsigned int* state, unsigned int* codep, unsigned int byte)
+static unsigned int ofxfs2_fons__decutf8(unsigned int* state, unsigned int* codep, unsigned int byte)
 {
 	static const unsigned char utf8d[] = {
 		// The first part of the table maps bytes to character classes that
@@ -498,14 +498,14 @@ static unsigned int ofx_fons__decutf8(unsigned int* state, unsigned int* codep, 
 
 // Atlas based on Skyline Bin Packer by Jukka Jylänki
 
-static void ofx_fons__deleteAtlas(FONSatlas* atlas)
+static void ofxfs2_fons__deleteAtlas(FONSatlas* atlas)
 {
 	if (atlas == NULL) return;
 	if (atlas->nodes != NULL) free(atlas->nodes);
 	free(atlas);
 }
 
-static FONSatlas* ofx_fons__allocAtlas(int w, int h, int nnodes)
+static FONSatlas* ofxfs2_fons__allocAtlas(int w, int h, int nnodes)
 {
 	FONSatlas* atlas = NULL;
 
@@ -533,11 +533,11 @@ static FONSatlas* ofx_fons__allocAtlas(int w, int h, int nnodes)
 	return atlas;
 
 error:
-	if (atlas) ofx_fons__deleteAtlas(atlas);
+	if (atlas) ofxfs2_fons__deleteAtlas(atlas);
 	return NULL;
 }
 
-static int ofx_fons__atlasInsertNode(FONSatlas* atlas, int idx, int x, int y, int w)
+static int ofxfs2_fons__atlasInsertNode(FONSatlas* atlas, int idx, int x, int y, int w)
 {
 	int i;
 	// Insert node
@@ -557,7 +557,7 @@ static int ofx_fons__atlasInsertNode(FONSatlas* atlas, int idx, int x, int y, in
 	return 1;
 }
 
-static void ofx_fons__atlasRemoveNode(FONSatlas* atlas, int idx)
+static void ofxfs2_fons__atlasRemoveNode(FONSatlas* atlas, int idx)
 {
 	int i;
 	if (atlas->nnodes == 0) return;
@@ -566,16 +566,16 @@ static void ofx_fons__atlasRemoveNode(FONSatlas* atlas, int idx)
 	atlas->nnodes--;
 }
 
-static void ofx_fons__atlasExpand(FONSatlas* atlas, int w, int h)
+static void ofxfs2_fons__atlasExpand(FONSatlas* atlas, int w, int h)
 {
 	// Insert node for empty space
 	if (w > atlas->width)
-		ofx_fons__atlasInsertNode(atlas, atlas->nnodes, atlas->width, 0, w - atlas->width);
+		ofxfs2_fons__atlasInsertNode(atlas, atlas->nnodes, atlas->width, 0, w - atlas->width);
 	atlas->width = w;
 	atlas->height = h;
 }
 
-static void ofx_fons__atlasReset(FONSatlas* atlas, int w, int h)
+static void ofxfs2_fons__atlasReset(FONSatlas* atlas, int w, int h)
 {
 	atlas->width = w;
 	atlas->height = h;
@@ -588,12 +588,12 @@ static void ofx_fons__atlasReset(FONSatlas* atlas, int w, int h)
 	atlas->nnodes++;
 }
 
-static int ofx_fons__atlasAddSkylineLevel(FONSatlas* atlas, int idx, int x, int y, int w, int h)
+static int ofxfs2_fons__atlasAddSkylineLevel(FONSatlas* atlas, int idx, int x, int y, int w, int h)
 {
 	int i;
 
 	// Insert new node
-	if (ofx_fons__atlasInsertNode(atlas, idx, x, y+h, w) == 0)
+	if (ofxfs2_fons__atlasInsertNode(atlas, idx, x, y+h, w) == 0)
 		return 0;
 
 	// Delete skyline segments that fall under the shadow of the new segment.
@@ -603,7 +603,7 @@ static int ofx_fons__atlasAddSkylineLevel(FONSatlas* atlas, int idx, int x, int 
 			atlas->nodes[i].x += (short)shrink;
 			atlas->nodes[i].width -= (short)shrink;
 			if (atlas->nodes[i].width <= 0) {
-				ofx_fons__atlasRemoveNode(atlas, i);
+				ofxfs2_fons__atlasRemoveNode(atlas, i);
 				i--;
 			} else {
 				break;
@@ -617,7 +617,7 @@ static int ofx_fons__atlasAddSkylineLevel(FONSatlas* atlas, int idx, int x, int 
 	for (i = 0; i < atlas->nnodes-1; i++) {
 		if (atlas->nodes[i].y == atlas->nodes[i+1].y) {
 			atlas->nodes[i].width += atlas->nodes[i+1].width;
-			ofx_fons__atlasRemoveNode(atlas, i+1);
+			ofxfs2_fons__atlasRemoveNode(atlas, i+1);
 			i--;
 		}
 	}
@@ -625,7 +625,7 @@ static int ofx_fons__atlasAddSkylineLevel(FONSatlas* atlas, int idx, int x, int 
 	return 1;
 }
 
-static int ofx_fons__atlasRectFits(FONSatlas* atlas, int i, int w, int h)
+static int ofxfs2_fons__atlasRectFits(FONSatlas* atlas, int i, int w, int h)
 {
 	// Checks if there is enough space at the location of skyline span 'i',
 	// and return the max height of all skyline spans under that at that location,
@@ -638,7 +638,7 @@ static int ofx_fons__atlasRectFits(FONSatlas* atlas, int i, int w, int h)
 	spaceLeft = w;
 	while (spaceLeft > 0) {
 		if (i == atlas->nnodes) return -1;
-		y = ofx_fons__maxi(y, atlas->nodes[i].y);
+		y = ofxfs2_fons__maxi(y, atlas->nodes[i].y);
 		if (y + h > atlas->height) return -1;
 		spaceLeft -= atlas->nodes[i].width;
 		++i;
@@ -646,14 +646,14 @@ static int ofx_fons__atlasRectFits(FONSatlas* atlas, int i, int w, int h)
 	return y;
 }
 
-static int ofx_fons__atlasAddRect(FONSatlas* atlas, int rw, int rh, int* rx, int* ry)
+static int ofxfs2_fons__atlasAddRect(FONSatlas* atlas, int rw, int rh, int* rx, int* ry)
 {
 	int besth = atlas->height, bestw = atlas->width, besti = -1;
 	int bestx = -1, besty = -1, i;
 
 	// Bottom left fit heuristic.
 	for (i = 0; i < atlas->nnodes; i++) {
-		int y = ofx_fons__atlasRectFits(atlas, i, rw, rh);
+		int y = ofxfs2_fons__atlasRectFits(atlas, i, rw, rh);
 		if (y != -1) {
 			if (y + rh < besth || (y + rh == besth && atlas->nodes[i].width < bestw)) {
 				besti = i;
@@ -669,7 +669,7 @@ static int ofx_fons__atlasAddRect(FONSatlas* atlas, int rw, int rh, int* rx, int
 		return 0;
 
 	// Perform the actual packing.
-	if (ofx_fons__atlasAddSkylineLevel(atlas, besti, bestx, besty, rw, rh) == 0)
+	if (ofxfs2_fons__atlasAddSkylineLevel(atlas, besti, bestx, besty, rw, rh) == 0)
 		return 0;
 
 	*rx = bestx;
@@ -678,11 +678,11 @@ static int ofx_fons__atlasAddRect(FONSatlas* atlas, int rw, int rh, int* rx, int
 	return 1;
 }
 
-static void ofx_fons__addWhiteRect(FONScontext* stash, int w, int h)
+static void ofxfs2_fons__addWhiteRect(FONScontext* stash, int w, int h)
 {
 	int x, y, gx, gy;
 	unsigned char* dst;
-	if (ofx_fons__atlasAddRect(stash->atlas, w, h, &gx, &gy) == 0)
+	if (ofxfs2_fons__atlasAddRect(stash->atlas, w, h, &gx, &gy) == 0)
 		return;
 
 	// Rasterize
@@ -693,13 +693,13 @@ static void ofx_fons__addWhiteRect(FONScontext* stash, int w, int h)
 		dst += stash->params.width;
 	}
 
-	stash->dirtyRect[0] = ofx_fons__mini(stash->dirtyRect[0], gx);
-	stash->dirtyRect[1] = ofx_fons__mini(stash->dirtyRect[1], gy);
-	stash->dirtyRect[2] = ofx_fons__maxi(stash->dirtyRect[2], gx+w);
-	stash->dirtyRect[3] = ofx_fons__maxi(stash->dirtyRect[3], gy+h);
+	stash->dirtyRect[0] = ofxfs2_fons__mini(stash->dirtyRect[0], gx);
+	stash->dirtyRect[1] = ofxfs2_fons__mini(stash->dirtyRect[1], gy);
+	stash->dirtyRect[2] = ofxfs2_fons__maxi(stash->dirtyRect[2], gx+w);
+	stash->dirtyRect[3] = ofxfs2_fons__maxi(stash->dirtyRect[3], gy+h);
 }
 
-FONScontext* ofx_fonsCreateInternal(FONSparams* params)
+FONScontext* ofxfs2_fonsCreateInternal(FONSparams* params)
 {
 	FONScontext* stash = NULL;
 
@@ -715,14 +715,14 @@ FONScontext* ofx_fonsCreateInternal(FONSparams* params)
 	if (stash->scratch == NULL) goto error;
 
 	// Initialize implementation library
-	if (!ofx_fons__tt_init(stash)) goto error;
+	if (!ofxfs2_fons__tt_init(stash)) goto error;
 
 	if (stash->params.renderCreate != NULL) {
 		if (stash->params.renderCreate(stash->params.userPtr, stash->params.width, stash->params.height) == 0)
 			goto error;
 	}
 
-	stash->atlas = ofx_fons__allocAtlas(stash->params.width, stash->params.height, FONS_INIT_ATLAS_NODES);
+	stash->atlas = ofxfs2_fons__allocAtlas(stash->params.width, stash->params.height, FONS_INIT_ATLAS_NODES);
 	if (stash->atlas == NULL) goto error;
 
 	// Allocate space for fonts.
@@ -745,24 +745,24 @@ FONScontext* ofx_fonsCreateInternal(FONSparams* params)
 	stash->dirtyRect[3] = 0;
 
 	// Add white rect at 0,0 for debug drawing.
-	ofx_fons__addWhiteRect(stash, 2,2);
+	ofxfs2_fons__addWhiteRect(stash, 2,2);
 
-	ofx_fonsPushState(stash);
-	ofx_fonsClearState(stash);
+	ofxfs2_fonsPushState(stash);
+	ofxfs2_fonsClearState(stash);
 
 	return stash;
 
 error:
-	ofx_fonsDeleteInternal(stash);
+	ofxfs2_fonsDeleteInternal(stash);
 	return NULL;
 }
 
-static FONSstate* ofx_fons__getState(FONScontext* stash)
+static FONSstate* ofxfs2_fons__getState(FONScontext* stash)
 {
 	return &stash->states[stash->nstates-1];
 }
 
-int ofx_fonsAddFallbackFont(FONScontext* stash, int base, int fallback)
+int ofxfs2_fonsAddFallbackFont(FONScontext* stash, int base, int fallback)
 {
 	FONSfont* baseFont = stash->fonts[base];
 	if (baseFont->nfallbacks < FONS_MAX_FALLBACKS) {
@@ -772,37 +772,37 @@ int ofx_fonsAddFallbackFont(FONScontext* stash, int base, int fallback)
 	return 0;
 }
 
-void ofx_fonsSetSize(FONScontext* stash, float size)
+void ofxfs2_fonsSetSize(FONScontext* stash, float size)
 {
-	ofx_fons__getState(stash)->size = size;
+	ofxfs2_fons__getState(stash)->size = size;
 }
 
-void ofx_fonsSetColor(FONScontext* stash, unsigned int color)
+void ofxfs2_fonsSetColor(FONScontext* stash, unsigned int color)
 {
-	ofx_fons__getState(stash)->color = color;
+	ofxfs2_fons__getState(stash)->color = color;
 }
 
-void ofx_fonsSetSpacing(FONScontext* stash, float spacing)
+void ofxfs2_fonsSetSpacing(FONScontext* stash, float spacing)
 {
-	ofx_fons__getState(stash)->spacing = spacing;
+	ofxfs2_fons__getState(stash)->spacing = spacing;
 }
 
-void ofx_fonsSetBlur(FONScontext* stash, float blur)
+void ofxfs2_fonsSetBlur(FONScontext* stash, float blur)
 {
-	ofx_fons__getState(stash)->blur = blur;
+	ofxfs2_fons__getState(stash)->blur = blur;
 }
 
-void ofx_fonsSetAlign(FONScontext* stash, int align)
+void ofxfs2_fonsSetAlign(FONScontext* stash, int align)
 {
-	ofx_fons__getState(stash)->align = align;
+	ofxfs2_fons__getState(stash)->align = align;
 }
 
-void ofx_fonsSetFont(FONScontext* stash, int font)
+void ofxfs2_fonsSetFont(FONScontext* stash, int font)
 {
-	ofx_fons__getState(stash)->font = font;
+	ofxfs2_fons__getState(stash)->font = font;
 }
 
-void ofx_fonsPushState(FONScontext* stash)
+void ofxfs2_fonsPushState(FONScontext* stash)
 {
 	if (stash->nstates >= FONS_MAX_STATES) {
 		if (stash->handleError)
@@ -814,7 +814,7 @@ void ofx_fonsPushState(FONScontext* stash)
 	stash->nstates++;
 }
 
-void ofx_fonsPopState(FONScontext* stash)
+void ofxfs2_fonsPopState(FONScontext* stash)
 {
 	if (stash->nstates <= 1) {
 		if (stash->handleError)
@@ -824,9 +824,9 @@ void ofx_fonsPopState(FONScontext* stash)
 	stash->nstates--;
 }
 
-void ofx_fonsClearState(FONScontext* stash)
+void ofxfs2_fonsClearState(FONScontext* stash)
 {
-	FONSstate* state = ofx_fons__getState(stash);
+	FONSstate* state = ofxfs2_fons__getState(stash);
 	state->size = 12.0f;
 	state->color = 0xffffffff;
 	state->font = 0;
@@ -835,7 +835,7 @@ void ofx_fonsClearState(FONScontext* stash)
 	state->align = FONS_ALIGN_LEFT | FONS_ALIGN_BASELINE;
 }
 
-static void ofx_fons__freeFont(FONSfont* font)
+static void ofxfs2_fons__freeFont(FONSfont* font)
 {
 	if (font == NULL) return;
 	if (font->glyphs) free(font->glyphs);
@@ -843,7 +843,7 @@ static void ofx_fons__freeFont(FONSfont* font)
 	free(font);
 }
 
-static int ofx_fons__allocFont(FONScontext* stash)
+static int ofxfs2_fons__allocFont(FONScontext* stash)
 {
 	FONSfont* font = NULL;
 	if (stash->nfonts+1 > stash->cfonts) {
@@ -865,12 +865,12 @@ static int ofx_fons__allocFont(FONScontext* stash)
 	return stash->nfonts-1;
 
 error:
-	ofx_fons__freeFont(font);
+	ofxfs2_fons__freeFont(font);
 
 	return FONS_INVALID;
 }
 
-int ofx_fonsAddFont(FONScontext* stash, const char* name, const char* path)
+int ofxfs2_fonsAddFont(FONScontext* stash, const char* name, const char* path)
 {
 	FILE* fp = 0;
 	int dataSize = 0, readed;
@@ -889,7 +889,7 @@ int ofx_fonsAddFont(FONScontext* stash, const char* name, const char* path)
 	fp = 0;
 	if (readed != dataSize) goto error;
 
-	return ofx_fonsAddFontMem(stash, name, data, dataSize, 1);
+	return ofxfs2_fonsAddFontMem(stash, name, data, dataSize, 1);
 
 error:
 	if (data) free(data);
@@ -897,12 +897,12 @@ error:
 	return FONS_INVALID;
 }
 
-int ofx_fonsAddFontMem(FONScontext* stash, const char* name, unsigned char* data, int dataSize, int freeData)
+int ofxfs2_fonsAddFontMem(FONScontext* stash, const char* name, unsigned char* data, int dataSize, int freeData)
 {
 	int i, ascent, descent, fh, lineGap;
 	FONSfont* font;
 
-	int idx = ofx_fons__allocFont(stash);
+	int idx = ofxfs2_fons__allocFont(stash);
 	if (idx == FONS_INVALID)
 		return FONS_INVALID;
 
@@ -922,11 +922,11 @@ int ofx_fonsAddFontMem(FONScontext* stash, const char* name, unsigned char* data
 
 	// Init font
 	stash->nscratch = 0;
-	if (!ofx_fons__tt_loadFont(stash, &font->font, data, dataSize)) goto error;
+	if (!ofxfs2_fons__tt_loadFont(stash, &font->font, data, dataSize)) goto error;
 
 	// Store normalized line height. The real line height is got
 	// by multiplying the lineh by font size.
-	ofx_fons__tt_getFontVMetrics( &font->font, &ascent, &descent, &lineGap);
+	ofxfs2_fons__tt_getFontVMetrics( &font->font, &ascent, &descent, &lineGap);
 	fh = ascent - descent;
 	font->ascender = (float)ascent / (float)fh;
 	font->descender = (float)descent / (float)fh;
@@ -935,12 +935,12 @@ int ofx_fonsAddFontMem(FONScontext* stash, const char* name, unsigned char* data
 	return idx;
 
 error:
-	ofx_fons__freeFont(font);
+	ofxfs2_fons__freeFont(font);
 	stash->nfonts--;
 	return FONS_INVALID;
 }
 
-int ofx_fonsGetFontByName(FONScontext* s, const char* name)
+int ofxfs2_fonsGetFontByName(FONScontext* s, const char* name)
 {
 	int i;
 	for (i = 0; i < s->nfonts; i++) {
@@ -951,7 +951,7 @@ int ofx_fonsGetFontByName(FONScontext* s, const char* name)
 }
 
 
-static FONSglyph* ofx_fons__allocGlyph(FONSfont* font)
+static FONSglyph* ofxfs2_fons__allocGlyph(FONSfont* font)
 {
 	if (font->nglyphs+1 > font->cglyphs) {
 		font->cglyphs = font->cglyphs == 0 ? 8 : font->cglyphs * 2;
@@ -968,7 +968,7 @@ static FONSglyph* ofx_fons__allocGlyph(FONSfont* font)
 #define APREC 16
 #define ZPREC 7
 
-static void ofx_fons__blurCols(unsigned char* dst, int w, int h, int dstStride, int alpha)
+static void ofxfs2_fons__blurCols(unsigned char* dst, int w, int h, int dstStride, int alpha)
 {
 	int x, y;
 	for (y = 0; y < h; y++) {
@@ -988,7 +988,7 @@ static void ofx_fons__blurCols(unsigned char* dst, int w, int h, int dstStride, 
 	}
 }
 
-static void ofx_fons__blurRows(unsigned char* dst, int w, int h, int dstStride, int alpha)
+static void ofxfs2_fons__blurRows(unsigned char* dst, int w, int h, int dstStride, int alpha)
 {
 	int x, y;
 	for (x = 0; x < w; x++) {
@@ -1009,7 +1009,7 @@ static void ofx_fons__blurRows(unsigned char* dst, int w, int h, int dstStride, 
 }
 
 
-static void ofx_fons__blur(FONScontext* stash, unsigned char* dst, int w, int h, int dstStride, int blur)
+static void ofxfs2_fons__blur(FONScontext* stash, unsigned char* dst, int w, int h, int dstStride, int blur)
 {
 	int alpha;
 	float sigma;
@@ -1020,15 +1020,15 @@ static void ofx_fons__blur(FONScontext* stash, unsigned char* dst, int w, int h,
 	// Calculate the alpha such that 90% of the kernel is within the radius. (Kernel extends to infinity)
 	sigma = (float)blur * 0.57735f; // 1 / sqrt(3)
 	alpha = (int)((1<<APREC) * (1.0f - expf(-2.3f / (sigma+1.0f))));
-	ofx_fons__blurRows(dst, w, h, dstStride, alpha);
-	ofx_fons__blurCols(dst, w, h, dstStride, alpha);
-	ofx_fons__blurRows(dst, w, h, dstStride, alpha);
-	ofx_fons__blurCols(dst, w, h, dstStride, alpha);
-//	ofx_fons__blurrows(dst, w, h, dstStride, alpha);
-//	ofx_fons__blurcols(dst, w, h, dstStride, alpha);
+	ofxfs2_fons__blurRows(dst, w, h, dstStride, alpha);
+	ofxfs2_fons__blurCols(dst, w, h, dstStride, alpha);
+	ofxfs2_fons__blurRows(dst, w, h, dstStride, alpha);
+	ofxfs2_fons__blurCols(dst, w, h, dstStride, alpha);
+//	ofxfs2_fons__blurrows(dst, w, h, dstStride, alpha);
+//	ofxfs2_fons__blurcols(dst, w, h, dstStride, alpha);
 }
 
-static FONSglyph* ofx_fons__getGlyph(FONScontext* stash, FONSfont* font, unsigned int codepoint,
+static FONSglyph* ofxfs2_fons__getGlyph(FONScontext* stash, FONSfont* font, unsigned int codepoint,
 								 short isize, short iblur)
 {
 	int i, g, advance, lsb, x0, y0, x1, y1, gw, gh, gx, gy, x, y;
@@ -1049,7 +1049,7 @@ static FONSglyph* ofx_fons__getGlyph(FONScontext* stash, FONSfont* font, unsigne
 	stash->nscratch = 0;
 
 	// Find code point and size.
-	h = ofx_fons__hashint(codepoint) & (FONS_HASH_LUT_SIZE-1);
+	h = ofxfs2_fons__hashint(codepoint) & (FONS_HASH_LUT_SIZE-1);
 	i = font->lut[h];
 	while (i != -1) {
 		if (font->glyphs[i].codepoint == codepoint && font->glyphs[i].size == isize && font->glyphs[i].blur == iblur)
@@ -1058,12 +1058,12 @@ static FONSglyph* ofx_fons__getGlyph(FONScontext* stash, FONSfont* font, unsigne
 	}
 
 	// Could not find glyph, create it.
-	g = ofx_fons__tt_getGlyphIndex(&font->font, codepoint);
+	g = ofxfs2_fons__tt_getGlyphIndex(&font->font, codepoint);
 	// Try to find the glyph in fallback fonts.
 	if (g == 0) {
 		for (i = 0; i < font->nfallbacks; ++i) {
 			FONSfont* fallbackFont = stash->fonts[font->fallbacks[i]];
-			int fallbackIndex = ofx_fons__tt_getGlyphIndex(&fallbackFont->font, codepoint);
+			int fallbackIndex = ofxfs2_fons__tt_getGlyphIndex(&fallbackFont->font, codepoint);
 			if (fallbackIndex != 0) {
 				g = fallbackIndex;
 				renderFont = fallbackFont;
@@ -1073,22 +1073,22 @@ static FONSglyph* ofx_fons__getGlyph(FONScontext* stash, FONSfont* font, unsigne
 		// It is possible that we did not find a fallback glyph.
 		// In that case the glyph index 'g' is 0, and we'll proceed below and cache empty glyph.
 	}
-	scale = ofx_fons__tt_getPixelHeightScale(&renderFont->font, size);
-	ofx_fons__tt_buildGlyphBitmap(&renderFont->font, g, size, scale, &advance, &lsb, &x0, &y0, &x1, &y1);
+	scale = ofxfs2_fons__tt_getPixelHeightScale(&renderFont->font, size);
+	ofxfs2_fons__tt_buildGlyphBitmap(&renderFont->font, g, size, scale, &advance, &lsb, &x0, &y0, &x1, &y1);
 	gw = x1-x0 + pad*2;
 	gh = y1-y0 + pad*2;
 
 	// Find free spot for the rect in the atlas
-	added = ofx_fons__atlasAddRect(stash->atlas, gw, gh, &gx, &gy);
+	added = ofxfs2_fons__atlasAddRect(stash->atlas, gw, gh, &gx, &gy);
 	if (added == 0 && stash->handleError != NULL) {
 		// Atlas is full, let the user to resize the atlas (or not), and try again.
 		stash->handleError(stash->errorUptr, FONS_ATLAS_FULL, 0);
-		added = ofx_fons__atlasAddRect(stash->atlas, gw, gh, &gx, &gy);
+		added = ofxfs2_fons__atlasAddRect(stash->atlas, gw, gh, &gx, &gy);
 	}
 	if (added == 0) return NULL;
 
 	// Init glyph.
-	glyph = ofx_fons__allocGlyph(font);
+	glyph = ofxfs2_fons__allocGlyph(font);
 	glyph->codepoint = codepoint;
 	glyph->size = isize;
 	glyph->blur = iblur;
@@ -1108,7 +1108,7 @@ static FONSglyph* ofx_fons__getGlyph(FONScontext* stash, FONSfont* font, unsigne
 
 	// Rasterize
 	dst = &stash->texData[(glyph->x0+pad) + (glyph->y0+pad) * stash->params.width];
-	ofx_fons__tt_renderGlyphBitmap(&renderFont->font, dst, gw-pad*2,gh-pad*2, stash->params.width, scale,scale, g);
+	ofxfs2_fons__tt_renderGlyphBitmap(&renderFont->font, dst, gw-pad*2,gh-pad*2, stash->params.width, scale,scale, g);
 
 	// Make sure there is one pixel empty border.
 	dst = &stash->texData[glyph->x0 + glyph->y0 * stash->params.width];
@@ -1135,25 +1135,25 @@ static FONSglyph* ofx_fons__getGlyph(FONScontext* stash, FONSfont* font, unsigne
 	if (iblur > 0) {
 		stash->nscratch = 0;
 		bdst = &stash->texData[glyph->x0 + glyph->y0 * stash->params.width];
-		ofx_fons__blur(stash, bdst, gw,gh, stash->params.width, iblur);
+		ofxfs2_fons__blur(stash, bdst, gw,gh, stash->params.width, iblur);
 	}
 
-	stash->dirtyRect[0] = ofx_fons__mini(stash->dirtyRect[0], glyph->x0);
-	stash->dirtyRect[1] = ofx_fons__mini(stash->dirtyRect[1], glyph->y0);
-	stash->dirtyRect[2] = ofx_fons__maxi(stash->dirtyRect[2], glyph->x1);
-	stash->dirtyRect[3] = ofx_fons__maxi(stash->dirtyRect[3], glyph->y1);
+	stash->dirtyRect[0] = ofxfs2_fons__mini(stash->dirtyRect[0], glyph->x0);
+	stash->dirtyRect[1] = ofxfs2_fons__mini(stash->dirtyRect[1], glyph->y0);
+	stash->dirtyRect[2] = ofxfs2_fons__maxi(stash->dirtyRect[2], glyph->x1);
+	stash->dirtyRect[3] = ofxfs2_fons__maxi(stash->dirtyRect[3], glyph->y1);
 
 	return glyph;
 }
 
-static void ofx_fons__getQuad(FONScontext* stash, FONSfont* font,
+static void ofxfs2_fons__getQuad(FONScontext* stash, FONSfont* font,
 						   int prevGlyphIndex, FONSglyph* glyph,
 						   float scale, float spacing, float* x, float* y, FONSquad* q)
 {
 	float rx,ry,xoff,yoff,x0,y0,x1,y1;
 
 	if (prevGlyphIndex != -1) {
-		float adv = ofx_fons__tt_getGlyphKernAdvance(&font->font, prevGlyphIndex, glyph->index) * scale;
+		float adv = ofxfs2_fons__tt_getGlyphKernAdvance(&font->font, prevGlyphIndex, glyph->index) * scale;
 		*x += (int)(adv + spacing + 0.5f);
 	}
 
@@ -1198,7 +1198,7 @@ static void ofx_fons__getQuad(FONScontext* stash, FONSfont* font,
 	*x += (int)(glyph->xadv / 10.0f + 0.5f);
 }
 
-static void ofx_fons__flush(FONScontext* stash)
+static void ofxfs2_fons__flush(FONScontext* stash)
 {
 	// Flush texture
 	if (stash->dirtyRect[0] < stash->dirtyRect[2] && stash->dirtyRect[1] < stash->dirtyRect[3]) {
@@ -1219,7 +1219,7 @@ static void ofx_fons__flush(FONScontext* stash)
 	}
 }
 
-static __inline void ofx_fons__vertex(FONScontext* stash, float x, float y, float s, float t, unsigned int c)
+static __inline void ofxfs2_fons__vertex(FONScontext* stash, float x, float y, float s, float t, unsigned int c)
 {
 	stash->verts[stash->nverts*2+0] = x;
 	stash->verts[stash->nverts*2+1] = y;
@@ -1229,7 +1229,7 @@ static __inline void ofx_fons__vertex(FONScontext* stash, float x, float y, floa
 	stash->nverts++;
 }
 
-static float ofx_fons__getVertAlign(FONScontext* stash, FONSfont* font, int align, short isize)
+static float ofxfs2_fons__getVertAlign(FONScontext* stash, FONSfont* font, int align, short isize)
 {
 	if (stash->params.flags & FONS_ZERO_TOPLEFT) {
 		if (align & FONS_ALIGN_TOP) {
@@ -1255,11 +1255,11 @@ static float ofx_fons__getVertAlign(FONScontext* stash, FONSfont* font, int alig
 	return 0.0;
 }
 
-float ofx_fonsDrawText(FONScontext* stash,
+float ofxfs2_fonsDrawText(FONScontext* stash,
 				   float x, float y,
 				   const char* str, const char* end)
 {
-	FONSstate* state = ofx_fons__getState(stash);
+	FONSstate* state = ofxfs2_fons__getState(stash);
 	unsigned int codepoint;
 	unsigned int utf8state = 0;
 	FONSglyph* glyph = NULL;
@@ -1276,7 +1276,7 @@ float ofx_fonsDrawText(FONScontext* stash,
 	font = stash->fonts[state->font];
 	if (font->data == NULL) return x;
 
-	scale = ofx_fons__tt_getPixelHeightScale(&font->font, (float)isize/10.0f);
+	scale = ofxfs2_fons__tt_getPixelHeightScale(&font->font, (float)isize/10.0f);
 
 	if (end == NULL)
 		end = str + strlen(str);
@@ -1285,44 +1285,44 @@ float ofx_fonsDrawText(FONScontext* stash,
 	if (state->align & FONS_ALIGN_LEFT) {
 		// empty
 	} else if (state->align & FONS_ALIGN_RIGHT) {
-		width = ofx_fonsTextBounds(stash, x,y, str, end, NULL);
+		width = ofxfs2_fonsTextBounds(stash, x,y, str, end, NULL);
 		x -= width;
 	} else if (state->align & FONS_ALIGN_CENTER) {
-		width = ofx_fonsTextBounds(stash, x,y, str, end, NULL);
+		width = ofxfs2_fonsTextBounds(stash, x,y, str, end, NULL);
 		x -= width * 0.5f;
 	}
 	// Align vertically.
-	y += ofx_fons__getVertAlign(stash, font, state->align, isize);
+	y += ofxfs2_fons__getVertAlign(stash, font, state->align, isize);
 
 	for (; str != end; ++str) {
-		if (ofx_fons__decutf8(&utf8state, &codepoint, *(const unsigned char*)str))
+		if (ofxfs2_fons__decutf8(&utf8state, &codepoint, *(const unsigned char*)str))
 			continue;
-		glyph = ofx_fons__getGlyph(stash, font, codepoint, isize, iblur);
+		glyph = ofxfs2_fons__getGlyph(stash, font, codepoint, isize, iblur);
 		if (glyph != NULL) {
-			ofx_fons__getQuad(stash, font, prevGlyphIndex, glyph, scale, state->spacing, &x, &y, &q);
+			ofxfs2_fons__getQuad(stash, font, prevGlyphIndex, glyph, scale, state->spacing, &x, &y, &q);
 
 			if (stash->nverts+6 > FONS_VERTEX_COUNT)
-				ofx_fons__flush(stash);
+				ofxfs2_fons__flush(stash);
 
-			ofx_fons__vertex(stash, q.x0, q.y0, q.s0, q.t0, state->color);
-			ofx_fons__vertex(stash, q.x1, q.y1, q.s1, q.t1, state->color);
-			ofx_fons__vertex(stash, q.x1, q.y0, q.s1, q.t0, state->color);
+			ofxfs2_fons__vertex(stash, q.x0, q.y0, q.s0, q.t0, state->color);
+			ofxfs2_fons__vertex(stash, q.x1, q.y1, q.s1, q.t1, state->color);
+			ofxfs2_fons__vertex(stash, q.x1, q.y0, q.s1, q.t0, state->color);
 
-			ofx_fons__vertex(stash, q.x0, q.y0, q.s0, q.t0, state->color);
-			ofx_fons__vertex(stash, q.x0, q.y1, q.s0, q.t1, state->color);
-			ofx_fons__vertex(stash, q.x1, q.y1, q.s1, q.t1, state->color);
+			ofxfs2_fons__vertex(stash, q.x0, q.y0, q.s0, q.t0, state->color);
+			ofxfs2_fons__vertex(stash, q.x0, q.y1, q.s0, q.t1, state->color);
+			ofxfs2_fons__vertex(stash, q.x1, q.y1, q.s1, q.t1, state->color);
 		}
 		prevGlyphIndex = glyph != NULL ? glyph->index : -1;
 	}
-	ofx_fons__flush(stash);
+	ofxfs2_fons__flush(stash);
 
 	return x;
 }
 
-int ofx_fonsTextIterInit(FONScontext* stash, FONStextIter* iter,
+int ofxfs2_fonsTextIterInit(FONScontext* stash, FONStextIter* iter,
 					 float x, float y, const char* str, const char* end)
 {
-	FONSstate* state = ofx_fons__getState(stash);
+	FONSstate* state = ofxfs2_fons__getState(stash);
 	float width;
 
 	memset(iter, 0, sizeof(*iter));
@@ -1334,20 +1334,20 @@ int ofx_fonsTextIterInit(FONScontext* stash, FONStextIter* iter,
 
 	iter->isize = (short)(state->size*10.0f);
 	iter->iblur = (short)state->blur;
-	iter->scale = ofx_fons__tt_getPixelHeightScale(&iter->font->font, (float)iter->isize/10.0f);
+	iter->scale = ofxfs2_fons__tt_getPixelHeightScale(&iter->font->font, (float)iter->isize/10.0f);
 
 	// Align horizontally
 	if (state->align & FONS_ALIGN_LEFT) {
 		// empty
 	} else if (state->align & FONS_ALIGN_RIGHT) {
-		width = ofx_fonsTextBounds(stash, x,y, str, end, NULL);
+		width = ofxfs2_fonsTextBounds(stash, x,y, str, end, NULL);
 		x -= width;
 	} else if (state->align & FONS_ALIGN_CENTER) {
-		width = ofx_fonsTextBounds(stash, x,y, str, end, NULL);
+		width = ofxfs2_fonsTextBounds(stash, x,y, str, end, NULL);
 		x -= width * 0.5f;
 	}
 	// Align vertically.
-	y += ofx_fons__getVertAlign(stash, iter->font, state->align, iter->isize);
+	y += ofxfs2_fons__getVertAlign(stash, iter->font, state->align, iter->isize);
 
 	if (end == NULL)
 		end = str + strlen(str);
@@ -1364,7 +1364,7 @@ int ofx_fonsTextIterInit(FONScontext* stash, FONStextIter* iter,
 	return 1;
 }
 
-int ofx_fonsTextIterNext(FONScontext* stash, FONStextIter* iter, FONSquad* quad)
+int ofxfs2_fonsTextIterNext(FONScontext* stash, FONStextIter* iter, FONSquad* quad)
 {
 	FONSglyph* glyph = NULL;
 	const char* str = iter->next;
@@ -1374,15 +1374,15 @@ int ofx_fonsTextIterNext(FONScontext* stash, FONStextIter* iter, FONSquad* quad)
 		return 0;
 
 	for (; str != iter->end; str++) {
-		if (ofx_fons__decutf8(&iter->utf8state, &iter->codepoint, *(const unsigned char*)str))
+		if (ofxfs2_fons__decutf8(&iter->utf8state, &iter->codepoint, *(const unsigned char*)str))
 			continue;
 		str++;
 		// Get glyph and quad
 		iter->x = iter->nextx;
 		iter->y = iter->nexty;
-		glyph = ofx_fons__getGlyph(stash, iter->font, iter->codepoint, iter->isize, iter->iblur);
+		glyph = ofxfs2_fons__getGlyph(stash, iter->font, iter->codepoint, iter->isize, iter->iblur);
 		if (glyph != NULL)
-			ofx_fons__getQuad(stash, iter->font, iter->prevGlyphIndex, glyph, iter->scale, iter->spacing, &iter->nextx, &iter->nexty, quad);
+			ofxfs2_fons__getQuad(stash, iter->font, iter->prevGlyphIndex, glyph, iter->scale, iter->spacing, &iter->nextx, &iter->nexty, quad);
 		iter->prevGlyphIndex = glyph != NULL ? glyph->index : -1;
 		break;
 	}
@@ -1391,7 +1391,7 @@ int ofx_fonsTextIterNext(FONScontext* stash, FONStextIter* iter, FONSquad* quad)
 	return 1;
 }
 
-void ofx_fonsDrawDebug(FONScontext* stash, float x, float y)
+void ofxfs2_fonsDrawDebug(FONScontext* stash, float x, float y)
 {
 	int i;
 	int w = stash->params.width;
@@ -1400,51 +1400,51 @@ void ofx_fonsDrawDebug(FONScontext* stash, float x, float y)
 	float v = h == 0 ? 0 : (1.0f / h);
 
 	if (stash->nverts+6+6 > FONS_VERTEX_COUNT)
-		ofx_fons__flush(stash);
+		ofxfs2_fons__flush(stash);
 
 	// Draw background
-	ofx_fons__vertex(stash, x+0, y+0, u, v, 0x0fffffff);
-	ofx_fons__vertex(stash, x+w, y+h, u, v, 0x0fffffff);
-	ofx_fons__vertex(stash, x+w, y+0, u, v, 0x0fffffff);
+	ofxfs2_fons__vertex(stash, x+0, y+0, u, v, 0x0fffffff);
+	ofxfs2_fons__vertex(stash, x+w, y+h, u, v, 0x0fffffff);
+	ofxfs2_fons__vertex(stash, x+w, y+0, u, v, 0x0fffffff);
 
-	ofx_fons__vertex(stash, x+0, y+0, u, v, 0x0fffffff);
-	ofx_fons__vertex(stash, x+0, y+h, u, v, 0x0fffffff);
-	ofx_fons__vertex(stash, x+w, y+h, u, v, 0x0fffffff);
+	ofxfs2_fons__vertex(stash, x+0, y+0, u, v, 0x0fffffff);
+	ofxfs2_fons__vertex(stash, x+0, y+h, u, v, 0x0fffffff);
+	ofxfs2_fons__vertex(stash, x+w, y+h, u, v, 0x0fffffff);
 
 	// Draw texture
-	ofx_fons__vertex(stash, x+0, y+0, 0, 0, 0xffffffff);
-	ofx_fons__vertex(stash, x+w, y+h, 1, 1, 0xffffffff);
-	ofx_fons__vertex(stash, x+w, y+0, 1, 0, 0xffffffff);
+	ofxfs2_fons__vertex(stash, x+0, y+0, 0, 0, 0xffffffff);
+	ofxfs2_fons__vertex(stash, x+w, y+h, 1, 1, 0xffffffff);
+	ofxfs2_fons__vertex(stash, x+w, y+0, 1, 0, 0xffffffff);
 
-	ofx_fons__vertex(stash, x+0, y+0, 0, 0, 0xffffffff);
-	ofx_fons__vertex(stash, x+0, y+h, 0, 1, 0xffffffff);
-	ofx_fons__vertex(stash, x+w, y+h, 1, 1, 0xffffffff);
+	ofxfs2_fons__vertex(stash, x+0, y+0, 0, 0, 0xffffffff);
+	ofxfs2_fons__vertex(stash, x+0, y+h, 0, 1, 0xffffffff);
+	ofxfs2_fons__vertex(stash, x+w, y+h, 1, 1, 0xffffffff);
 
 	// Drawbug draw atlas
 	for (i = 0; i < stash->atlas->nnodes; i++) {
 		FONSatlasNode* n = &stash->atlas->nodes[i];
 
 		if (stash->nverts+6 > FONS_VERTEX_COUNT)
-			ofx_fons__flush(stash);
+			ofxfs2_fons__flush(stash);
 
-		ofx_fons__vertex(stash, x+n->x+0, y+n->y+0, u, v, 0xc00000ff);
-		ofx_fons__vertex(stash, x+n->x+n->width, y+n->y+1, u, v, 0xc00000ff);
-		ofx_fons__vertex(stash, x+n->x+n->width, y+n->y+0, u, v, 0xc00000ff);
+		ofxfs2_fons__vertex(stash, x+n->x+0, y+n->y+0, u, v, 0xc00000ff);
+		ofxfs2_fons__vertex(stash, x+n->x+n->width, y+n->y+1, u, v, 0xc00000ff);
+		ofxfs2_fons__vertex(stash, x+n->x+n->width, y+n->y+0, u, v, 0xc00000ff);
 
-		ofx_fons__vertex(stash, x+n->x+0, y+n->y+0, u, v, 0xc00000ff);
-		ofx_fons__vertex(stash, x+n->x+0, y+n->y+1, u, v, 0xc00000ff);
-		ofx_fons__vertex(stash, x+n->x+n->width, y+n->y+1, u, v, 0xc00000ff);
+		ofxfs2_fons__vertex(stash, x+n->x+0, y+n->y+0, u, v, 0xc00000ff);
+		ofxfs2_fons__vertex(stash, x+n->x+0, y+n->y+1, u, v, 0xc00000ff);
+		ofxfs2_fons__vertex(stash, x+n->x+n->width, y+n->y+1, u, v, 0xc00000ff);
 	}
 
-	ofx_fons__flush(stash);
+	ofxfs2_fons__flush(stash);
 }
 
-float ofx_fonsTextBounds(FONScontext* stash,
+float ofxfs2_fonsTextBounds(FONScontext* stash,
 					 float x, float y,
 					 const char* str, const char* end,
 					 float* bounds)
 {
-	FONSstate* state = ofx_fons__getState(stash);
+	FONSstate* state = ofxfs2_fons__getState(stash);
 	unsigned int codepoint;
 	unsigned int utf8state = 0;
 	FONSquad q;
@@ -1462,10 +1462,10 @@ float ofx_fonsTextBounds(FONScontext* stash,
 	font = stash->fonts[state->font];
 	if (font->data == NULL) return 0;
 
-	scale = ofx_fons__tt_getPixelHeightScale(&font->font, (float)isize/10.0f);
+	scale = ofxfs2_fons__tt_getPixelHeightScale(&font->font, (float)isize/10.0f);
 
 	// Align vertically.
-	y += ofx_fons__getVertAlign(stash, font, state->align, isize);
+	y += ofxfs2_fons__getVertAlign(stash, font, state->align, isize);
 
 	minx = maxx = x;
 	miny = maxy = y;
@@ -1475,11 +1475,11 @@ float ofx_fonsTextBounds(FONScontext* stash,
 		end = str + strlen(str);
 
 	for (; str != end; ++str) {
-		if (ofx_fons__decutf8(&utf8state, &codepoint, *(const unsigned char*)str))
+		if (ofxfs2_fons__decutf8(&utf8state, &codepoint, *(const unsigned char*)str))
 			continue;
-		glyph = ofx_fons__getGlyph(stash, font, codepoint, isize, iblur);
+		glyph = ofxfs2_fons__getGlyph(stash, font, codepoint, isize, iblur);
 		if (glyph != NULL) {
-			ofx_fons__getQuad(stash, font, prevGlyphIndex, glyph, scale, state->spacing, &x, &y, &q);
+			ofxfs2_fons__getQuad(stash, font, prevGlyphIndex, glyph, scale, state->spacing, &x, &y, &q);
 			if (q.x0 < minx) minx = q.x0;
 			if (q.x1 > maxx) maxx = q.x1;
 			if (stash->params.flags & FONS_ZERO_TOPLEFT) {
@@ -1516,11 +1516,11 @@ float ofx_fonsTextBounds(FONScontext* stash,
 	return advance;
 }
 
-void ofx_fonsVertMetrics(FONScontext* stash,
+void ofxfs2_fonsVertMetrics(FONScontext* stash,
 					 float* ascender, float* descender, float* lineh)
 {
 	FONSfont* font;
-	FONSstate* state = ofx_fons__getState(stash);
+	FONSstate* state = ofxfs2_fons__getState(stash);
 	short isize;
 
 	if (stash == NULL) return;
@@ -1537,10 +1537,10 @@ void ofx_fonsVertMetrics(FONScontext* stash,
 		*lineh = font->lineh*isize/10.0f;
 }
 
-void ofx_fonsLineBounds(FONScontext* stash, float y, float* miny, float* maxy)
+void ofxfs2_fonsLineBounds(FONScontext* stash, float y, float* miny, float* maxy)
 {
 	FONSfont* font;
-	FONSstate* state = ofx_fons__getState(stash);
+	FONSstate* state = ofxfs2_fons__getState(stash);
 	short isize;
 
 	if (stash == NULL) return;
@@ -1549,7 +1549,7 @@ void ofx_fonsLineBounds(FONScontext* stash, float y, float* miny, float* maxy)
 	isize = (short)(state->size*10.0f);
 	if (font->data == NULL) return;
 
-	y += ofx_fons__getVertAlign(stash, font, state->align, isize);
+	y += ofxfs2_fons__getVertAlign(stash, font, state->align, isize);
 
 	if (stash->params.flags & FONS_ZERO_TOPLEFT) {
 		*miny = y - font->ascender * (float)isize/10.0f;
@@ -1560,7 +1560,7 @@ void ofx_fonsLineBounds(FONScontext* stash, float y, float* miny, float* maxy)
 	}
 }
 
-const unsigned char* ofx_fonsGetTextureData(FONScontext* stash, int* width, int* height)
+const unsigned char* ofxfs2_fonsGetTextureData(FONScontext* stash, int* width, int* height)
 {
 	if (width != NULL)
 		*width = stash->params.width;
@@ -1569,7 +1569,7 @@ const unsigned char* ofx_fonsGetTextureData(FONScontext* stash, int* width, int*
 	return stash->texData;
 }
 
-int ofx_fonsValidateTexture(FONScontext* stash, int* dirty)
+int ofxfs2_fonsValidateTexture(FONScontext* stash, int* dirty)
 {
 	if (stash->dirtyRect[0] < stash->dirtyRect[2] && stash->dirtyRect[1] < stash->dirtyRect[3]) {
 		dirty[0] = stash->dirtyRect[0];
@@ -1586,7 +1586,7 @@ int ofx_fonsValidateTexture(FONScontext* stash, int* dirty)
 	return 0;
 }
 
-void ofx_fonsDeleteInternal(FONScontext* stash)
+void ofxfs2_fonsDeleteInternal(FONScontext* stash)
 {
 	int i;
 	if (stash == NULL) return;
@@ -1595,43 +1595,43 @@ void ofx_fonsDeleteInternal(FONScontext* stash)
 		stash->params.renderDelete(stash->params.userPtr);
 
 	for (i = 0; i < stash->nfonts; ++i)
-		ofx_fons__freeFont(stash->fonts[i]);
+		ofxfs2_fons__freeFont(stash->fonts[i]);
 
-	if (stash->atlas) ofx_fons__deleteAtlas(stash->atlas);
+	if (stash->atlas) ofxfs2_fons__deleteAtlas(stash->atlas);
 	if (stash->fonts) free(stash->fonts);
 	if (stash->texData) free(stash->texData);
 	if (stash->scratch) free(stash->scratch);
 	free(stash);
 }
 
-void ofx_fonsSetErrorCallback(FONScontext* stash, void (*callback)(void* uptr, int error, int val), void* uptr)
+void ofxfs2_fonsSetErrorCallback(FONScontext* stash, void (*callback)(void* uptr, int error, int val), void* uptr)
 {
 	if (stash == NULL) return;
 	stash->handleError = callback;
 	stash->errorUptr = uptr;
 }
 
-void ofx_fonsGetAtlasSize(FONScontext* stash, int* width, int* height)
+void ofxfs2_fonsGetAtlasSize(FONScontext* stash, int* width, int* height)
 {
 	if (stash == NULL) return;
 	*width = stash->params.width;
 	*height = stash->params.height;
 }
 
-int ofx_fonsExpandAtlas(FONScontext* stash, int width, int height)
+int ofxfs2_fonsExpandAtlas(FONScontext* stash, int width, int height)
 {
 	int i, maxy = 0;
 	unsigned char* data = NULL;
 	if (stash == NULL) return 0;
 
-	width = ofx_fons__maxi(width, stash->params.width);
-	height = ofx_fons__maxi(height, stash->params.height);
+	width = ofxfs2_fons__maxi(width, stash->params.width);
+	height = ofxfs2_fons__maxi(height, stash->params.height);
 
 	if (width == stash->params.width && height == stash->params.height)
 		return 1;
 
 	// Flush pending glyphs.
-	ofx_fons__flush(stash);
+	ofxfs2_fons__flush(stash);
 
 	// Create new texture
 	if (stash->params.renderResize != NULL) {
@@ -1656,11 +1656,11 @@ int ofx_fonsExpandAtlas(FONScontext* stash, int width, int height)
 	stash->texData = data;
 
 	// Increase atlas size
-	ofx_fons__atlasExpand(stash->atlas, width, height);
+	ofxfs2_fons__atlasExpand(stash->atlas, width, height);
 
 	// Add existing data as dirty.
 	for (i = 0; i < stash->atlas->nnodes; i++)
-		maxy = ofx_fons__maxi(maxy, stash->atlas->nodes[i].y);
+		maxy = ofxfs2_fons__maxi(maxy, stash->atlas->nodes[i].y);
 	stash->dirtyRect[0] = 0;
 	stash->dirtyRect[1] = 0;
 	stash->dirtyRect[2] = stash->params.width;
@@ -1674,13 +1674,13 @@ int ofx_fonsExpandAtlas(FONScontext* stash, int width, int height)
 	return 1;
 }
 
-int ofx_fonsResetAtlas(FONScontext* stash, int width, int height)
+int ofxfs2_fonsResetAtlas(FONScontext* stash, int width, int height)
 {
 	int i, j;
 	if (stash == NULL) return 0;
 
 	// Flush pending glyphs.
-	ofx_fons__flush(stash);
+	ofxfs2_fons__flush(stash);
 
 	// Create new texture
 	if (stash->params.renderResize != NULL) {
@@ -1689,7 +1689,7 @@ int ofx_fonsResetAtlas(FONScontext* stash, int width, int height)
 	}
 
 	// Reset atlas
-	ofx_fons__atlasReset(stash->atlas, width, height);
+	ofxfs2_fons__atlasReset(stash->atlas, width, height);
 
 	// Clear texture data.
 	stash->texData = (unsigned char*)realloc(stash->texData, width * height);
@@ -1716,7 +1716,7 @@ int ofx_fonsResetAtlas(FONScontext* stash, int width, int height)
 	stash->ith = 1.0f/stash->params.height;
 
 	// Add white rect at 0,0 for debug drawing.
-	ofx_fons__addWhiteRect(stash, 2,2);
+	ofxfs2_fons__addWhiteRect(stash, 2,2);
 
 	return 1;
 }
