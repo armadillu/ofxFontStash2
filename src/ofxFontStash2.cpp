@@ -259,6 +259,7 @@ ofRectangle ofxFontStash2::drawAndLayout(vector<StyledText> &blocks,
 const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &blocks,
 													float targetWidth,
 													ofAlignHorz horAlign,
+													int limitToNLines,
 													bool debug){
 	vector<StyledLine> ret;
 	OFX_FONSTASH2_CHECK_RET
@@ -296,9 +297,13 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 	vector<float> accLineHeighDiff = {0};
 
 	for(int i = 0; i < words.size(); i++){
+
+		if(limitToNLines != 0 && lines.size() > limitToNLines){ //stop early if we reached max N of lines
+			break;
+		}
 		StyledLine &currentLine = lines.back();
 		currentLine.boxW = targetWidth;
-		
+
 		TS_START_ACC("word style");
 		if(words[i].styledText.style.valid && currentStyle != words[i].styledText.style ){
 			currentStyle = words[i].styledText.style;

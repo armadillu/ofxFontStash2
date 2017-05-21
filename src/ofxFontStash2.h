@@ -97,7 +97,8 @@ public:
 	const vector<StyledLine> layoutLines(const vector<StyledText> &blocks,
 										 float targetWidth,
 										 ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
-										 bool debug=false);
+										 int limitToNLines = 0, //stop layout if lines are > limitToNLines
+										 bool debug = false);
 
 	/// draw already prepared StyledLine´s
 	ofRectangle drawLines(const vector<StyledLine> &lines,

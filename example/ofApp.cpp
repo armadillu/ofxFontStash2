@@ -273,13 +273,11 @@ float ofApp::testDiyFormattedLayout(float x, float y){
 	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.45 + 2.3)) * 200;
 	auto align = getCurrentAlignment();
 	vector<StyledText> parsed = fonts.parseStyledText(myStyledText);
-	vector<StyledLine> laidOutLines = fonts.layoutLines(parsed, colW, align);
 
 	//we only want to draw whatever fits in 2 lines
 	int numLines = 2;
-	vector<StyledLine> drawnLines(laidOutLines.begin(), laidOutLines.begin() + MIN(numLines, laidOutLines.size()));
-
-	ofRectangle bbox = fonts.drawLines(drawnLines, x, y);
+	vector<StyledLine> laidOutLines = fonts.layoutLines(parsed, colW, align, numLines);
+	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
 	ofSetColor(255,16);
 	ofDrawRectangle(bbox);
 	return bbox.height;
@@ -292,13 +290,9 @@ float ofApp::testDiyPlainLayout(float x, float y){
 	string text = "testDiyPlainLayout(): L'italiano è una tra le ventiquattro lingue ufficiali dell'Unione europea ed è lingua ufficiale dell'Italia, di San Marino, della Svizzera, della Città del Vaticano e del Sovrano Militare Ordine di Malta.";
 	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.27)) * 200;
 	auto align = getCurrentAlignment();
-	vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, colW, align);
-
-	//we only want to draw whatever fits in 2 lines
-	int numLines = 2;
-	vector<StyledLine> drawnLines(laidOutLines.begin(), laidOutLines.begin() + MIN(numLines, laidOutLines.size()));
-
-	ofRectangle bbox = fonts.drawLines(drawnLines, x, y);
+	int maxLines = 3;
+	vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, colW, align, maxLines, debug);
+	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
 	ofSetColor(255,32);
 	ofDrawRectangle(bbox);
 	return bbox.height;
