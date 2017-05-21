@@ -69,10 +69,9 @@ ofxFontStash2::~ofxFontStash2(){
 }
 
 
-void ofxFontStash2::setup(){
+void ofxFontStash2::setup(bool debug){
 
 	bool stencilStrokes = false;
-	bool debug = false;
 
 	#ifdef NANOVG_GL3_IMPLEMENTATION
 	ctx = ofxfs2_nvgCreateGL23(NVG_ANTIALIAS | (stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
@@ -118,6 +117,22 @@ void ofxFontStash2::addStyle(const string& styleID, ofxFontStashStyle style){
 	styleIDs[styleID] = style;
 }
 
+
+bool ofxFontStash2::styleExists(const string& styleID){
+	return styleIDs.find(styleID) != styleIDs.end();
+}
+
+
+ofxFontStashStyle ofxFontStash2::getStyle(const string& styleID, bool & exists){
+
+	auto it = styleIDs.find(styleID);
+	if(it != styleIDs.end()){
+		exists = true;
+		return it->second;
+	}
+	exists = false;
+	return ofxFontStashStyle();
+}
 
 void ofxFontStash2::begin(){
 	OFX_FONSTASH2_CHECK
@@ -190,8 +205,9 @@ void ofxFontStash2::drawColumnNVG(const string& text,
 		case OF_ALIGN_HORZ_RIGHT: hAlign = NVG_ALIGN_RIGHT; break;
 	}
 	ofxfs2_nvgTextAlign(ctx, style.alignmentV | hAlign);
-
+	ofxfs2_nvgTextLineHeight(ctx, lineHeightMultiplier);
 	ofxfs2_nvgTextBox(ctx, x, y, width, text.c_str(), NULL);
+	ofxfs2_nvgTextLineHeight(ctx, 1.0);
 	end();
 }
 
@@ -199,7 +215,6 @@ ofRectangle ofxFontStash2::getTextBoundsNVG(const string& text,
 											const ofxFontStashStyle& style,
 											float x, float y, float width,
 											ofAlignHorz horAlign){
-	//begin();
 	applyStyle(style);
 	NVGalign hAlign = NVGalign(0);
 	switch(horAlign){
@@ -208,9 +223,10 @@ ofRectangle ofxFontStash2::getTextBoundsNVG(const string& text,
 		case OF_ALIGN_HORZ_RIGHT: hAlign = NVG_ALIGN_RIGHT; break;
 	}
 	ofxfs2_nvgTextAlign(ctx, style.alignmentV | hAlign);
+	ofxfs2_nvgTextLineHeight(ctx, lineHeightMultiplier);
 	float bounds[4];
 	ofxfs2_nvgTextBoxBounds(ctx, x, y, width, text.c_str(), NULL, bounds);
-	//end();
+	ofxfs2_nvgTextLineHeight(ctx, 1.0);
 	return ofRectangle(bounds[0], bounds[1], bounds[2]-bounds[0], bounds[3]-bounds[1]);
 }
 
@@ -562,7 +578,7 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 	ofRectangle bounds = getTextBounds(lines, x, y);
 	bounds.x += x;
 	bounds.y += y;
-	end();
+	//end();
 	return bounds;
 }
 

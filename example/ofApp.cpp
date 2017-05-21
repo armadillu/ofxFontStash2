@@ -12,7 +12,8 @@ void ofApp::setup(){
 	RUI_SETUP();
 	RUI_SHARE_PARAM(debug);
 
-	fonts.setup();
+	bool debugNanoVG = true;
+	fonts.setup(debugNanoVG);
 
 	fonts.addFont("Arial", "fonts/Arial Unicode.ttf");
 	fonts.addFont("veraMono", "fonts/VeraMono.ttf");
@@ -31,6 +32,7 @@ void ofApp::setup(){
 	style.color = ofColor::lightCyan;
 	style.fontID = "veraMono";
 	style.fontSize = 55;
+	style.blur = 4;
 	fonts.addStyle("style3", style);
 
 	ofDisableAntiAliasing(); //to get precise lines
@@ -56,54 +58,71 @@ void ofApp::draw(){
 	fbo.begin();
 	ofClear(0,0,0,255);
 	#endif
-
+	//test global multipliers
+	//fonts.setLineHeightMult(1.5 + 0.5 * sin(ofGetElapsedTimef()));
+	//fonts.fontScale = 1.5 + 0.5 * sin(ofGetElapsedTimef());
 
 	float xx = 40;
 	float yy = 40;
-
+	int testID = 0;
 	ofScale(0.9, 0.9);
-
 	TSGL_START("d");
 
-	TS_START("draw");
+	string tMsg = ofToString(testID) + " draw";
+	TS_START(tMsg);
+	drawID(testID, xx, yy); testID++;
 	testDraw(xx,yy);
-	TS_STOP("draw");
+	TS_STOP(tMsg);
 
 	yy += 100;
-	TS_START("drawColumn");
+	tMsg = ofToString(testID) + " testDrawColumn";
+	TS_START(tMsg);
+	drawID(testID, xx, yy); testID++;
 	yy += testDrawColumn(xx,yy);
-	TS_STOP("drawColumn");
+	TS_STOP(tMsg);
 
 	yy += 20;
-	TS_START("drawColumnNVG");
+	tMsg = ofToString(testID) + " testDrawColumnNVG";
+	TS_START(tMsg);
+	drawID(testID, xx, yy); testID++;
 	yy += testDrawColumnNVG(xx,yy);
-	TS_STOP("drawColumnNVG");
+	TS_STOP(tMsg);
 
 	yy += 20;
-	TS_START("drawTabs");
+	tMsg = ofToString(testID) + " testDrawTabs";
+	TS_START(tMsg);
+	drawID(testID, xx, yy); testID++;
 	testDrawTabs(xx, yy);
-	TS_STOP("drawTabs");
+	TS_STOP(tMsg);
 
 	yy = 40;
 	xx = 600;
-	TS_START("testDrawFormatted");
+	tMsg = ofToString(testID) + " testDrawFormatted";
+	TS_START(tMsg);
+	drawID(testID, xx, yy); testID++;
 	testDrawFormatted(xx, yy);
-	TS_STOP("testDrawFormatted");
+	TS_STOP(tMsg);
 
-	yy += 100;
-	TS_START("drawFormattedColumn");
+	yy += 60;
+	tMsg = ofToString(testID) + " testDrawFormattedColumn";
+	TS_START(tMsg);
+	drawID(testID, xx, yy); testID++;
 	yy += testDrawFormattedColumn(xx, yy);
-	TS_STOP("drawFormattedColumn");
+	TS_STOP(tMsg);
 
-	yy += 100;
-	TS_START("testDiyPlainLayout");
+	yy += 60;
+	tMsg = ofToString(testID) + " testDiyPlainLayout";
+	TS_START(tMsg);
+	drawID(testID, xx, yy); testID++;
 	yy += testDiyPlainLayout(xx, yy);
-	TS_STOP("testDiyPlainLayout");
+	TS_STOP(tMsg);
 
-	yy += 100;
-	TS_START("testDiyFormattedLayout");
+	yy += 60;
+	tMsg = ofToString(testID) + " testDiyFormattedLayout";
+	TS_START(tMsg);
+	drawID(testID, xx, yy); testID++;
 	yy += testDiyFormattedLayout(xx, yy);
-	TS_STOP("testDiyFormattedLayout");
+	TS_STOP(tMsg);
 
 	TSGL_STOP("d");
 
@@ -144,7 +163,7 @@ void ofApp::testDraw(float x, float y){
 	style.fontID = "Arial";
 	style.fontSize = 22;
 	{
-		string text = "testing draw() method with one-line string. バナナのようなサル";
+		string text = "testDraw(): method with one-line string. バナナのようなサル";
 		ofRectangle bounds = fonts.getTextBounds(text, style, x, y);
 		ofSetColor(0,255,0,33);
 		ofDrawRectangle(bounds);
@@ -155,7 +174,7 @@ void ofApp::testDraw(float x, float y){
 	y += 30;
 
 	{
-		string text = "testing draw() methods with\na multiline string (not supported).";
+		string text = "testDraw(): methods with\na multiline string (not supported).";
 		ofRectangle bounds = fonts.getTextBounds(text, style, x, y);
 		ofSetColor(0,255,0,33);
 		ofDrawRectangle(bounds);
@@ -172,14 +191,13 @@ float ofApp::testDrawColumn(float x, float y){
 	style.fontSize = 45;
 	ofAlignHorz align = getCurrentAlignment();
 
-	string text = "Testing drawColumn() methods with a long string and no line breaks whatsoever. Also, adding some fancy unicode バナナのようなサル. And back to normal...";
+	string text = "testDrawColumn(): methods with a long string and no line breaks whatsoever. Also, adding some fancy unicode バナナのようなサル. And back to normal...";
 	drawInsertionPoint(x,y,100);
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.39 + 4)) * 200;
 	ofSetColor(255,33);
-	float boxH = 300;
-	ofDrawLine(x , y - 15, x, y + boxH);
-	ofDrawLine(x + colW, y - 15, x + colW, y + boxH);
 	ofRectangle bbox = fonts.drawColumn(text, style, x, y, colW, align, debug);
+	ofDrawLine(x , y - 15, x, y + bbox.height);
+	ofDrawLine(x + colW, y - 15, x + colW, y + bbox.height);
 	ofSetColor(255,13);
 	ofDrawRectangle(bbox);
 	return bbox.height;
@@ -192,15 +210,14 @@ float ofApp::testDrawColumnNVG(float x, float y){
 	style.fontSize = 22;
 	ofAlignHorz align = getCurrentAlignment();
 
-	string text = "Testing drawColumnNVG(): El català és una llengua de transició entre les llengües iberoromàniques i les llengües gal·loromàniques, encara que antigament fos molt pròxima a l'occità, amb qui comparteix origen i grup: l'occitanoromànic.";
+	string text = "testDrawColumnNVG(): El català és una llengua de transició entre les llengües iberoromàniques i les llengües gal·loromàniques, encara que antigament fos molt pròxima a l'occità, amb qui comparteix origen i grup: l'occitanoromànic.";
 	drawInsertionPoint(x,y,100);
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.24 - 1)) * 200;
 	ofSetColor(255,33);
-	float boxH = 300;
-	ofDrawLine(x , y - 15, x, y + boxH);
-	ofDrawLine(x + colW, y - 15, x + colW, y + boxH);
 	fonts.drawColumnNVG(text, style, x, y, colW, align);
 	ofRectangle bounds = fonts.getTextBoundsNVG(text, style, x, y, colW, align);
+	ofDrawLine(x , y - 15, x, y + bounds.height);
+	ofDrawLine(x + colW, y - 15, x + colW, y + bounds.height);
 	ofSetColor(255,22);
 	ofDrawRectangle(bounds);
 	return bounds.height;
@@ -209,23 +226,23 @@ float ofApp::testDrawColumnNVG(float x, float y){
 
 void ofApp::testDrawFormatted(float x, float y){
 
-	string styledText = "<style id='style1'>this is style1.</style><style id='style2'>And this is Style 2</style>";
-	drawInsertionPoint(x,y,100);
-	fonts.drawFormatted(styledText, x, y);
+	string styledText = "<style id='style1'>testDrawFormatted(): this is style1.</style><style id='style2'>And this is Style 2</style>";
+	float w = fonts.drawFormatted(styledText, x, y);
+	drawInsertionPoint(x,y,w);
 }
 
 
 float ofApp::testDrawFormattedColumn(float x, float y){
-	string styledText = "<style id='style1'>This is style1 style.</style> <style id='style2'>And this is Style2, adjusted to the column width.</style>";
+	string styledText = "<style id='style1'>testDrawFormattedColumn(): This is style1 style.</style> <style id='style2'>And this is Style2, adjusted to the column width.</style>";
 	styledText += " <style id='style3'>And this is stlye3, which has a bigger font size.</style>";
 	drawInsertionPoint(x,y,100);
 	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
 	ofSetColor(255,33);
 	float boxH = 300;
-	ofDrawLine(x , y - 15, x, y + boxH);
-	ofDrawLine(x + colW, y - 15, x + colW, y + boxH);
 	auto align = getCurrentAlignment();
 	ofRectangle bbox = fonts.drawFormattedColumn(styledText, x, y, colW, align, debug);
+	ofDrawLine(x , y - 15, x, y + bbox.height);
+	ofDrawLine(x + colW, y - 15, x + colW, y + bbox.height);
 	ofSetColor(255,16);
 	ofDrawRectangle(bbox);
 	return bbox.height;
@@ -235,6 +252,7 @@ float ofApp::testDrawFormattedColumn(float x, float y){
 void ofApp::testDrawTabs(float x, float y){
 
 	string code =
+	"//testDrawTabs():\n"
 	"class ofApp : public ofBaseApp{\n"
 	"	public:\n"
 	"		void setup(); //some emoji too 😀💩🐙🐵\n"
@@ -251,8 +269,8 @@ void ofApp::testDrawTabs(float x, float y){
 
 float ofApp::testDiyFormattedLayout(float x, float y){
 
-	string myStyledText = "<style id='style1'>hello</style><style id='style2'>banana</style><style id='style3'>monkey</style>";
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	string myStyledText = "<style id='style1'>testDiyFormattedLayout(): hello</style><style id='style2'>banana</style><style id='style3'>monkey</style>";
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.45 + 2.3)) * 200;
 	auto align = getCurrentAlignment();
 	vector<StyledText> parsed = fonts.parseStyledText(myStyledText);
 	vector<StyledLine> laidOutLines = fonts.layoutLines(parsed, colW, align);
@@ -270,9 +288,9 @@ float ofApp::testDiyFormattedLayout(float x, float y){
 
 float ofApp::testDiyPlainLayout(float x, float y){
 
-	ofxFontStashStyle style = fonts.getStyleList()["style1"];
-	string text = "L'italiano è una tra le ventiquattro lingue ufficiali dell'Unione europea ed è lingua ufficiale dell'Italia, di San Marino, della Svizzera, della Città del Vaticano e del Sovrano Militare Ordine di Malta.";
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	ofxFontStashStyle style = fonts.getStyles()["style1"];
+	string text = "testDiyPlainLayout(): L'italiano è una tra le ventiquattro lingue ufficiali dell'Unione europea ed è lingua ufficiale dell'Italia, di San Marino, della Svizzera, della Città del Vaticano e del Sovrano Militare Ordine di Malta.";
+	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.27)) * 200;
 	auto align = getCurrentAlignment();
 	vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, colW, align);
 
@@ -281,7 +299,7 @@ float ofApp::testDiyPlainLayout(float x, float y){
 	vector<StyledLine> drawnLines(laidOutLines.begin(), laidOutLines.begin() + MIN(numLines, laidOutLines.size()));
 
 	ofRectangle bbox = fonts.drawLines(drawnLines, x, y);
-	ofSetColor(255,16);
+	ofSetColor(255,32);
 	ofDrawRectangle(bbox);
 	return bbox.height;
 }
@@ -302,6 +320,13 @@ void ofApp::drawInsertionPoint(float x, float y, float w){
 	ofDrawCircle(x,y, 1.5);
 	ofSetColor(255,64);
 	ofDrawLine(x - 10, y, x + w, y);
+	ofSetColor(255);
+}
+
+void ofApp::drawID(int ID, int x, int y){
+
+	ofSetColor(255,0,0);
+	ofDrawBitmapStringHighlight(ofToString(ID), x - 15, y, ofColor::red * 0.5, ofColor::white);
 	ofSetColor(255);
 }
 
