@@ -152,7 +152,7 @@ void ofxFontStash2::endBatch(){
 
 void ofxFontStash2::begin(){
 	if(!inBatchMode){
-		#ifdef NANOVG_GL3_IMPLEMENTATION
+		#if defined(NANOVG_GL3_IMPLEMENTATION) || defined(NANOVG_GLES2_IMPLEMENTATION)
 		//NanoVG sets its own shader to draw text- once done, we need OF to enable back its own
 		//there's no way to do that in the current API, the hacky workaround is to unbind() an empty shader
 		//that we keep around - which end up doing what we ultimatelly want
@@ -168,7 +168,7 @@ void ofxFontStash2::end(){
 		ofxfs2_nvgEndFrame(ctx);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		//ofEnableAlphaBlending();
-		#ifdef NANOVG_GL3_IMPLEMENTATION
+		#if defined(NANOVG_GL3_IMPLEMENTATION) || defined(NANOVG_GLES2_IMPLEMENTATION)
 		nullShader.end(); //shader wrap
 		#endif
 	}
