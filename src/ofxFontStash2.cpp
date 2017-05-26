@@ -625,6 +625,8 @@ ofRectangle ofxFontStash2::getTextBounds(const vector<StyledLine> &lines, float 
 			}
 		}
 	}
+	ret.x += x;
+	ret.y += y;
 	return ret;
 }
 
