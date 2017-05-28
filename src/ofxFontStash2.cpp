@@ -54,8 +54,6 @@ ofxFontStash2::ofxFontStash2(){
 	lineHeightMultiplier = 1.0;
 	pixelDensity = 1.0;
 	fontScale = 1.0;
-	drawingFS = false;
-
 }
 
 ofxFontStash2::~ofxFontStash2(){
@@ -134,22 +132,46 @@ ofxFontStashStyle ofxFontStash2::getStyle(const string& styleID, bool & exists){
 	return ofxFontStashStyle();
 }
 
+void ofxFontStash2::beginBatch(){
+	if(!inBatchMode){
+		begin();
+		inBatchMode = true;
+	}else{
+		ofLogError("ofxFontStash2") << "can't beginBatch() again - dont nest batches!";
+	}
+}
+
+void ofxFontStash2::endBatch(){
+	if(inBatchMode){
+		inBatchMode = false;
+		end();
+	}else{
+		ofLogError("ofxFontStash2") << "can't end batch bc you havent started one!!";
+	}
+}
+
 void ofxFontStash2::begin(){
-	OFX_FONSTASH2_CHECK
-	//NanoVG sets its own shader to draw text- once done, we need OF to enable back its own
-	//there's no way to do that in the current API, the hacky workaround is to unbind() an empty shader
-	//that we keep around - which end up doing what we ultimatelly want
-	nullShader.begin();
-	ofxfs2_nvgBeginFrame(ctx, ofGetViewportWidth(), ofGetViewportHeight(), pixelDensity);
-	applyOFMatrix();
-	//ofLogNotice("ofxFontStash2") << "begin() " << ofGetFrameNum();
+	if(!inBatchMode){
+		#if defined(NANOVG_GL3_IMPLEMENTATION) || defined(NANOVG_GLES2_IMPLEMENTATION)
+		//NanoVG sets its own shader to draw text- once done, we need OF to enable back its own
+		//there's no way to do that in the current API, the hacky workaround is to unbind() an empty shader
+		//that we keep around - which end up doing what we ultimatelly want
+		nullShader.begin();
+		#endif
+		ofxfs2_nvgBeginFrame(ctx, ofGetViewportWidth(), ofGetViewportHeight(), pixelDensity);
+		applyOFMatrix();
+	}
 }
 
 void ofxFontStash2::end(){
-	OFX_FONSTASH2_CHECK
-	ofxfs2_nvgEndFrame(ctx);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	nullShader.end(); //shader wrap
+	if(!inBatchMode){
+		ofxfs2_nvgEndFrame(ctx);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//ofEnableAlphaBlending();
+		#if defined(NANOVG_GL3_IMPLEMENTATION) || defined(NANOVG_GLES2_IMPLEMENTATION)
+		nullShader.end(); //shader wrap
+		#endif
+	}
 }
 
 
@@ -603,6 +625,8 @@ ofRectangle ofxFontStash2::getTextBounds(const vector<StyledLine> &lines, float 
 			}
 		}
 	}
+	ret.x += x;
+	ret.y += y;
 	return ret;
 }
 

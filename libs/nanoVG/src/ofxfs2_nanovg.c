@@ -24,8 +24,11 @@
 #include "ofxfs2_nanovg.h"
 #define FONTSTASH_IMPLEMENTATION
 #include "ofxfs2_fontstash.h"
+#undef FONTSTASH_IMPLEMENTATION
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#undef STB_IMAGE_IMPLEMENTATION
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4100)  // unreferenced formal parameter

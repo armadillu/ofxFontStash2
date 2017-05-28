@@ -146,7 +146,10 @@ public:
 	
 	/// with this option one can scale all fonts up/down by a factor
 	float fontScale;
-	
+
+	void beginBatch(); 	//if you want to pack a few draw calls togehter, you will get better performance
+	void endBatch(); 	//by wrapping them around beginBath() & endBatch()
+
 protected:
 
 	float lineHeightMultiplier;
@@ -179,7 +182,8 @@ protected:
 	vector<TextBlock> splitWords( const vector<StyledText> & blocks);
 
 	ofShader nullShader;
-	bool drawingFS;
+	bool inBatchMode = false;
+
 
 	void applyOFMatrix();
 	void begin();
