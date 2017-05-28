@@ -205,7 +205,7 @@ void ofxFontStash2::drawColumnNVG(const string& text,
 		case OF_ALIGN_HORZ_RIGHT: hAlign = NVG_ALIGN_RIGHT; break;
 	}
 	ofxfs2_nvgTextAlign(ctx, style.alignmentV | hAlign);
-	ofxfs2_nvgTextLineHeight(ctx, lineHeightMultiplier);
+	ofxfs2_nvgTextLineHeight(ctx, style.lineHeightMult * lineHeightMultiplier);
 	ofxfs2_nvgTextBox(ctx, x, y, width, text.c_str(), NULL);
 	ofxfs2_nvgTextLineHeight(ctx, 1.0);
 	end();
@@ -223,7 +223,7 @@ ofRectangle ofxFontStash2::getTextBoundsNVG(const string& text,
 		case OF_ALIGN_HORZ_RIGHT: hAlign = NVG_ALIGN_RIGHT; break;
 	}
 	ofxfs2_nvgTextAlign(ctx, style.alignmentV | hAlign);
-	ofxfs2_nvgTextLineHeight(ctx, lineHeightMultiplier);
+	ofxfs2_nvgTextLineHeight(ctx, style.lineHeightMult * lineHeightMultiplier);
 	float bounds[4];
 	ofxfs2_nvgTextBoxBounds(ctx, x, y, width, text.c_str(), NULL, bounds);
 	ofxfs2_nvgTextLineHeight(ctx, 1.0);
