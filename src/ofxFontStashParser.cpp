@@ -38,7 +38,11 @@ ofxFontStashParser::parseText(const string& text, const map<string, ofxFontStash
 	//
 	//the "monkey" is totally lost, but if we found it, then we wouldn't need to be adding extra spaces
 
-	if(true){ //TODO!
+	//hansi:
+	// welp, it seems to parse correctly as is,
+	// ie spaces appear to be added correctly without postprocessing.
+	// disabling this for now. only the debug drawing is off by a few pixels when different lines have different heights. 
+	if(false){ //TODO!
 		vector<int> spacesToAdd;
 		if (parsedText.size() > 1){
 			for(int i = 0; i < parsedText.size() -1; i++){
