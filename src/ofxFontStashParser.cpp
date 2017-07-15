@@ -72,26 +72,29 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 		// handle nodes
 		if( node.type() == node_element ){
 
+			// local style for this node, so we don't mess with our siblings' styles
+			ofxFontStashStyle nodeStyle = style;
+			
 			// <style></style>
 			if( strcmp( node.name(), "style") == 0){
 				xml_attribute attr;
 				if((attr = node.attribute("id"))){
 					auto it = styleIDs.find(attr.value());
 					if( it != styleIDs.end() ){
-						style = it->second;
+						nodeStyle = it->second;
 					}
 				}
 				
 				if((attr = node.attribute("font"))){
-					style.fontID = attr.value();
+					nodeStyle.fontID = attr.value();
 				}
 				
 				if((attr = node.attribute("size"))){
-					style.fontSize = ofToFloat(attr.value());
+					nodeStyle.fontSize = ofToFloat(attr.value());
 				}
 				
 				if((attr = node.attribute("blur"))){
-					style.blur = ofToFloat(attr.value());
+					nodeStyle.blur = ofToFloat(attr.value());
 				}
 				
 				if((attr = node.attribute("color"))){
@@ -106,13 +109,13 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 							alpha =  ofHexToInt("0000" + a); //add 255 alpha if not specified
 						}
 						int hexInt = ofHexToInt(hex);
-						style.color = ofColor::fromHex(hexInt, alpha);
+						nodeStyle.color = ofColor::fromHex(hexInt, alpha);
 					}
 				}
 				
 			}
 			
-			recursiveParse(node, style, styleIDs,parsedText);
+			recursiveParse(node, nodeStyle, styleIDs,parsedText);
 		}
 		
 		// handle whitespace
