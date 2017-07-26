@@ -274,7 +274,7 @@ ofRectangle ofxFontStash2::drawAndLayout(vector<StyledText> &blocks,
 										 ofAlignHorz align, bool debug){
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
-	return drawLines(layoutLines(blocks, width, align, debug), x, y, align, debug);
+	return drawLines(layoutLines(blocks, width, align, 0, debug), x, y, align, debug);
 };
 
 
@@ -530,7 +530,7 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 		}
 		TS_STOP("draw line Heights");
 	}
-
+	
 	float yy = y; //we will increment yy as we draw lines
 	ofxFontStashStyle drawStyle;
 	drawStyle.fontSize = -1;
