@@ -209,7 +209,7 @@ ofRectangle ofxFontStash2::drawColumn(const string& text,
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
 	vector<StyledText> blocks;
-	blocks.push_back((StyledText){text, style});
+	blocks.push_back(StyledText({text, style}));
 	return drawAndLayout(blocks, x, y, targetWidth, horAlign, debug);
 }
 
@@ -524,7 +524,7 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 		for( int i = 0; i < lines.size(); i++){
 			ofSetColor(255,45);
 			ofDrawLine(offset.x - 10, offset.y + yy , offset.x + lines[i].lineW , offset.y + yy );
-			if(i < lines.size()){
+			if(i + 1 < lines.size()){
 				yy += lines[i+1].lineH;
 			}
 		}
@@ -575,7 +575,7 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 			if(debug){ //draw rects on top of each block type
 				ColoredRect cr;
 				switch(lines[i].elements[j].content.type){
-					case WORD: cr.color = ofColor(255, 0, 0, 30); break;
+					case BLOCK_WORD: cr.color = ofColor(255, 0, 0, 30); break;
 					case SEPARATOR: cr.color = ofColor(0, 0, 255, 60); break;
 					case SEPARATOR_INVISIBLE: cr.color = ofColor(0, 255, 255, 30); break;
 				}
@@ -615,7 +615,7 @@ ofRectangle ofxFontStash2::getTextBounds(const vector<StyledLine> &lines, float 
 	OFX_FONSTASH2_CHECK_RET
 	for(auto & l : lines){
 		for(auto & e : l.elements){
-			if(e.content.type == WORD){
+			if(e.content.type == BLOCK_WORD){
 				ret = ret.getUnion(e.area);
 			}
 		}
@@ -667,7 +667,7 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 			if(isSpace || isPunct){
 
 				if(currentWord.size()){
-					TextBlock word = TextBlock(WORD, currentWord, block.style);
+					TextBlock word = TextBlock(BLOCK_WORD, currentWord, block.style);
 					currentWord.clear();
 					wordBlocks.push_back(word);
 				}
@@ -681,7 +681,7 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 			}
 		}
 		if(currentWord.size()){ //add last word
-			TextBlock word = TextBlock(WORD, currentWord, block.style);
+			TextBlock word = TextBlock(BLOCK_WORD, currentWord, block.style);
 			currentWord.clear();
 			wordBlocks.push_back(word);
 		}

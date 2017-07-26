@@ -66,7 +66,7 @@ struct StyledText{
 // - SEPARATOR_INVISIBLE: just as separator, but there's no need to ever draw them (space, new line)
 // The enum values are chosen so that you can check if it's_any kind of separator with (type & SEPARATOR) != 0
 enum TextBlockType{
-	WORD = 1,
+	BLOCK_WORD = 1,
 	SEPARATOR = 2,
 	SEPARATOR_INVISIBLE = 3
 };

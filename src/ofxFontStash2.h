@@ -156,7 +156,7 @@ protected:
 
 	string toString(TextBlockType t){
 		switch(t){
-			case WORD: return "WORD";
+			case BLOCK_WORD: return "BLOCK_WORD";
 			case SEPARATOR: return "SEPARATOR";
 			case SEPARATOR_INVISIBLE: return "SEPARATOR_INVISIBLE";
 			default: return "UNKNOWN";
