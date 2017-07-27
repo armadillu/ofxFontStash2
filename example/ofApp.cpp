@@ -266,6 +266,7 @@ void ofApp::testDrawTabs(float x, float y){
 	style.color = ofColor::white;
 
 	fonts.drawColumn(code, style, x, y, ofGetWidth(), OF_ALIGN_HORZ_LEFT, debug);
+	drawInsertionPoint(x,y,100);
 }
 
 float ofApp::testDiyFormattedLayout(float x, float y){
@@ -277,10 +278,15 @@ float ofApp::testDiyFormattedLayout(float x, float y){
 
 	//we only want to draw whatever fits in 2 lines
 	int numLines = 2;
+	TS_START_NIF("layout formatted");
 	vector<StyledLine> laidOutLines = fonts.layoutLines(parsed, colW, align, numLines);
+	TS_STOP_NIF("layout formatted");
+	TS_START_NIF("draw formatted");
 	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
+	TS_STOP_NIF("draw formatted");
 	ofSetColor(255,16);
 	ofDrawRectangle(bbox);
+	drawInsertionPoint(x,y,100);
 	return bbox.height;
 }
 
@@ -296,6 +302,7 @@ float ofApp::testDiyPlainLayout(float x, float y){
 	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
 	ofSetColor(255,32);
 	ofDrawRectangle(bbox);
+	drawInsertionPoint(x,y,100);
 	return bbox.height;
 }
 
