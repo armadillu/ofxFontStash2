@@ -1,5 +1,5 @@
 # ofxFontStash2
-
+[![Build Status](https://travis-ci.org/armadillu/ofxFontStash2.svg?branch=master)](https://travis-ci.org/armadillu/ofxFontStash2)
 ![](https://farm5.staticflickr.com/4186/34677341675_def1bee422_z_d.jpg)
 
 ofxFontStash2 allows you to draw text. It can draw individual lines of text, or longer texts constrained to a column (to create paragraph, automatically flowing the text for you). 
