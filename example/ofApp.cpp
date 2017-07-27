@@ -11,6 +11,8 @@ void ofApp::setup(){
 
 	RUI_SETUP();
 	RUI_SHARE_PARAM(debug);
+	RUI_SHARE_PARAM(columnVariationSpeed, 0 , 2);
+
 
 	bool debugNanoVG = true;
 	fonts.setup(debugNanoVG);
@@ -64,63 +66,62 @@ void ofApp::draw(){
 
 	float xx = 40;
 	float yy = 40;
-	int testID = 0;
 	ofScale(0.9, 0.9);
 	TSGL_START("d");
 
-	string tMsg = ofToString(testID) + " draw";
+	string tMsg = ofToString(0) + " draw";
 	TS_START(tMsg);
-	drawID(testID, xx, yy); testID++;
+	drawID(0, xx, yy);
 	testDraw(xx,yy);
 	TS_STOP(tMsg);
 
 	yy += 100;
-	tMsg = ofToString(testID) + " testDrawColumn";
+	tMsg = ofToString(1) + " testDrawColumn";
 	TS_START(tMsg);
-	drawID(testID, xx, yy); testID++;
+	drawID(1, xx, yy); 
 	yy += testDrawColumn(xx,yy);
 	TS_STOP(tMsg);
 
 	yy += 20;
-	tMsg = ofToString(testID) + " testDrawColumnNVG";
+	tMsg = ofToString(2) + " testDrawColumnNVG";
 	TS_START(tMsg);
-	drawID(testID, xx, yy); testID++;
+	drawID(2, xx, yy); 
 	yy += testDrawColumnNVG(xx,yy);
 	TS_STOP(tMsg);
 
 	yy += 20;
-	tMsg = ofToString(testID) + " testDrawTabs";
+	tMsg = ofToString(3) + " testDrawTabs";
 	TS_START(tMsg);
-	drawID(testID, xx, yy); testID++;
+	drawID(3, xx, yy);
 	testDrawTabs(xx, yy);
 	TS_STOP(tMsg);
 
 	yy = 40;
 	xx = 600;
-	tMsg = ofToString(testID) + " testDrawFormatted";
+	tMsg = ofToString(4) + " testDrawFormatted";
 	TS_START(tMsg);
-	drawID(testID, xx, yy); testID++;
+	drawID(4, xx, yy); 
 	testDrawFormatted(xx, yy);
 	TS_STOP(tMsg);
 
 	yy += 60;
-	tMsg = ofToString(testID) + " testDrawFormattedColumn";
+	tMsg = ofToString(5) + " testDrawFormattedColumn";
 	TS_START(tMsg);
-	drawID(testID, xx, yy); testID++;
+	drawID(5, xx, yy); 
 	yy += testDrawFormattedColumn(xx, yy);
 	TS_STOP(tMsg);
 
 	yy += 60;
-	tMsg = ofToString(testID) + " testDiyPlainLayout";
+	tMsg = ofToString(6) + " testDiyPlainLayout";
 	TS_START(tMsg);
-	drawID(testID, xx, yy); testID++;
+	drawID(6, xx, yy); 
 	yy += testDiyPlainLayout(xx, yy);
 	TS_STOP(tMsg);
 
 	yy += 60;
-	tMsg = ofToString(testID) + " testDiyFormattedLayout";
+	tMsg = ofToString(7) + " testDiyFormattedLayout";
 	TS_START(tMsg);
-	drawID(testID, xx, yy); testID++;
+	drawID(7, xx, yy); 
 	yy += testDiyFormattedLayout(xx, yy);
 	TS_STOP(tMsg);
 
@@ -191,9 +192,9 @@ float ofApp::testDrawColumn(float x, float y){
 	style.fontSize = 45;
 	ofAlignHorz align = getCurrentAlignment();
 
-	string text = "testDrawColumn(): methods with a long string and no line breaks whatsoever. Also, adding some fancy unicode バナナのようなサル. And back to normal...";
+	string text = "testDrawColumn(): methods with a long string and possibly line breaks with '\\n'.\n\nAlso, adding some fancy unicode バナナのようなサル. And back to normal...";
 	drawInsertionPoint(x,y,100);
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.39 + 4)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(columnVariationSpeed * ofGetElapsedTimef() * 0.39 + 4)) * 200;
 	ofSetColor(255,33);
 	ofRectangle bbox = fonts.drawColumn(text, style, x, y, colW, align, debug);
 	ofDrawLine(x , y - 15, x, y + bbox.height);
@@ -212,7 +213,7 @@ float ofApp::testDrawColumnNVG(float x, float y){
 
 	string text = "testDrawColumnNVG(): El català és una llengua de transició entre les llengües iberoromàniques i les llengües gal·loromàniques, encara que antigament fos molt pròxima a l'occità, amb qui comparteix origen i grup: l'occitanoromànic.";
 	drawInsertionPoint(x,y,100);
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.24 - 1)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(columnVariationSpeed * ofGetElapsedTimef() * 0.24 - 1)) * 200;
 	ofSetColor(255,33);
 	fonts.drawColumnNVG(text, style, x, y, colW, align);
 	ofRectangle bounds = fonts.getTextBoundsNVG(text, style, x, y, colW, align);
@@ -236,7 +237,7 @@ float ofApp::testDrawFormattedColumn(float x, float y){
 	string styledText = "<style id='style1'>testDrawFormattedColumn(): This is style1 style.</style> <style id='style2'>And this is Style2, adjusted to the column width.</style>";
 	styledText += " <style id='style3'>And this is stlye3, which has a bigger font size.</style>";
 	drawInsertionPoint(x,y,100);
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.33)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(columnVariationSpeed * ofGetElapsedTimef() * 0.33)) * 200;
 	ofSetColor(255,33);
 	float boxH = 300;
 	auto align = getCurrentAlignment();
@@ -270,7 +271,7 @@ void ofApp::testDrawTabs(float x, float y){
 float ofApp::testDiyFormattedLayout(float x, float y){
 
 	string myStyledText = "<style id='style1'>testDiyFormattedLayout(): hello</style><style id='style2'>banana</style><style id='style3'>monkey</style>";
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.45 + 2.3)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(columnVariationSpeed * ofGetElapsedTimef() * 0.45 + 2.3)) * 200;
 	auto align = getCurrentAlignment();
 	vector<StyledText> parsed = fonts.parseStyledText(myStyledText);
 
@@ -288,7 +289,7 @@ float ofApp::testDiyPlainLayout(float x, float y){
 
 	ofxFontStashStyle style = fonts.getStyles()["style1"];
 	string text = "testDiyPlainLayout(): L'italiano è una tra le ventiquattro lingue ufficiali dell'Unione europea ed è lingua ufficiale dell'Italia, di San Marino, della Svizzera, della Città del Vaticano e del Sovrano Militare Ordine di Malta.";
-	float colW = 300 + (0.5 + 0.5 * sin(ofGetElapsedTimef() * 0.27)) * 200;
+	float colW = 300 + (0.5 + 0.5 * sin(columnVariationSpeed * ofGetElapsedTimef() * 0.27)) * 200;
 	auto align = getCurrentAlignment();
 	int maxLines = 3;
 	vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, colW, align, maxLines, debug);

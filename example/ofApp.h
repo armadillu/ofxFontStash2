@@ -17,7 +17,7 @@ class ofApp : public ofBaseApp{
 
 	public:
 		void setup();
-	void update(){};
+		void update(){};
 		void draw();
 
 	void testDraw(float x, float y);
@@ -46,4 +46,5 @@ class ofApp : public ofBaseApp{
 	void drawID(int ID, int x, int y);
 
 	ofFbo fbo;
+	float columnVariationSpeed = 1;
 };
