@@ -69,28 +69,28 @@ void ofApp::draw(){
 	ofScale(0.9, 0.9);
 	TSGL_START("d");
 
-	string tMsg = ofToString(0) + " draw";
+	string tMsg = ofToString(0) + " testDraw()";
 	TS_START(tMsg);
 	drawID(0, xx, yy);
 	testDraw(xx,yy);
 	TS_STOP(tMsg);
 
 	yy += 100;
-	tMsg = ofToString(1) + " testDrawColumn";
+	tMsg = ofToString(1) + " testDrawColumn()";
 	TS_START(tMsg);
 	drawID(1, xx, yy); 
 	yy += testDrawColumn(xx,yy);
 	TS_STOP(tMsg);
 
 	yy += 20;
-	tMsg = ofToString(2) + " testDrawColumnNVG";
+	tMsg = ofToString(2) + " testDrawColumnNVG()";
 	TS_START(tMsg);
 	drawID(2, xx, yy); 
 	yy += testDrawColumnNVG(xx,yy);
 	TS_STOP(tMsg);
 
 	yy += 20;
-	tMsg = ofToString(3) + " testDrawTabs";
+	tMsg = ofToString(3) + " testDrawTabs()";
 	TS_START(tMsg);
 	drawID(3, xx, yy);
 	testDrawTabs(xx, yy);
@@ -98,28 +98,28 @@ void ofApp::draw(){
 
 	yy = 40;
 	xx = 600;
-	tMsg = ofToString(4) + " testDrawFormatted";
+	tMsg = ofToString(4) + " testDrawFormatted()";
 	TS_START(tMsg);
 	drawID(4, xx, yy); 
 	testDrawFormatted(xx, yy);
 	TS_STOP(tMsg);
 
 	yy += 60;
-	tMsg = ofToString(5) + " testDrawFormattedColumn";
+	tMsg = ofToString(5) + " testDrawFormattedColumn()";
 	TS_START(tMsg);
 	drawID(5, xx, yy); 
 	yy += testDrawFormattedColumn(xx, yy);
 	TS_STOP(tMsg);
 
 	yy += 60;
-	tMsg = ofToString(6) + " testDiyPlainLayout";
+	tMsg = ofToString(6) + " testDiyPlainLayout()";
 	TS_START(tMsg);
 	drawID(6, xx, yy); 
 	yy += testDiyPlainLayout(xx, yy);
 	TS_STOP(tMsg);
 
 	yy += 60;
-	tMsg = ofToString(7) + " testDiyFormattedLayout";
+	tMsg = ofToString(7) + " testDiyFormattedLayout()";
 	TS_START(tMsg);
 	drawID(7, xx, yy); 
 	yy += testDiyFormattedLayout(xx, yy);
