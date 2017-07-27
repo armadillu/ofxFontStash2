@@ -227,14 +227,14 @@ float ofApp::testDrawColumnNVG(float x, float y){
 
 void ofApp::testDrawFormatted(float x, float y){
 
-	string styledText = "<style id='style1'>testDrawFormatted(): this is style1.</style><style id='style2'>And this is Style 2</style>";
+	string styledText = "<style id='style1'>testDrawFormatted(): this is style1.</style><style id='style2'>And this is Style </style>";
 	float w = fonts.drawFormatted(styledText, x, y);
 	drawInsertionPoint(x,y,w);
 }
 
 
 float ofApp::testDrawFormattedColumn(float x, float y){
-	string styledText = "<style id='style1'>testDrawFormattedColumn(): This is style1 style.</style> <style id='style2'>And this is Style2, adjusted to the column width.</style>";
+	string styledText = "<style id='style1'>testDrawFormattedColumn(): This is style1 style.</style> <style id='style2'>And this is Style2, adjusted to the column width and with a line break \"[br/]\" <br/>in the middle of the line.</style>";
 	styledText += " <style id='style3'>And this is stlye3, which has a bigger font size.</style>";
 	drawInsertionPoint(x,y,100);
 	float colW = 300 + (0.5 + 0.5 * sin(columnVariationSpeed * ofGetElapsedTimef() * 0.33)) * 200;
