@@ -69,60 +69,70 @@ void ofApp::draw(){
 	ofScale(0.9, 0.9);
 	TSGL_START("d");
 
-	string tMsg = ofToString(0) + " testDraw()";
+	int id = 0;
+	string tMsg = ofToString(id) + " testDraw()";
 	TS_START(tMsg);
-	drawID(0, xx, yy);
+	drawID(id, xx, yy);
 	testDraw(xx,yy);
 	TS_STOP(tMsg);
+	yy += 100; id++;
 
-	yy += 100;
-	tMsg = ofToString(1) + " testDrawColumn()";
+	tMsg = ofToString(id) + " testDrawBatch()";
 	TS_START(tMsg);
-	drawID(1, xx, yy); 
+	drawID(id, xx, yy);
+	testDrawBatch(xx,yy);
+	TS_STOP(tMsg);
+	yy += 45; id++;
+
+	tMsg = ofToString(id) + " testDrawColumn()";
+	TS_START(tMsg);
+	drawID(id, xx, yy);
 	yy += testDrawColumn(xx,yy);
 	TS_STOP(tMsg);
+	yy += 20; id++;
 
-	yy += 20;
-	tMsg = ofToString(2) + " testDrawColumnNVG()";
+	tMsg = ofToString(id) + " testDrawColumnNVG()";
 	TS_START(tMsg);
-	drawID(2, xx, yy); 
+	drawID(id, xx, yy);
 	yy += testDrawColumnNVG(xx,yy);
 	TS_STOP(tMsg);
+	yy += 20; id++;
 
-	yy += 20;
-	tMsg = ofToString(3) + " testDrawTabs()";
+	tMsg = ofToString(id) + " testDrawTabs()";
 	TS_START(tMsg);
-	drawID(3, xx, yy);
+	drawID(id, xx, yy);
 	testDrawTabs(xx, yy);
 	TS_STOP(tMsg);
 
+	id++;
 	yy = 40;
 	xx = 600;
-	tMsg = ofToString(4) + " testDrawFormatted()";
+	tMsg = ofToString(id) + " testDrawFormatted()";
 	TS_START(tMsg);
-	drawID(4, xx, yy); 
+	drawID(id, xx, yy);
 	testDrawFormatted(xx, yy);
 	TS_STOP(tMsg);
+	yy += 60; id++;
+
+	tMsg = ofToString(id) + " testDrawFormattedColumn()";
+	TS_START(tMsg);
+	drawID(id, xx, yy);
+	yy += testDrawFormattedColumn(xx, yy); id++;
+	TS_STOP(tMsg);
+
 
 	yy += 60;
-	tMsg = ofToString(5) + " testDrawFormattedColumn()";
+	tMsg = ofToString(id) + " testDiyPlainLayout()";
 	TS_START(tMsg);
-	drawID(5, xx, yy); 
-	yy += testDrawFormattedColumn(xx, yy);
+	drawID(id, xx, yy);
+	yy += testDiyPlainLayout(xx, yy); id++;
 	TS_STOP(tMsg);
 
 	yy += 60;
-	tMsg = ofToString(6) + " testDiyPlainLayout()";
+	tMsg = ofToString(id) + " testDiyFormattedLayout()";
 	TS_START(tMsg);
-	drawID(6, xx, yy); 
-	yy += testDiyPlainLayout(xx, yy);
-	TS_STOP(tMsg);
-
-	yy += 60;
-	tMsg = ofToString(7) + " testDiyFormattedLayout()";
-	TS_START(tMsg);
-	drawID(7, xx, yy); 
-	yy += testDiyFormattedLayout(xx, yy);
+	drawID(id, xx, yy);
+	yy += testDiyFormattedLayout(xx, yy); id++;
 	TS_STOP(tMsg);
 
 	TSGL_STOP("d");
@@ -181,6 +191,24 @@ void ofApp::testDraw(float x, float y){
 		ofDrawRectangle(bounds);
 		drawInsertionPoint(x,y,100);
 		fonts.draw(text, style, x, y);
+	}
+}
+
+void ofApp::testDrawBatch(float x, float y){
+
+	ofxFontStashStyle style;
+	style.fontID = "Arial";
+	style.fontSize = 22;
+	{
+
+		float dx = 0;
+		fonts.beginBatch();
+		for(int i = 0; i < 10; i++){
+			string text = "t" + ofToString(i) + ",";
+			dx += fonts.draw(text, style, x + dx, y);
+		}
+		fonts.endBatch();
+		drawInsertionPoint(x,y,100);
 	}
 }
 

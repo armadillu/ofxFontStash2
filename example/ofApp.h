@@ -21,6 +21,7 @@ class ofApp : public ofBaseApp{
 		void draw();
 
 	void testDraw(float x, float y);
+	void testDrawBatch(float x, float y);
 
 	float testDrawColumn(float x, float y);
 	float testDrawColumnNVG(float x, float y);

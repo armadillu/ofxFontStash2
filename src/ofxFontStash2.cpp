@@ -178,11 +178,17 @@ void ofxFontStash2::end(){
 float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, float x, float y){
 	float ret = 0;
 	OFX_FONSTASH2_CHECK_RET
-	begin();
-		ofRectangle bounds = getTextBounds(text, style, x, y);
-		//applyStyle(style); //getTextBounds already applies style
-		float dx = ofxfs2_nvgText(ctx, x, y, text.c_str(), NULL); //TODO dx is bugged? why?
-	end();
+	if(!inBatchMode){
+		begin();
+	}
+
+	ofRectangle bounds = getTextBounds(text, style, x, y);
+	//applyStyle(style); //getTextBounds already applies style
+	float dx = ofxfs2_nvgText(ctx, x, y, text.c_str(), NULL); //TODO dx is bugged? why?
+
+	if(!inBatchMode){
+		end();
+	}
 	return bounds.width;
 }
 
