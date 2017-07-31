@@ -24,7 +24,7 @@ ofxFontStashParser::parseText(const string& text, const map<string, ofxFontStash
 		recursiveParse(doc, baseStyle, styleIDs, parsedText);
 	}
 	else{
-		ofLogError()
+		ofLogError("ofxFontStashParser")
 			<< "ofxFontStash: xml parsing error in " << text << ": " << endl
 			<< result.description() << endl;
 	}
