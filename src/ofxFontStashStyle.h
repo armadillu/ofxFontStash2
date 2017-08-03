@@ -20,6 +20,7 @@ struct ofxFontStashStyle{
 	int blur = 0;
 	NVGalign alignmentV = (NVGalign)(NVG_ALIGN_BASELINE); //NOTE H alignment is ignored!
 	float lineHeightMult = 1.0;
+	float spacing = 0;
 
 	ofxFontStashStyle(string fontID, float fontSize, const ofColor & color){
 		valid = true;
@@ -40,14 +41,22 @@ struct ofxFontStashStyle{
 
 	bool operator== (const ofxFontStashStyle &b){
 		return (fontID == b.fontID &&
-				fontSize == b.fontSize &&
+				fabs(fontSize - b.fontSize) < 0.001f &&
 				blur == b.blur &&
 				alignmentV == b.alignmentV &&
 				color == b.color &&
-				fabs(lineHeightMult - b.lineHeightMult) < 0.001f
+				fabs(lineHeightMult - b.lineHeightMult) < 0.001f &&
+				fabs(spacing - b.spacing) < 0.001f
 				);
 	}
 
+	string toString(){
+		stringstream ss;
+		ss << "fontID:" << fontID << " fontSize:" << fontSize << " blur:" << blur << " alignmentV: " << alignmentV
+		<< " color: " << color << " lineHeightMult: " << lineHeightMult << " spacing: " << spacing;
+		return ss.str();
+	}
+	
 	bool operator!= (const ofxFontStashStyle &b){
 		return !(*this == b);
 	}

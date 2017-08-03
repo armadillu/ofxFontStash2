@@ -13,7 +13,6 @@
 #define FONTSTASH_IMPLEMENTATION
 #include "ofxfs2_nanovg.h"
 #include "ofxfs2_nanovg_gl.h"
-#include "ofxfs2_nanovg_gl_utils.h"
 #undef FONTSTASH_IMPLEMENTATION
 
 #if !defined(NANOVG_GL3_IMPLEMENTATION) && !defined(NANOVG_GLES2_IMPLEMENTATION) && !defined(NANOVG_GL2_IMPLEMENTATION)
@@ -72,11 +71,11 @@ void ofxFontStash2::setup(bool debug){
 	bool stencilStrokes = false;
 
 	#ifdef NANOVG_GL3_IMPLEMENTATION
-	ctx = ofxfs2_nvgCreateGL23(NVG_ANTIALIAS | (stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
+	ctx = ofxfs2_nvgCreateGL23(/*NVG_ANTIALIAS | */(stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
 	#elif NANOVG_GL2_IMPLEMENTATION
-	ctx = ofxfs2_nvgCreateGL22(NVG_ANTIALIAS | (stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
+	ctx = ofxfs2_nvgCreateGL22(/*NVG_ANTIALIAS | */(stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
 	#elif defined NANOVG_GLES2_IMPLEMENTATION
-	ctx = ofxfs2_nvgCreateGL2ES2(NVG_ANTIALIAS | (stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
+	ctx = ofxfs2_nvgCreateGL2ES2(/*NVG_ANTIALIAS | */(stencilStrokes?NVG_STENCIL_STROKES:0) | (debug?NVG_DEBUG:0));
 	#endif
 
 	if (!ctx) {
@@ -91,6 +90,7 @@ bool ofxFontStash2::addFont(const string& fontID, const string& fontFile){
 	bool ret = false;
 	OFX_FONSTASH2_CHECK_RET
 
+	ofLogNotice("ofxFontStash2") << "Adding font with ID '" << fontID << "' from file '" << fontFile << "'";
 	int id = ofxfs2_nvgCreateFont(ctx, fontID.c_str(), ofToDataPath(fontFile).c_str());
 	if(id != FONS_INVALID){
 		fontIDs[fontID] = id;
@@ -108,6 +108,14 @@ bool ofxFontStash2::addFont(const string& fontID, const string& fontFile){
 bool ofxFontStash2::isFontLoaded(const string& fontID){
 	auto iter = fontIDs.find( fontID );
 	return iter != fontIDs.end();
+}
+
+vector<string> ofxFontStash2::getFontIDs(){
+	vector<string> ids;
+	for(auto id : fontIDs){
+		ids.push_back(id.first);
+	}
+	return ids;
 }
 
 
@@ -182,14 +190,15 @@ float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, fl
 		begin();
 	}
 
-	ofRectangle bounds = getTextBounds(text, style, x, y);
-	//applyStyle(style); //getTextBounds already applies style
-	float dx = ofxfs2_nvgText(ctx, x, y, text.c_str(), NULL); //TODO dx is bugged? why?
+	//ofRectangle bounds = getTextBounds(text, style, x, y);
+	applyStyle(style); //getTextBounds already applies style
+	float newX = ofxfs2_nvgText(ctx, x, y, text.c_str(), NULL); //TODO dx is bugged? why?
 
 	if(!inBatchMode){
 		end();
 	}
-	return bounds.width;
+	return newX;
+	//return bounds.width;
 }
 
 
@@ -706,7 +715,7 @@ ofRectangle ofxFontStash2::getTextBounds( const string &text, const ofxFontStash
 	// here we use the "text advance" instead of the width of the rectangle,
 	// because this includes spaces at the end correctly (the text bounds "x" and "x " are the same,
 	// the text advance isn't). 
-	return ofRectangle(bounds[0],bounds[1],advance,bounds[3]-bounds[1]);
+	return ofRectangle(bounds[0], bounds[1], advance, bounds[3]-bounds[1]);
 }
 
 
@@ -757,7 +766,9 @@ bool ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
 		ofxfs2_nvgFontSize(ctx, style.fontSize * fontScale);
 		ofxfs2_nvgFillColor(ctx, toFScolor(style.color));
 		ofxfs2_nvgTextAlign(ctx, style.alignmentV);
+		ofxfs2_nvgTextLetterSpacing(ctx, style.spacing);
 		ofxfs2_nvgFontBlur(ctx, style.blur);
+		ofxfs2_nvgTextLineHeight(ctx, style.lineHeightMult); //??? we mostly handle this at ofxFontStash2 level
 		return true;
 	}
 	return false;
@@ -795,7 +806,11 @@ void ofxFontStash2::applyOFMatrix(){ //from ofxNanoVG
 	ofVec2f skew(ofMatrix(0, 1), ofMatrix(1, 0));
 
 	// handle OF style vFlipped inside FBO
+	#if OF_VERSION_MINOR <= 9
+	if (ofGetCurrentRenderer()->getCurrentOrientationMatrix()._mat[1][1] == 1) {
+	#else
 	if (ofGetCurrentRenderer()->getCurrentOrientationMatrix()[1][1] == 1) {
+	#endif
 		translate.y = (ofGetViewportHeight() - translate.y);
 		scale.y *= -1;
 		skew.y *= -1;

@@ -27,7 +27,7 @@
 #undef FONTSTASH_IMPLEMENTATION
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "ofxfs2_stb_image.h"
 #undef STB_IMAGE_IMPLEMENTATION
 
 #ifdef _MSC_VER
@@ -2489,7 +2489,7 @@ float ofxfs2_nvgText(NVGcontext* ctx, float x, float y, const char* string, cons
 
 	ofxfs2_nvg__renderText(ctx, verts, nverts);
 
-	return iter.x;
+	return iter.x / scale;
 }
 
 void ofxfs2_nvgTextBox(NVGcontext* ctx, float x, float y, float breakRowWidth, const char* string, const char* end)

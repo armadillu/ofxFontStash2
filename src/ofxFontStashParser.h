@@ -21,6 +21,8 @@ public:
 
 	static vector<StyledText> parseText(const string& text, const map<string, ofxFontStashStyle> & styleIDs);
 
+	static ofColor colorFromHex(const string & hex);
+
 protected:
 
 	static void recursiveParse(pugi::xml_node & node,

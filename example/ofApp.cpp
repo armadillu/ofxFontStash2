@@ -13,7 +13,6 @@ void ofApp::setup(){
 	RUI_SHARE_PARAM(debug);
 	RUI_SHARE_PARAM(columnVariationSpeed, 0 , 2);
 
-
 	bool debugNanoVG = true;
 	fonts.setup(debugNanoVG);
 
@@ -199,13 +198,12 @@ void ofApp::testDrawBatch(float x, float y){
 	ofxFontStashStyle style;
 	style.fontID = "Arial";
 	style.fontSize = 22;
+	float xx = x;
 	{
-
-		float dx = 0;
 		fonts.beginBatch();
 		for(int i = 0; i < 10; i++){
 			string text = "t" + ofToString(i) + ",";
-			dx += fonts.draw(text, style, x + dx, y);
+			xx = fonts.draw(text, style, xx, y); //returns x for next char
 		}
 		fonts.endBatch();
 		drawInsertionPoint(x,y,100);
@@ -218,6 +216,7 @@ float ofApp::testDrawColumn(float x, float y){
 	ofxFontStashStyle style;
 	style.fontID = "Arial";
 	style.fontSize = 45;
+	style.spacing = -0.5; //tighter letterspacing
 	ofAlignHorz align = getCurrentAlignment();
 
 	string text = "testDrawColumn(): methods with a long string and possibly line breaks with '\\n'.\n\nAlso, adding some fancy unicode バナナのようなサル. And back to normal...";
@@ -293,7 +292,10 @@ void ofApp::testDrawTabs(float x, float y){
 	style.fontSize = 16;
 	style.color = ofColor::white;
 
-	fonts.drawColumn(code, style, x, y, ofGetWidth(), OF_ALIGN_HORZ_LEFT, debug);
+	ofRectangle r = fonts.drawColumn(code, style, x, y, ofGetWidth(), OF_ALIGN_HORZ_LEFT, debug);
+	ofSetColor(255,20);
+	ofDrawRectangle(r);
+	ofSetColor(255);
 	drawInsertionPoint(x,y,100);
 }
 

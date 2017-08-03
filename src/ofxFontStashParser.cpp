@@ -96,20 +96,8 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 				
 				if((attr = node.attribute("color"))){
 					string hex = attr.value();
-					int slen = hex.length();
-					if(slen > 1){
-						hex = hex.substr(1, slen);
-						int alpha = 255;
-						if(hex.length() == 8){
-							string a = hex.substr(6,2);
-							hex = hex.substr(0,6);
-							alpha =  ofHexToInt("0000" + a); //add 255 alpha if not specified
-						}
-						int hexInt = ofHexToInt(hex);
-						style.color = ofColor::fromHex(hexInt, alpha);
-					}
+					style.color = colorFromHex(hex);
 				}
-				
 			}
 			// not to go full html, but <br/> is quite handy (and \n is ignored by
 			// the current parser settings)
@@ -129,4 +117,25 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 			parsedText.push_back(st);
 		}
 	}
+}
+
+ofColor ofxFontStashParser::colorFromHex(const string & hexS){
+
+	ofColor retColor;
+	string hex = hexS;
+
+	int slen = hex.length();
+	if(slen > 1){
+		hex = hex.substr(1, slen);
+		int alpha = 255;
+		if(hex.length() == 8){ //hex string has alpha!
+			string a = hex.substr(6,2);
+			hex = hex.substr(0,6);
+			alpha = ofHexToInt("0000" + a); //add 255 alpha if not specified
+		}
+		int hexInt = ofHexToInt(hex);
+		return ofColor::fromHex(hexInt, alpha);
+	}
+
+	return retColor;
 }

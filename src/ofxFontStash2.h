@@ -19,7 +19,6 @@ class ofxFontStash2{
 
 public:
 
-
 	ofxFontStash2();
 	~ofxFontStash2();
 
@@ -28,6 +27,7 @@ public:
 	/// load fonts
 	bool addFont(const string& fontID, const string& fontFile); //returns fontID
 	bool isFontLoaded(const string& fontID); //checks if a font was already loaded
+	vector<string> getFontIDs(); //returns a list of all fonts that are ready to use
 
 	/// work with font styles
 	void addStyle(const string& styleID, ofxFontStashStyle style);
@@ -55,10 +55,9 @@ public:
 	/// multiline ("\n") supported - and it will break lines on its own given a column width
 	ofRectangle drawFormattedColumn(const string& styledText, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug=false);
 
-
 	// DIY layout + draw - so you can inspect intermediate states and do as you wish //
 	/// 1 - Parse your text to get the vector<StyledText> blocks.
-	/// 2 - Layout the lines to a certain column width; you get a vector of styled words (vectos<StyledText>).
+	/// 2 - Layout the lines to a certain column width; you get a vector of styled words (vector<StyledText>).
 	///	3 - Draw the layout; its a vector of Lines so you can dig and edit before you draw.
 
 	/*
@@ -73,7 +72,6 @@ public:
 		float columnWidth;
 		vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, columnWidth);
 		ofRectangle bbox = fonts.drawLines(laidOutLines, xx, yy);
-
 	 */
 
 	///draw a paragraph relying on NanoVG for layout & linebreaking

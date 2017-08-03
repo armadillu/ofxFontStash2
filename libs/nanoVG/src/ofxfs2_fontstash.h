@@ -139,6 +139,8 @@ void ofxfs2_fonsDrawDebug(FONScontext* s, float x, float y);
 
 #define FONS_NOTUSED(v)  (void)sizeof(v)
 
+//#define FONS_USE_FREETYPE //freetype seems to render chars better than stb_ttf?
+
 #ifdef FONS_USE_FREETYPE
 
 #include <ft2build.h>
@@ -245,7 +247,7 @@ static void* ofxfs2_fons__tmpalloc(size_t size, void* up);
 static void ofxfs2_fons__tmpfree(void* ptr, void* up);
 #define STBTT_malloc(x,u)    ofxfs2_fons__tmpalloc(x,u)
 #define STBTT_free(x,u)      ofxfs2_fons__tmpfree(x,u)
-#include "stb_truetype.h"
+#include "ofxfs2_stb_truetype.h"
 
 struct FONSttFontImpl {
 	ofxfs2_stbtt_fontinfo font;
@@ -300,7 +302,9 @@ void ofxfs2_fons__tt_renderGlyphBitmap(FONSttFontImpl *font, unsigned char *outp
 
 int ofxfs2_fons__tt_getGlyphKernAdvance(FONSttFontImpl *font, int glyph1, int glyph2)
 {
-	return ofxfs2_stbtt_GetGlyphKernAdvance(&font->font, glyph1, glyph2);
+	int kern = ofxfs2_stbtt_GetGlyphKernAdvance(&font->font, glyph1, glyph2);
+	//oriol trying to improve kerning - see https://github.com/nothings/stb/issues/281
+	return kern;
 }
 
 #endif

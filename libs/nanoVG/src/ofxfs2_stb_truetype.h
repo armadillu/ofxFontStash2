@@ -1032,6 +1032,9 @@ STBTT_DEF int ofxfs2_stbtt_InitFont(ofxfs2_stbtt_fontinfo *info, const unsigned 
    info->hhea = ofxfs2_stbtt__find_table(data, fontstart, "hhea"); // required
    info->hmtx = ofxfs2_stbtt__find_table(data, fontstart, "hmtx"); // required
    info->kern = ofxfs2_stbtt__find_table(data, fontstart, "kern"); // not required
+   if(info->kern==0){
+	   printf("stb_truetype: can't find kerning tables for this font!\n");
+   }
    if (!cmap || !info->loca || !info->head || !info->glyf || !info->hhea || !info->hmtx)
       return 0;
 
