@@ -212,13 +212,15 @@ float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, fl
 	if(!inBatchMode){
 		begin();
 	}
-	applyStyle(style);
-	float newX = ofxfs2_nvgText(ctx, x, y, text.c_str(), NULL); //TODO dx is bugged? why?
+	ofRectangle bounds = getTextBounds(text, style, x, y);
+	//applyStyle(style); //getTextBounds already applies style
+	float newX = ofxfs2_nvgText(ctx, x, y, text.c_str(), NULL);
 
 	if(!inBatchMode){
 		end();
 	}
-	return newX;
+	//return newX;
+	return bounds.width;
 }
 
 

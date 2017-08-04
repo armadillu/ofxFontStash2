@@ -38,7 +38,7 @@ public:
 	void setDefaultStyle(const string & styleID){ defaultStyleID = styleID; } //how do we render formatted text whose style is undefined? We will use this style.
 
 	/// draw single line string
-	/// returns text width
+	/// returns text width (dx)
 	/// multiline ("\n") not supported - to use for one-liners
 	float draw(const string& text, const ofxFontStashStyle& style, float x, float y);
 
