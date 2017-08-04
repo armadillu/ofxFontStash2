@@ -203,7 +203,7 @@ void ofApp::testDrawBatch(float x, float y){
 		fonts.beginBatch();
 		for(int i = 0; i < 10; i++){
 			string text = "t" + ofToString(i) + ",";
-			xx = fonts.draw(text, style, xx, y); //returns x for next char
+			xx += fonts.draw(text, style, xx, y); //returns x for next char
 		}
 		fonts.endBatch();
 		drawInsertionPoint(x,y,100);
