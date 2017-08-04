@@ -30,10 +30,11 @@ public:
 	vector<string> getFontIDs(); //returns a list of all fonts that are ready to use
 
 	/// work with font styles
-	void addStyle(const string& styleID, ofxFontStashStyle style);
+	bool addStyle(const string& styleID, ofxFontStashStyle style);
+	bool removeStyle(const string& styleID);
 	bool styleExists(const string& styleID);
-	ofxFontStashStyle getStyle(const string& styleID, bool & exists);
-	map<string, ofxFontStashStyle> getStyles(){ return styleIDs; }
+	ofxFontStashStyle getStyle(const string& styleID, bool * exists = nullptr);
+	unordered_map<string, ofxFontStashStyle>& getStyles(){ return styleIDs; }
 
 	/// draw single line string
 	/// returns text width
@@ -141,6 +142,9 @@ public:
 	
 	/// width of tabs (measured in spaces)
 	int tabWidth = 4;
+
+	/// set to true to see bboxes and other debug info
+	///bool debug = false;
 	
 	/// with this option one can scale all fonts up/down by a factor
 	float fontScale;
@@ -172,9 +176,8 @@ protected:
 	NVGcolor toFScolor(const ofColor& c);
 	NVGcontext* ctx = nullptr;
 
-	map<string, int> fontIDs; //userFontID to fontStashFontID
-
-	map<string, ofxFontStashStyle> styleIDs;
+	unordered_map<string, int> fontIDs; //userFontID to fontStashFontID
+	unordered_map<string, ofxFontStashStyle> styleIDs;
 	
 	string globalFallbackFontID; // id of the fallback font for all loaded fonts
 
@@ -183,6 +186,7 @@ protected:
 	ofShader nullShader;
 	bool inBatchMode = false;
 
+	vector<string> reservedStyleNames = {"style"};
 
 	void applyOFMatrix();
 	void begin();

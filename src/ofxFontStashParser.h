@@ -11,6 +11,7 @@
 #include "ofMain.h"
 #include "ofxFontStashStyle.h"
 
+
 namespace pugi{
 	class xml_node;
 }
@@ -19,7 +20,8 @@ class ofxFontStashParser{
 
 public:
 
-	static vector<StyledText> parseText(const string& text, const map<string, ofxFontStashStyle> & styleIDs);
+	static vector<StyledText> parseText(const string& text,
+										const unordered_map<string, ofxFontStashStyle> & styleIDs);
 
 	static ofColor colorFromHex(const string & hex);
 
@@ -27,7 +29,7 @@ protected:
 
 	static void recursiveParse(pugi::xml_node & node,
 							   ofxFontStashStyle style,
-							   const map<string, ofxFontStashStyle> & styleIDs,
+							   const unordered_map<string, ofxFontStashStyle> & styleIDs,
 							   vector<StyledText> & parsedText);
 
 };

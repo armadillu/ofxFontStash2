@@ -23,18 +23,22 @@
 #ifdef PROFILE_OFX_FONTSTASH2
 	#include "ofxTimeMeasurements.h"
 #else
-	#pragma push_macro("TS_START_NIF")
-	#define TS_START_NIF
-	#pragma push_macro("TS_STOP_NIF")
-	#define TS_STOP_NIF
-	#pragma push_macro("TS_START_ACC")
-	#define TS_START_ACC
-	#pragma push_macro("TS_STOP_ACC")
-	#define TS_STOP_ACC
-	#pragma push_macro("TS_START")
-	#define TS_START
-	#pragma push_macro("TS_STOP")
-	#define TS_STOP
+#pragma push_macro("TS_START_NIF")
+#define TS_START_NIF
+#pragma push_macro("TS_STOP_NIF")
+#define TS_STOP_NIF
+#pragma push_macro("TS_START_ACC")
+#define TS_START_ACC
+#pragma push_macro("TS_STOP_ACC")
+#define TS_STOP_ACC
+#pragma push_macro("TS_START_ACC_NIF")
+#define TS_START_ACC_NIF
+#pragma push_macro("TS_STOP_ACC_NIF")
+#define TS_STOP_ACC_NIF
+#pragma push_macro("TS_START")
+#define TS_START
+#pragma push_macro("TS_STOP")
+#define TS_STOP
 #endif
 
 #define OFX_FONSTASH2_CHECK		if(!ctx){\
@@ -119,8 +123,27 @@ vector<string> ofxFontStash2::getFontIDs(){
 }
 
 
-void ofxFontStash2::addStyle(const string& styleID, ofxFontStashStyle style){
-	styleIDs[styleID] = style;
+bool ofxFontStash2::addStyle(const string& styleID, ofxFontStashStyle style){
+	if ( find(reservedStyleNames.begin(), reservedStyleNames.end(), styleID) == reservedStyleNames.end()){
+		styleIDs[styleID] = style;
+		ofLogNotice("ofxFontStash2") << "Adding Style with ID \"" << styleID << "\" : \"" << style.toString() << "\"";
+		return true;
+	}else{
+		ofLogError("ofxFontStash2") << "Can't create a style with an ID \"" << styleID << "\"; This is a reserved tag name";
+		return false;
+	}
+}
+
+bool ofxFontStash2::removeStyle(const string& styleID){
+	auto it = styleIDs.find(styleID);
+	if(it != styleIDs.end()){
+		styleIDs.erase(it);
+		ofLogNotice("ofxFontStash2") << "Removing Style with ID \"" << styleID << "\"";
+		return true;
+	}else{
+		ofLogError("ofxFontStash2") << "Can't remove Style with ID \"" << styleID << "\" bc it doesn't exist";
+		return false;
+	}
 }
 
 
@@ -129,16 +152,16 @@ bool ofxFontStash2::styleExists(const string& styleID){
 }
 
 
-ofxFontStashStyle ofxFontStash2::getStyle(const string& styleID, bool & exists){
-
+ofxFontStashStyle ofxFontStash2::getStyle(const string& styleID, bool * exists){
 	auto it = styleIDs.find(styleID);
 	if(it != styleIDs.end()){
-		exists = true;
+		if(exists) *exists = true;
 		return it->second;
 	}
-	exists = false;
+	if(exists) *exists = false;
 	return ofxFontStashStyle();
 }
+
 
 void ofxFontStash2::beginBatch(){
 	if(!inBatchMode){
@@ -189,30 +212,28 @@ float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, fl
 	if(!inBatchMode){
 		begin();
 	}
-
-	//ofRectangle bounds = getTextBounds(text, style, x, y);
-	applyStyle(style); //getTextBounds already applies style
+	applyStyle(style);
 	float newX = ofxfs2_nvgText(ctx, x, y, text.c_str(), NULL); //TODO dx is bugged? why?
 
 	if(!inBatchMode){
 		end();
 	}
 	return newX;
-	//return bounds.width;
 }
 
 
 float ofxFontStash2::drawFormatted(const string& styledText, float x, float y){
 	float ret = 0;
 	OFX_FONSTASH2_CHECK_RET
+	TS_START_ACC_NIF("parse text");
 	vector<StyledText> blocks = ofxFontStashParser::parseText(styledText, styleIDs);
+	TS_STOP_ACC_NIF("parse text");
 	float xx = x;
 	float yy = y;
 	for(int i = 0; i < blocks.size(); i++){
 		xx += draw(blocks[i].text, blocks[i].style, xx, yy);
 	}
-
-	return xx-x;
+	return xx - x;
 }
 
 
@@ -240,6 +261,7 @@ void ofxFontStash2::drawColumnNVG(const string& text,
 		case OF_ALIGN_HORZ_LEFT: hAlign = NVG_ALIGN_LEFT; break;
 		case OF_ALIGN_HORZ_CENTER: hAlign = NVG_ALIGN_CENTER; break;
 		case OF_ALIGN_HORZ_RIGHT: hAlign = NVG_ALIGN_RIGHT; break;
+		default: break;
 	}
 	ofxfs2_nvgTextAlign(ctx, style.alignmentV | hAlign);
 	ofxfs2_nvgTextLineHeight(ctx, style.lineHeightMult * lineHeightMultiplier);
@@ -258,6 +280,7 @@ ofRectangle ofxFontStash2::getTextBoundsNVG(const string& text,
 		case OF_ALIGN_HORZ_LEFT: hAlign = NVG_ALIGN_LEFT; break;
 		case OF_ALIGN_HORZ_CENTER: hAlign = NVG_ALIGN_CENTER; break;
 		case OF_ALIGN_HORZ_RIGHT: hAlign = NVG_ALIGN_RIGHT; break;
+		default: break;
 	}
 	ofxfs2_nvgTextAlign(ctx, style.alignmentV | hAlign);
 	ofxfs2_nvgTextLineHeight(ctx, style.lineHeightMult * lineHeightMultiplier);
@@ -276,9 +299,9 @@ ofRectangle ofxFontStash2::drawFormattedColumn(const string& styledText,
 	OFX_FONSTASH2_CHECK_RET
 	if (targetWidth < 0) return ofRectangle();
 	
-	TS_START_NIF("parse text");
+	TS_START_ACC_NIF("parse text");
 	vector<StyledText> blocks = ofxFontStashParser::parseText(styledText, styleIDs);
-	TS_STOP_NIF("parse text");
+	TS_STOP_ACC_NIF("parse text");
 	
 	return drawAndLayout(blocks, x, y, targetWidth, horAlign, debug);
 }
@@ -558,12 +581,13 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 	vector<ColoredRect> debugRects;
 	/////////////////////////////////////
 
-
 	TS_START("draw all lines");
-
 	begin();
+
 	for(int i = 0; i < lines.size(); i++){
+
 		yy += lines[i].lineH;
+
 		for(int j = 0; j < lines[i].elements.size(); j++){
 
 			if(lines[i].elements[j].content.type != SEPARATOR_INVISIBLE ){ //no need to draw the invisible chars
@@ -573,20 +597,20 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 
 				if (el.content.styledText.style.valid && drawStyle != el.content.styledText.style ){
 					drawStyle = el.content.styledText.style;
-					TS_START_ACC("applyStyle");
+					//TS_START_ACC("applyStyle");
 					applyStyle(drawStyle);
-					TS_STOP_ACC("applyStyle");
+					//TS_STOP_ACC("applyStyle");
 				}
 
-				TS_START_ACC("fonsDrawText");
-
+				//TS_START_ACC("fonsDrawText");
 				float dx = ofxfs2_nvgText(ctx,
 								   el.x + offset.x,
 								   (el.baseLineY + l.lineH - lines[0].lineH) + offset.y,
 								   el.content.styledText.text.c_str(),
 								   NULL);
-				TS_STOP_ACC("fonsDrawText");
+				//TS_STOP_ACC("fonsDrawText");
 			}
+
 			if(debug){ //draw rects on top of each block type
 				ColoredRect cr;
 				switch(lines[i].elements[j].content.type){
@@ -777,7 +801,7 @@ bool ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
 
 int ofxFontStash2::getFsID(const string& userFontID){
 
-	map<string, int>::iterator it = fontIDs.find(userFontID);
+	unordered_map<string, int>::iterator it = fontIDs.find(userFontID);
 	if(it != fontIDs.end()){
 		return it->second;
 	}
@@ -791,7 +815,7 @@ NVGcolor ofxFontStash2::toFScolor(const ofColor & c){
 }
 
 vector<StyledText> ofxFontStash2::parseStyledText(const string & styledText){
-	return  ofxFontStashParser::parseText(styledText, styleIDs);
+	return ofxFontStashParser::parseText(styledText, styleIDs);
 }
 
 

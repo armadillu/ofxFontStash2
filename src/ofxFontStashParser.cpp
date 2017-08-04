@@ -9,19 +9,45 @@
 #include "ofxFontStashParser.h"
 #include "pugixml.hpp"
 
+#ifdef PROFILE_OFX_FONTSTASH2
+	#include "ofxTimeMeasurements.h"
+#else
+	#pragma push_macro("TS_START_NIF")
+	#define TS_START_NIF
+	#pragma push_macro("TS_STOP_NIF")
+	#define TS_STOP_NIF
+	#pragma push_macro("TS_START_ACC")
+	#define TS_START_ACC
+	#pragma push_macro("TS_STOP_ACC")
+	#define TS_STOP_ACC
+	#pragma push_macro("TS_START_ACC_NIF")
+	#define TS_START_ACC_NIF
+	#pragma push_macro("TS_STOP_ACC_NIF")
+	#define TS_STOP_ACC_NIF
+	#pragma push_macro("TS_START")
+	#define TS_START
+	#pragma push_macro("TS_STOP")
+	#define TS_STOP
+#endif
+
 using namespace pugi;
 
 vector<StyledText>
-ofxFontStashParser::parseText(const string& text, const map<string, ofxFontStashStyle> & styleIDs){
+ofxFontStashParser::parseText(const string& text, const unordered_map<string, ofxFontStashStyle> & styleIDs){
 
 	vector<StyledText> parsedText;
 	// pugi has a some interesting whitespace options available
 	// e.g. parse_fragment, parse_trim_pcdata, parse_ws_pcdata_single
 	xml_document doc;
-	xml_parse_result result = doc.load_string(text.c_str());
+	int parseOptions = parse_cdata | parse_escapes | parse_wconv_attribute | parse_eol | parse_fragment;
+	TS_START_ACC_NIF("pugi parse");
+	xml_parse_result result = doc.load_string(text.c_str(), parseOptions);
+	TS_STOP_ACC_NIF("pugi parse");
 	if(result.status == status_ok){
-		ofxFontStashStyle baseStyle;
+		ofxFontStashStyle baseStyle;		
+		TS_START_ACC_NIF("recursive parse");
 		recursiveParse(doc, baseStyle, styleIDs, parsedText);
+		TS_STOP_ACC_NIF("recursive parse");
 	}
 	else{
 		ofLogError("ofxFontStashParser")
@@ -39,6 +65,7 @@ ofxFontStashParser::parseText(const string& text, const map<string, ofxFontStash
 	//the "monkey" is totally lost, but if we found it, then we wouldn't need to be adding extra spaces
 
 	if(true){ //TODO!
+		TS_START_ACC_NIF("handle spaces between tags");
 		vector<int> spacesToAdd;
 		if (parsedText.size() > 1){
 			for(int i = 0; i < parsedText.size() -1; i++){
@@ -57,6 +84,7 @@ ofxFontStashParser::parseText(const string& text, const map<string, ofxFontStash
 			parsedText.insert(parsedText.begin() + index + indexOffset, st);
 			indexOffset++;
 		}
+		TS_STOP_ACC_NIF("handle spaces between tags");
 	}
 
 	return parsedText;
@@ -65,15 +93,22 @@ ofxFontStashParser::parseText(const string& text, const map<string, ofxFontStash
 
 void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 										ofxFontStashStyle style,
-										const map<string, ofxFontStashStyle> & styleIDs,
+										const unordered_map<string, ofxFontStashStyle> & styleIDs,
 										vector<StyledText> & parsedText) {
 
 	for( xml_node node : parentNode ){
 		// handle nodes
 		if( node.type() == node_element ){
 
-			// <style></style>
-			if( strcmp( node.name(), "style") == 0){
+
+			// <myStyle>bla bla</myStyle> ///////////////////////////////////
+			auto it = styleIDs.find(node.name());
+			if( it != styleIDs.end() ){
+				style = it->second;
+			}
+
+			// <style></style> /////////////////////////////////////////////
+			else if( strcmp( node.name(), "style") == 0){
 				xml_attribute attr;
 				if((attr = node.attribute("id"))){
 					auto it = styleIDs.find(attr.value());
@@ -99,6 +134,7 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 					style.color = colorFromHex(hex);
 				}
 			}
+			// <br/> //////////////////////////////////////////////////////
 			// not to go full html, but <br/> is quite handy (and \n is ignored by
 			// the current parser settings)
 			else if( strcmp( node.name(), "br") == 0){

@@ -52,13 +52,24 @@ struct ofxFontStashStyle{
 
 	string toString(){
 		stringstream ss;
-		ss << "fontID:" << fontID << " fontSize:" << fontSize << " blur:" << blur << " alignmentV: " << alignmentV
-		<< " color: " << color << " lineHeightMult: " << lineHeightMult << " spacing: " << spacing;
+		string colorT = ofToString((int)color.r) + "," + ofToString((int)color.g) + "," + ofToString((int)color.b) + "," + ofToString((int)color.a);
+		ss << "fontID:" << fontID << " fontSize:" << fontSize << " blur:" << blur <<
+		" alignmentV:" << toString(alignmentV) << " color:[" << colorT << "] lineHeightMult:"
+		<< lineHeightMult << " spacing:" << spacing;
 		return ss.str();
 	}
 	
 	bool operator!= (const ofxFontStashStyle &b){
 		return !(*this == b);
+	}
+
+	string toString(NVGalign va){
+		switch(va){
+			case NVG_ALIGN_BASELINE: return "BASELINE";
+			case NVG_ALIGN_TOP: return "TOP";
+			case NVG_ALIGN_MIDDLE: return "MIDDLE";
+			case NVG_ALIGN_BOTTOM: return "BOTTOM";
+		} return "UNKNOWN";
 	}
 };
 
