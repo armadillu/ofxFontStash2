@@ -145,8 +145,9 @@ public:
 	/// with this option one can scale all fonts up/down by a factor
 	float fontScale;
 
-	void beginBatch(); 	//if you want to pack a few draw calls togehter, you will get better performance
+	void beginBatch(); 	//if you can pack a few draw calls togehter in a batch, you will get better performance
 	void endBatch(); 	//by wrapping them around beginBath() & endBatch()
+	bool isInBatch(){ return inBatchMode;}
 
 protected:
 
