@@ -15,7 +15,7 @@
 #include "ofxfs2_nanovg_gl.h"
 #undef FONTSTASH_IMPLEMENTATION
 
-#if !defined(NANOVG_GL3_IMPLEMENTATION) && !defined(NANOVG_GLES2_IMPLEMENTATION) && !defined(NANOVG_GL2_IMPLEMENTATION)
+#if !defined(NANOVG_GL3_IMPLEMENTATION) && !defined(NANOVG_GL2_IMPLEMENTATION) && !defined(NANOVG_GLES2_IMPLEMENTATION)
 #error "ofxFontStash2: Please add one of the following definitions to your project NANOVG_GL3_IMPLEMENTATION, NANOVG_GL2_IMPLEMENTATION, NANOVG_GLES2_IMPLEMENTATION"
 #endif
 
