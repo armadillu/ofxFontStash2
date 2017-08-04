@@ -35,6 +35,7 @@ public:
 	bool styleExists(const string& styleID);
 	ofxFontStashStyle getStyle(const string& styleID, bool * exists = nullptr);
 	unordered_map<string, ofxFontStashStyle>& getStyles(){ return styleIDs; }
+	void setDefaultStyle(const string & styleID){ defaultStyleID = styleID; } //how do we render formatted text whose style is undefined? We will use this style.
 
 	/// draw single line string
 	/// returns text width
@@ -178,6 +179,8 @@ protected:
 
 	unordered_map<string, int> fontIDs; //userFontID to fontStashFontID
 	unordered_map<string, ofxFontStashStyle> styleIDs;
+
+	string defaultStyleID; //how do we render formatted text whose style is undefined?
 	
 	string globalFallbackFontID; // id of the fallback font for all loaded fonts
 

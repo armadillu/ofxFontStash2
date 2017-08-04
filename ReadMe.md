@@ -1,8 +1,10 @@
 # ofxFontStash2
 
-![](https://farm5.staticflickr.com/4186/34677341675_def1bee422_z_d.jpg)
-
 [![Build Status](https://travis-ci.org/armadillu/ofxFontStash2.svg?branch=master)](https://travis-ci.org/armadillu/ofxFontStash2)
+
+![https://farm5.staticflickr.com/4186/34677341675_d882b5797f_o_d.png](https://farm5.staticflickr.com/4186/34677341675_def1bee422_z_d.jpg)
+
+
 
 ofxFontStash2 allows you to draw text. It can draw individual lines of text, or longer texts constrained to a column (to create paragraph, automatically flowing the text for you). 
 
@@ -30,8 +32,41 @@ It handles tabs as expected, so you can use it to draw monospaced tabulated code
 
 It also supports multiple device resolutions, so for example moving your project to a "retina" screen should take zero effort.
 
+![https://farm5.staticflickr.com/4403/35538430564_af59b4c811_o_d.png](https://farm5.staticflickr.com/4403/35538430564_77a8d9e1a7_z_d.jpg)
 
-![](https://farm1.staticflickr.com/493/19806237826_788c341f9c_z_d.jpg)
+# Formatting Options
+
+### 1. With a predefined Style
+
+```
+<style id='myStyleID'>Text goes here</style>
+ or
+<myStyleID>Text goes here</myStyleID>
+```
+
+### 2. With a predefined Style with overrides
+
+```
+<style id='myStyleID' override1='value1' override2='value2'>Text goes here</style>
+ or 
+<myStyleID override1='value1' override2='value2'>Text goes here</myStyleID>
+```
+
+Valid overrides are ```color```, ```size ```, ```blur ``` and ```font ```.
+
+Example: ```<myStyleID override='value' color='#ff' size='22' blur='3' font='MyFontID'>Text goes here</myStyleID>```
+
+
+### 3. Colors
+must be defined in hex: several options are accepted; RGBA ```#AABBCCDD```, RGB ```#AABBCCDD``` and GRAY ```#AA```.
+
+### 4. \<BR/>
+You can include line breaks by adding ```<br/>```.  
+
+Example: ```<myStyle>here's a line<br/>break<myStyle>```
+
+The BR tag also accepts a lineHeight multiplier, in those cases where you want a custom height line break;  
+Example: ```<MyStyle>This Line break<br/><br heightMult='1.5'/>is 1.5 times taller than normal.</MyStyle>```  
 
 
 # Included Libraries

@@ -69,7 +69,8 @@ struct ofxFontStashStyle{
 			case NVG_ALIGN_TOP: return "TOP";
 			case NVG_ALIGN_MIDDLE: return "MIDDLE";
 			case NVG_ALIGN_BOTTOM: return "BOTTOM";
-		} return "UNKNOWN";
+			default: return "UNKNOWN";
+		}
 	}
 };
 
