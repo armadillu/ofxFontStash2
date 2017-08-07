@@ -703,9 +703,9 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 		for(auto c: ofUTF8Iterator(blockText)){
 
 			bool isSpace = std::isspace<wchar_t>(c,loc);
-			bool isPunct = std::ispunct<wchar_t>(c,loc);
+			//bool isPunct = std::ispunct<wchar_t>(c,loc);
 			
-			if(isSpace || isPunct){
+			if(isSpace /*|| isPunct*/){
 
 				if(currentWord.size()){
 					TextBlock word = TextBlock(BLOCK_WORD, currentWord, block.style);
@@ -714,7 +714,7 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 				}
 				string separatorText;
 				utf8::append(c, back_inserter(separatorText));
-				TextBlock separator = TextBlock(isPunct?SEPARATOR:SEPARATOR_INVISIBLE, separatorText, block.style);
+				TextBlock separator = TextBlock(/*isPunct?SEPARATOR:*/SEPARATOR_INVISIBLE, separatorText, block.style);
 				wordBlocks.push_back(separator);
 
 			}else{

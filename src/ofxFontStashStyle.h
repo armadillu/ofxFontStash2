@@ -88,7 +88,7 @@ struct StyledText{
 // The enum values are chosen so that you can check if it's_any kind of separator with (type & SEPARATOR) != 0
 enum TextBlockType{
 	BLOCK_WORD = 1,
-	SEPARATOR = 2,
+	SEPARATOR = 2, //this will never be used bc we ignore punctuation types now (they are part of words)
 	SEPARATOR_INVISIBLE = 3
 };
 
