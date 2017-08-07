@@ -13,7 +13,6 @@
 
 struct ofxFontStashStyle{
 
-	bool valid; //will be true if style definition found.
 	string fontID;
 	float fontSize = 12;
 	ofColor color = ofColor::white;
@@ -23,20 +22,17 @@ struct ofxFontStashStyle{
 	float spacing = 0;
 
 	ofxFontStashStyle(string fontID, float fontSize, const ofColor & color){
-		valid = true;
 		this->fontSize = fontSize;
 		this->color = color;
 		this->fontID = fontID;
 	}
 
 	ofxFontStashStyle(string fontID, float fontSize){
-		valid = true;
 		this->fontSize = fontSize;
 		this->fontID = fontID;
 	}
 
 	ofxFontStashStyle(){
-		valid = true;
 	};
 
 	bool operator== (const ofxFontStashStyle &b){
@@ -75,10 +71,62 @@ struct ofxFontStashStyle{
 };
 
 
-struct StyledText{
-	string text;
+struct TemporaryFontStashStyle{ //a style with a short lifespan (will onyl stay around for a few frames)
 	ofxFontStashStyle style;
+	size_t numFramesAliveLeft;
 };
+
+struct StyleID{ //this is a weird hybrid structure that is key to a ofxFontStashStyle - can hold either a static styleID or a temporary stytleID
+
+	bool isTempStyle; //if true, the style used in this text is defined inline (its temprary)
+	string styleID; //this will be >0 if it refers to a "proper" style the user defined beforehand (ie "static" style)
+	size_t tempStyleID; //this will be >= 0 if it refers to a style defined an inline style, ie not a "static" style but a temp one
+
+	StyleID(const string & styleID_){
+		isTempStyle = false;
+		styleID = styleID_;
+	}
+	StyleID(size_t tempStyleID_){
+		isTempStyle = true;
+		tempStyleID = tempStyleID_;
+	}
+
+	StyleID(){};
+
+	bool operator== (const StyleID &b){ //compare StyleID
+		if(isTempStyle){
+			return tempStyleID == b.tempStyleID;
+		}else{
+			return styleID == b.styleID;
+		}
+	}
+
+	bool operator!= (const StyleID &b){
+		return !(*this == b);
+	}
+};
+
+
+struct StyledText{
+	
+	string text;
+	//ofxFontStashStyle style_;
+	StyleID styleID;
+
+//	StyledText(const string & text, const ofxFontStashStyle & style){
+//		this->text = text;
+//		style_ = style;
+//	}
+
+	StyledText(const string & text, const StyleID & styleID_){
+		this->text = text;
+		styleID = styleID_;
+	}
+
+	StyledText(){};
+};
+
+
 
 
 // There are three types of blocks:
@@ -96,10 +144,10 @@ enum TextBlockType{
 struct TextBlock{
 	TextBlockType type;
 	StyledText styledText;
-	TextBlock(TextBlockType type, string text, ofxFontStashStyle style){
+	TextBlock(TextBlockType type, string text, StyleID styleID){
 		this->type = type;
 		this->styledText.text = text;
-		this->styledText.style = style;
+		this->styledText.styleID = styleID;
 	}
 	TextBlock(){}
 };

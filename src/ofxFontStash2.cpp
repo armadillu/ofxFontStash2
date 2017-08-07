@@ -228,12 +228,12 @@ float ofxFontStash2::drawFormatted(const string& styledText, float x, float y){
 	float ret = 0;
 	OFX_FONSTASH2_CHECK_RET
 	TS_START_ACC_NIF("parse text");
-	vector<StyledText> blocks = ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID);
+	vector<StyledText> blocks = ofxFontStashParser::parseText(styledText, styleIDs, inlineStyleIDs, defaultStyleID);
 	TS_STOP_ACC_NIF("parse text");
 	float xx = x;
 	float yy = y;
 	for(int i = 0; i < blocks.size(); i++){
-		xx += draw(blocks[i].text, blocks[i].style, xx, yy);
+		xx += draw(blocks[i].text, getStyleFromID(blocks[i].styleID), xx, yy);
 	}
 	return xx - x;
 }
@@ -247,7 +247,7 @@ ofRectangle ofxFontStash2::drawColumn(const string& text,
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
 	vector<StyledText> blocks;
-	blocks.push_back(StyledText({text, style}));
+	blocks.push_back(StyledText({text, createTempStyle(style)}));
 	return drawAndLayout(blocks, x, y, targetWidth, horAlign, debug);
 }
 
@@ -302,7 +302,7 @@ ofRectangle ofxFontStash2::drawFormattedColumn(const string& styledText,
 	if (targetWidth < 0) return ofRectangle();
 	
 	TS_START_ACC_NIF("parse text");
-	vector<StyledText> blocks = ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID);
+	vector<StyledText> blocks = ofxFontStashParser::parseText(styledText, styleIDs, inlineStyleIDs, defaultStyleID);
 	TS_STOP_ACC_NIF("parse text");
 	
 	return drawAndLayout(blocks, x, y, targetWidth, horAlign, debug);
@@ -345,9 +345,10 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 	// - 'line' here refers to the visual representation. even a line with no newline (\n) can span multiple lines
 	lines.push_back(StyledLine());
 	
-	ofxFontStashStyle currentStyle;
-	currentStyle.fontSize = -1; // this makes sure the first style is actually applied, even if it's the default style
-		
+	//currentStyle.fontSize = -1; // this makes sure the first style is actually applied, even if it's the default style
+	StyleID curStyle;
+	ofxFontStashStyle currentStyle; //contents of the above ID
+
 	float lineWidth = 0;
 	int wordsThisLine = 0;
 	float currentWordLineH = 0;
@@ -367,14 +368,17 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 		currentLine.boxW = targetWidth;
 
 		TS_START_ACC("word style");
-		if(words[i].styledText.style.valid && currentStyle != words[i].styledText.style ){
-			currentStyle = words[i].styledText.style;
+
+		if(i == 0 || (words[i].type != SEPARATOR_INVISIBLE && curStyle != words[i].styledText.styleID) ){
+			curStyle = words[i].styledText.styleID;
+			currentStyle = getStyleFromID(curStyle);
 			if(applyStyle(currentStyle)){
 				ofxfs2_nvgTextMetrics(ctx, NULL, NULL, &currentWordLineH);
 			}else{
 				ofLogError("ofxFontStash2") << "no style font defined!";
 			}
 		}
+
 		TS_STOP_ACC("word style");
 		
 		bool stayOnCurrentLine = true;
@@ -488,7 +492,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 	currentLine.boxW = targetWidth;
 	if( currentLine.elements.size() == 0 ){
 		// but at least one spacing character, so we have a line height.
-		le = LineElement(TextBlock(SEPARATOR_INVISIBLE,"",currentStyle), ofRectangle(xx,yy,0,currentWordLineH));
+		le = LineElement(TextBlock(SEPARATOR_INVISIBLE,"",curStyle), ofRectangle(xx,yy,0,currentWordLineH));
 		le.baseLineY = yy;
 		le.x = xx;
 		le.lineHeight = currentWordLineH;
@@ -573,6 +577,7 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 	
 	float yy = y; //we will increment yy as we draw lines
 	ofxFontStashStyle drawStyle;
+	StyleID drawStyleID;
 	drawStyle.fontSize = -1;
 
 	// debug /////////////////////////////
@@ -586,6 +591,7 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 	TS_START("draw all lines");
 	begin();
 
+	bool firstTime = false;
 	for(int i = 0; i < lines.size(); i++){
 
 		yy += lines[i].lineH;
@@ -597,11 +603,10 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 				const StyledLine &l = lines[i];
 				const LineElement &el = l.elements[j];
 
-				if (el.content.styledText.style.valid && drawStyle != el.content.styledText.style ){
-					drawStyle = el.content.styledText.style;
-					//TS_START_ACC("applyStyle");
-					applyStyle(drawStyle);
-					//TS_STOP_ACC("applyStyle");
+				if (firstTime || drawStyleID != el.content.styledText.styleID ){
+					firstTime = false;
+					drawStyleID = el.content.styledText.styleID;
+					applyStyle(getStyleFromID(drawStyleID));
 				}
 
 				//TS_START_ACC("fonsDrawText");
@@ -708,13 +713,13 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 			if(isSpace || isPunct){
 
 				if(currentWord.size()){
-					TextBlock word = TextBlock(BLOCK_WORD, currentWord, block.style);
+					TextBlock word = TextBlock(BLOCK_WORD, currentWord, block.styleID);
 					currentWord.clear();
 					wordBlocks.push_back(word);
 				}
 				string separatorText;
 				utf8::append(c, back_inserter(separatorText));
-				TextBlock separator = TextBlock(isPunct?SEPARATOR:SEPARATOR_INVISIBLE, separatorText, block.style);
+				TextBlock separator = TextBlock(isPunct?SEPARATOR:SEPARATOR_INVISIBLE, separatorText, block.styleID);
 				wordBlocks.push_back(separator);
 
 			}else{
@@ -722,7 +727,7 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 			}
 		}
 		if(currentWord.size()){ //add last word
-			TextBlock word = TextBlock(BLOCK_WORD, currentWord, block.style);
+			TextBlock word = TextBlock(BLOCK_WORD, currentWord, block.styleID);
 			currentWord.clear();
 			wordBlocks.push_back(word);
 		}
@@ -776,10 +781,10 @@ string ofxFontStash2::getGlobalFallbackFont(){
 
 
 void ofxFontStash2::addFallbackFont(const string& fontID, const string &fallbackFontID){
-	int fontID_fs = fontIDs[fontID];
+	int fontIDfs = fontIDs[fontID];
 	int fallbackFontID_fs = fontIDs[fallbackFontID];
 
-	ofxfs2_nvgAddFallbackFontId(ctx, fontID_fs, fallbackFontID_fs);
+	ofxfs2_nvgAddFallbackFontId(ctx, fontIDfs, fallbackFontID_fs);
 }
 
 
@@ -801,6 +806,15 @@ bool ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
 }
 
 
+bool ofxFontStash2::applyStyle(const StyleID& styleID){
+	if(styleID.isTempStyle){
+		applyStyle(inlineStyleIDs[styleID.tempStyleID].style);
+	}else{
+		applyStyle(styleIDs[styleID.styleID]);
+	}
+}
+
+
 int ofxFontStash2::getFsID(const string& userFontID){
 
 	unordered_map<string, int>::iterator it = fontIDs.find(userFontID);
@@ -817,7 +831,7 @@ NVGcolor ofxFontStash2::toFScolor(const ofColor & c){
 }
 
 vector<StyledText> ofxFontStash2::parseStyledText(const string & styledText){
-	return ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID);
+	return ofxFontStashParser::parseText(styledText, styleIDs, inlineStyleIDs, defaultStyleID);
 }
 
 
@@ -844,6 +858,30 @@ void ofxFontStash2::applyOFMatrix(){ //from ofxNanoVG
 
 	ofxfs2_nvgResetTransform(ctx);
 	ofxfs2_nvgTransform(ctx, scale.x, -skew.y, -skew.x, scale.y, translate.x, translate.y);
+}
+
+
+StyleID ofxFontStash2::createTempStyle(const ofxFontStashStyle & s){
+	inlineStyleIDs[ofxFontStashParser::tempStyleCount] = (TemporaryFontStashStyle){s, 60}; //TODO
+	StyleID id = StyleID(ofxFontStashParser::tempStyleCount);
+	ofxFontStashParser::tempStyleCount++;
+	return id;
+}
+
+
+ofxFontStashStyle ofxFontStash2::getStyleFromID(const StyleID& styleID){
+	if (styleID.isTempStyle){
+		auto it = inlineStyleIDs.find(styleID.tempStyleID);
+		if(it != inlineStyleIDs.end()){
+			return it->second.style;
+		}
+	}else{
+		auto it = styleIDs.find(styleID.styleID);
+		if(it != styleIDs.end()){
+			return it->second;
+		}
+	}
+	return ofxFontStashStyle();
 }
 
 

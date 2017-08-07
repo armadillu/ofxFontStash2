@@ -32,9 +32,13 @@
 
 using namespace pugi;
 
+
+size_t ofxFontStashParser::tempStyleCount = 0;
+
 vector<StyledText>
 ofxFontStashParser::parseText(const string& text,
 							  const unordered_map<string, ofxFontStashStyle> & styleIDs,
+							  unordered_map<size_t, TemporaryFontStashStyle> & tempStyles,
 							  const string & defaultStyleID){
 
 	vector<StyledText> parsedText;
@@ -50,24 +54,24 @@ ofxFontStashParser::parseText(const string& text,
 
 	if(result.status == status_ok){
 
-		vector<ofxFontStashStyle> stylesStack;
+		vector<StyleID> stylesStack;
 		if (defaultStyleID.size()){ //user specified a default style, init our stack with it.
 			auto it = styleIDs.find(defaultStyleID);
 			if(it != styleIDs.end()){
-				stylesStack.push_back(it->second);
+				stylesStack.emplace_back(StyleID(defaultStyleID));
 			}
 		}
 		if(stylesStack.size() == 0){ //user didnt specify a custom default style - use our nasty default
 			if(styleIDs.size()){
-				stylesStack.push_back(std::begin(styleIDs)->second); //get 1st style
+				stylesStack.push_back(StyleID(std::begin(styleIDs)->first)); //get 1st style
 			}else{
-				stylesStack.push_back(ofxFontStashStyle());
+				stylesStack.push_back(StyleID(""));
 			}
 		}
 
 		TS_START_ACC_NIF("recursive parse");
 		int level = 0;
-		recursiveParse(doc, level, stylesStack, styleIDs, parsedText);
+		recursiveParse(doc, level, stylesStack, styleIDs, tempStyles, parsedText);
 		TS_STOP_ACC_NIF("recursive parse");
 
 	}else{
@@ -87,7 +91,7 @@ ofxFontStashParser::parseText(const string& text,
 	vector<int> spacesToAdd;
 	if (parsedText.size() > 1){
 		for(int i = 0; i < parsedText.size() -1; i++){
-			if (parsedText[i].style != parsedText[i+1].style){
+			if (parsedText[i].styleID != parsedText[i+1].styleID){
 				bool leftHasSeparator = false;
 				bool rightHasSeparator = false;
 				if (parsedText[i].text.size() && isSeparator(parsedText[i].text.back())){
@@ -108,7 +112,7 @@ ofxFontStashParser::parseText(const string& text,
 		int index = spacesToAdd[i];
 		StyledText st;
 		st.text = " ";
-		st.style = parsedText[index].style;
+		st.styleID = parsedText[index].styleID;
 		parsedText.insert(parsedText.begin() + index + indexOffset, st);
 		indexOffset++;
 	}
@@ -121,61 +125,84 @@ ofxFontStashParser::parseText(const string& text,
 
 void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 										int & level,
-										vector<ofxFontStashStyle> & styleStack,
+										vector<StyleID> & styleStack,
 										const unordered_map<string, ofxFontStashStyle> & styleIDs,
+										unordered_map<size_t, TemporaryFontStashStyle> & tempStyles,
 										vector<StyledText> & parsedText) {
 
 	bool debug = false;
 	ofxFontStashStyle style;
+	bool hasAttributes;
 	level ++;
 	for( xml_node & node : parentNode ){
+
 		// handle nodes
 		if( node.type() == node_element ){
+
+			StyleID curStyleID;
+			hasAttributes = false;
 
 			// <myStyle></myStyle> ///////////////////////////////////
 			auto it = styleIDs.find(node.name());
 			if( it != styleIDs.end() ){
+
 				if(debug) ofLogNotice() << "NODE<" << node.name() << "> level:" << level << " stack:" << styleStack.size();
+				curStyleID = StyleID(it->first);
 				style = it->second;
-				handleAttributes(node, style);
+				handleAttributes(node, style, hasAttributes);
 			}
 
 			// <style id = "" ></style> /////////////////////////////////////////////
 			else if( strcmp( node.name(), "style") == 0){
+
 				if(debug) ofLogNotice() << "NODE<style> level:"  << level << " stack:" << styleStack.size();
 				xml_attribute attr;
 				if((attr = node.attribute("id"))){
 					auto it = styleIDs.find(attr.value());
 					if( it != styleIDs.end() ){
 						style = it->second;
+						curStyleID = StyleID(it->first);
 					}
 				}
-				handleAttributes(node, style);
+				handleAttributes(node, style, hasAttributes);
 			}
 
 			// <br/> //////////////////////////////////////////////////////
 			else if( strcmp( node.name(), "br") == 0){
+
 				if(debug) ofLogNotice() << "NODE<br> level:" << level << " stack:" << styleStack.size();
-				ofxFontStashStyle st = styleStack.back();
+
+				//ofxFontStashStyle st = styleStack.back();
+
 				xml_attribute attr;
 				if((attr = node.attribute("heightMult"))){
+					ofxFontStashStyle st = style;
 					st.lineHeightMult *= ofToFloat(attr.value());
+					hasAttributes = true;
 				}
-				parsedText.push_back({"\n", st});
+
+				parsedText.push_back(StyledText("\n", curStyleID)); //TODO
 			}
 
-			styleStack.push_back(style);
-			recursiveParse(node, level, styleStack, styleIDs, parsedText);
+
+			if(hasAttributes){
+				curStyleID = createTempStyle(style, tempStyles);
+			}else{
+
+			}
+
+			styleStack.emplace_back(curStyleID);
+			recursiveParse(node, level, styleStack, styleIDs, tempStyles, parsedText);
 		}
 		
 		// handle text inside tags
 		else if(node.type() == node_pcdata || node.type() == node_cdata){
 			string text = node.text().get();
 			if(debug) ofLogNotice() << "Content [\"" << text << "\"] level:" << level  << " stack:" << styleStack.size();
-			StyledText st;
-			st.text = node.text().get();
-			st.style = styleStack.back();
-			parsedText.push_back(st);
+//			StyledText st;
+//			st.text = node.text().get();
+//			st.style_ = styleStack.back();
+			parsedText.push_back(StyledText(text, styleStack.back()));
 		}
 	}
 
@@ -186,24 +213,56 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 	level --;
 }
 
-void ofxFontStashParser::handleAttributes(xml_node & node, ofxFontStashStyle & currStyle){
+ofxFontStashStyle ofxFontStashParser::getCurrentStackStyle(	vector<StyleID> & styleStack,
+														   const unordered_map<string, ofxFontStashStyle> & styleIDs,
+														   unordered_map<size_t, TemporaryFontStashStyle> & tempStyles
+														   ){
+	StyleID & sty = styleStack.back();
+	if (sty.isTempStyle){
+		auto it = tempStyles.find(sty.tempStyleID);
+		if(it != tempStyles.end()){
+			return it->second.style;
+		}
+	}else{
+		auto it = styleIDs.find(sty.styleID);
+		if(it != styleIDs.end()){
+			return it->second;
+		}
+	}
+	return ofxFontStashStyle();
+}
+
+
+StyleID ofxFontStashParser::createTempStyle(const ofxFontStashStyle & s, unordered_map<size_t, TemporaryFontStashStyle> & tempStyles){
+	tempStyles[tempStyleCount] = (TemporaryFontStashStyle){s, 60}; //TODO
+	StyleID id = StyleID(ofxFontStashParser::tempStyleCount);
+	tempStyleCount++;
+	return id;
+}
+
+
+void ofxFontStashParser::handleAttributes(xml_node & node, ofxFontStashStyle & currStyle, bool & hasAttributes){
 
 	xml_attribute attr;
 	if((attr = node.attribute("font"))){
 		currStyle.fontID = attr.value();
+		hasAttributes = true;
 	}
 
 	if((attr = node.attribute("size"))){
 		currStyle.fontSize = ofToFloat(attr.value());
+		hasAttributes = true;
 	}
 
 	if((attr = node.attribute("blur"))){
 		currStyle.blur = ofToFloat(attr.value());
+		hasAttributes = true;
 	}
 
 	if((attr = node.attribute("color"))){
 		string hex = attr.value();
 		currStyle.color = colorFromHex(hex);
+		hasAttributes = true;
 	}
 }
 

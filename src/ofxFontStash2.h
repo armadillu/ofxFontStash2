@@ -173,12 +173,18 @@ protected:
 	float calcLineHeight(const StyledLine & line);
 	
 	bool applyStyle(const ofxFontStashStyle& style);
+	bool applyStyle(const StyleID& styleID);
+	StyleID createTempStyle(const ofxFontStashStyle & s);
+	ofxFontStashStyle getStyleFromID(const StyleID& styleID);
+
 
 	NVGcolor toFScolor(const ofColor& c);
 	NVGcontext* ctx = nullptr;
 
 	unordered_map<string, int> fontIDs; //userFontID to fontStashFontID
 	unordered_map<string, ofxFontStashStyle> styleIDs;
+	unordered_map<size_t, TemporaryFontStashStyle> inlineStyleIDs; //those are styles that are created on the fly from inline style definition (ie <style font="banana" ...>)
+																	//they will be garbage collected so they only stick around for a few frames - TODO
 
 	string defaultStyleID; //how do we render formatted text whose style is undefined?
 	

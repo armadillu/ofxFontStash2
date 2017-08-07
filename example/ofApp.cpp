@@ -325,12 +325,12 @@ float ofApp::testDiyFormattedLayout(float x, float y){
 
 float ofApp::testDiyPlainLayout(float x, float y){
 
-	ofxFontStashStyle style = fonts.getStyles()["style1"];
+	StyleID stID = StyleID("style1");
 	string text = "testDiyPlainLayout(): L'italiano è una tra le ventiquattro lingue ufficiali dell'Unione europea ed è lingua ufficiale dell'Italia, di San Marino, della Svizzera, della Città del Vaticano e del Sovrano Militare Ordine di Malta.";
 	float colW = 300 + (0.5 + 0.5 * sin(columnVariationSpeed * ofGetElapsedTimef() * 0.27)) * 200;
 	auto align = getCurrentAlignment();
 	int maxLines = 3;
-	vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, colW, align, maxLines, debug);
+	vector<StyledLine> laidOutLines = fonts.layoutLines({{text, stID}}, colW, align, maxLines, debug);
 	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
 	ofSetColor(255,32);
 	ofDrawRectangle(bbox);
