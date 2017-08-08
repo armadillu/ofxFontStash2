@@ -306,12 +306,14 @@ float ofApp::testDiyFormattedLayout(float x, float y){
 	string myStyledText = "<style id='style1'>testDiyFormattedLayout(): hello</style><style id='style2'>banana</style><style id='style3'>monkey</style>";
 	float colW = 300 + (0.5 + 0.5 * sin(columnVariationSpeed * ofGetElapsedTimef() * 0.45 + 2.3)) * 200;
 	auto align = getCurrentAlignment();
-	vector<ofxFontStash2::StyledText> parsed = fonts.parseStyledText(myStyledText);
+	vector<ofxFontStash2::StyledText> parsed;
+ 	fonts.parseStyledText(myStyledText, parsed);
 
 	//we only want to draw whatever fits in 2 lines
 	int numLines = 2;
 	TS_START_NIF("layout formatted");
-	vector<ofxFontStash2::StyledLine> laidOutLines = fonts.layoutLines(parsed, colW, align, numLines);
+	vector<ofxFontStash2::StyledLine> laidOutLines;
+	fonts.layoutLines(parsed, colW, laidOutLines, align, numLines);
 	TS_STOP_NIF("layout formatted");
 	TS_START_NIF("draw formatted");
 	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
@@ -330,7 +332,8 @@ float ofApp::testDiyPlainLayout(float x, float y){
 	float colW = 300 + (0.5 + 0.5 * sin(columnVariationSpeed * ofGetElapsedTimef() * 0.27)) * 200;
 	auto align = getCurrentAlignment();
 	int maxLines = 3;
-	vector<ofxFontStash2::StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, colW, align, maxLines, debug);
+	vector<ofxFontStash2::StyledLine> laidOutLines;
+	fonts.layoutLines({{text, style}}, colW, laidOutLines, align, maxLines, debug);
 	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
 	ofSetColor(255,32);
 	ofDrawRectangle(bbox);
