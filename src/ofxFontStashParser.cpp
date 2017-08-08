@@ -85,6 +85,8 @@ ofxFontStashParser::parseText(const string& text,
  	//so in:
 	//	<style>hello</style> monkey <style>world</style>
 	//the "monkey" is totally lost, but if we found it, then we wouldn't need to be adding extra spaces
+	//**** this is not place to do this as we haven't split words into spaces yet - this is only split by style tags.
+	//So this stuff is OFF for now.
 	TS_START_ACC("handle spaces between tags");
 	vector<int> spacesToAdd;
 	std::locale loc = std::locale("");
