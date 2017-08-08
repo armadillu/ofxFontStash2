@@ -17,7 +17,7 @@ namespace pugi{
 
 namespace ofxFontStash2{
 
-class ofxFontStashParser{
+class Parser{
 
 public:
 

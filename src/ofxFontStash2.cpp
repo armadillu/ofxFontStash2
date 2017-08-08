@@ -212,16 +212,11 @@ void Fonts::end(){
 float Fonts::draw(const string& text, const Style& style, float x, float y){
 	float ret = 0;
 	OFX_FONSTASH2_CHECK_RET
-	if(!inBatchMode){
-		begin();
-	}
+	begin();
 	ofRectangle bounds = getTextBounds(text, style, x, y);
 	//applyStyle(style); //getTextBounds already applies style
 	float newX = ofxfs2_nvgText(ctx, x, y, text.c_str(), NULL);
-
-	if(!inBatchMode){
-		end();
-	}
+	end();
 	//return newX;
 	return bounds.width;
 }
@@ -232,7 +227,7 @@ float Fonts::drawFormatted(const string& styledText, float x, float y){
 	OFX_FONSTASH2_CHECK_RET
 	TS_START_ACC_NIF("parse text");
 	vector<StyledText> blocks;
-	ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID, blocks);
+	Parser::parseText(styledText, styleIDs, defaultStyleID, blocks);
 	TS_STOP_ACC_NIF("parse text");
 	float xx = x;
 	float yy = y;
@@ -307,7 +302,7 @@ ofRectangle Fonts::drawFormattedColumn(	const string& styledText,
 	
 	TS_START_ACC_NIF("parse text");
 	vector<StyledText> blocks;
-	ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID, blocks);
+	Parser::parseText(styledText, styleIDs, defaultStyleID, blocks);
 	TS_STOP_ACC_NIF("parse text");
 	
 	return drawAndLayout(blocks, x, y, targetWidth, horAlign, debug);
@@ -812,7 +807,7 @@ NVGcolor Fonts::toFScolor(const ofColor & c){
 }
 
 void Fonts::parseStyledText(const string & styledText, vector<StyledText> & output){
-	ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID, output);
+	Parser::parseText(styledText, styleIDs, defaultStyleID, output);
 }
 
 

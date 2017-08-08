@@ -120,7 +120,7 @@ public:
 							  bool debug=false);
 
 	/// only applies to draw(); return the bbox of the text
-	ofRectangle getTextBounds( const string &text, const Style &style, const float x, const float y );
+	ofRectangle getTextBounds(const string &text, const Style &style, const float x, const float y );
 	ofRectangle getTextBounds(const vector<StyledLine> & lines, float x, float y);
 
 	///get font metrics for a particular style

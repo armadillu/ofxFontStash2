@@ -34,7 +34,7 @@
 using namespace pugi;
 using namespace ofxFontStash2;
 
-void ofxFontStashParser::parseText(const string& text,
+void Parser::parseText(const string& text,
 								  const unordered_map<string, Style> & styleIDs,
 								  const string & defaultStyleID,
 								  vector<StyledText> & parsedText //output
@@ -73,7 +73,7 @@ void ofxFontStashParser::parseText(const string& text,
 
 	}else{
 
-		ofLogError("ofxFontStashParser") << "ofxFontStash: xml parsing error in \"" << text
+		ofLogError("Parser") << "ofxFontStash: xml parsing error in \"" << text
 		<< "\": \"" << result.description() << "\"";
 	}
 
@@ -129,7 +129,7 @@ void ofxFontStashParser::parseText(const string& text,
 }
  
 
-void ofxFontStashParser::recursiveParse(xml_node & parentNode,
+void Parser::recursiveParse(xml_node & parentNode,
 										vector<Style> & styleStack,
 										const unordered_map<string, Style> & styleIDs,
 										vector<StyledText> & parsedText) {
@@ -143,7 +143,7 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 			// <myStyle></myStyle> ///////////////////////////////////
 			auto it = styleIDs.find(node.name());
 			if( it != styleIDs.end() ){
-				//if(debug) ofLogNotice("ofxFontStashParser") << "NODE<" << node.name() << " stack:" << styleStack.size();
+				//if(debug) ofLogNotice("Parser") << "NODE<" << node.name() << " stack:" << styleStack.size();
 				style = it->second;
 				handleAttributes(node, style);
 			}
@@ -192,7 +192,7 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 	}
 }
 
-void ofxFontStashParser::handleAttributes(xml_node & node, Style & currStyle){
+void Parser::handleAttributes(xml_node & node, Style & currStyle){
 
 	xml_attribute attr;
 	if((attr = node.attribute("font"))){
@@ -213,7 +213,7 @@ void ofxFontStashParser::handleAttributes(xml_node & node, Style & currStyle){
 	}
 }
 
-ofColor ofxFontStashParser::colorFromHex(const string & hexS){
+ofColor Parser::colorFromHex(const string & hexS){
 
 	ofColor retColor;
 	string hex = hexS;
@@ -238,6 +238,6 @@ ofColor ofxFontStashParser::colorFromHex(const string & hexS){
 }
 
 
-bool ofxFontStashParser::isSeparator(char s){
+bool Parser::isSeparator(char s){
 	return s == ' ' || s == '\n';
 }

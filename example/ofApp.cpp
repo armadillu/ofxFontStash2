@@ -13,6 +13,7 @@ void ofApp::setup(){
 	RUI_SETUP();
 	RUI_SHARE_PARAM(debug);
 	RUI_SHARE_PARAM(columnVariationSpeed, 0 , 2);
+	//RUI_GET_INSTANCE()->drawUiWithFontStash2("fonts/VeraMono-Bold.ttf");
 
 	bool debugNanoVG = true;
 	fonts.setup(debugNanoVG);
@@ -37,7 +38,6 @@ void ofApp::setup(){
 	style.blur = 4;
 	fonts.addStyle("style3", style);
 
-	ofDisableAntiAliasing(); //to get precise lines
 	fonts.pixelDensity = 1.0; //render textures at higher DPI if needed
 	fonts.fontScale = 1.0; //global upscale all fonts in this stash
 
@@ -56,6 +56,8 @@ void ofApp::setup(){
 
 
 void ofApp::draw(){
+
+	ofDisableAntiAliasing(); //to get precise lines
 
 	#ifdef TEST_FBO
 	fbo.begin();
@@ -166,6 +168,8 @@ void ofApp::draw(){
 	fbo.end();
 	fbo.draw(0,0);
 	#endif
+
+	ofEnableAntiAliasing(); //to get precise lines
 }
 
 
