@@ -66,7 +66,8 @@ public:
 
 	/*
 		// Styled Text //
-		vector<StyledText> parsed = fs.parseStyledText(myStyledText);
+	 	vector<StyledText> parsed;
+	 	fs.parseStyledText(myStyledText, parsed);
 		vector<StyledLine> laidOutLines = fs.layoutLines(parsed, columnWidth);
 		ofRectangle bbox = fs.drawLines(laidOutLines, x, y);
 		
@@ -93,23 +94,24 @@ public:
 	// Utils below this line ///////////////////////////////////////////////////////////////////////////////
 
 	/// split up styledText into a vector of blocks with the same style
-	vector<StyledText> parseStyledText(const string & styledText);
+	void parseStyledText(const string & styledText, vector<StyledText> & output);
 
 	/// layout StyledText blocks
-	const vector<StyledLine> layoutLines(const vector<StyledText> &blocks,
-										 float targetWidth,
-										 ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
-										 int limitToNLines = 0, //stop layout if lines are > limitToNLines
-										 bool debug = false);
+	void layoutLines(const vector<StyledText> &blocks, //input
+					 float targetWidth, //input
+					 vector<StyledLine> & output, //output
+					 ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, //input
+					 int limitToNLines = 0, //stop layout if lines are > limitToNLines
+					 bool debug = false);
 
 	/// draw already prepared StyledLine´s
-	ofRectangle drawLines(const vector<StyledLine> &lines,
+	ofRectangle drawLines(const vector<StyledLine> & lines,
 						  float x, float y,
 						  ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
 						  bool debug = false);
 	
 	/// draw and layout blocks
-	ofRectangle drawAndLayout(vector<StyledText> &blocks,
+	ofRectangle drawAndLayout(const vector<StyledText> &blocks,
 							  float x, float y,
 							  float width,
 							  ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
@@ -186,7 +188,7 @@ protected:
 	
 	string globalFallbackFontID; // id of the fallback font for all loaded fonts
 
-	vector<TextBlock> splitWords( const vector<StyledText> & blocks);
+	void splitWords( const vector<StyledText> & blocks, vector<TextBlock> & words);
 
 	ofShader nullShader;
 	bool inBatchMode = false;

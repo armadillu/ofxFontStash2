@@ -118,7 +118,7 @@ bool Fonts::isFontLoaded(const string& fontID){
 vector<string> Fonts::getFontIDs(){
 	vector<string> ids;
 	for(auto id : fontIDs){
-		ids.push_back(id.first);
+		ids.emplace_back(id.first);
 	}
 	return ids;
 }
@@ -229,12 +229,13 @@ float Fonts::drawFormatted(const string& styledText, float x, float y){
 	float ret = 0;
 	OFX_FONSTASH2_CHECK_RET
 	TS_START_ACC_NIF("parse text");
-	vector<StyledText> blocks = ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID);
+	vector<StyledText> blocks;
+	ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID, blocks);
 	TS_STOP_ACC_NIF("parse text");
 	float xx = x;
 	float yy = y;
-	for(int i = 0; i < blocks.size(); i++){
-		xx += draw(blocks[i].text, blocks[i].style, xx, yy);
+	for(auto & b : blocks){
+		xx += draw(b.text, b.style, xx, yy);
 	}
 	return xx - x;
 }
@@ -248,7 +249,7 @@ ofRectangle Fonts::drawColumn(const string& text,
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
 	vector<StyledText> blocks;
-	blocks.push_back(StyledText({text, style}));
+	blocks.emplace_back(StyledText({text, style}));
 	return drawAndLayout(blocks, x, y, targetWidth, horAlign, debug);
 }
 
@@ -294,39 +295,43 @@ ofRectangle Fonts::getTextBoundsNVG(const string& text,
 }
 
 
-ofRectangle Fonts::drawFormattedColumn(const string& styledText,
-											   float x, float y, float targetWidth,
-											   ofAlignHorz horAlign,
-											   bool debug){
+ofRectangle Fonts::drawFormattedColumn(	const string& styledText,
+									   	float x, float y, float targetWidth,
+										ofAlignHorz horAlign,
+										bool debug){
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
 	if (targetWidth < 0) return ofRectangle();
 	
 	TS_START_ACC_NIF("parse text");
-	vector<StyledText> blocks = ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID);
+	vector<StyledText> blocks;
+	ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID, blocks);
 	TS_STOP_ACC_NIF("parse text");
 	
 	return drawAndLayout(blocks, x, y, targetWidth, horAlign, debug);
 }
 
 
-ofRectangle Fonts::drawAndLayout(vector<StyledText> &blocks,
-										 float x, float y, float width,
-										 ofAlignHorz align, bool debug){
+ofRectangle Fonts::drawAndLayout(const vector<StyledText> &blocks,
+								float x, float y, float width,
+								ofAlignHorz align, bool debug){
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
-	return drawLines(layoutLines(blocks, width, align, 0, debug), x, y, align, debug);
+	vector<StyledLine> lines;
+	layoutLines(blocks, width, lines, align, 0, debug);
+	return drawLines(lines, x, y, align, debug);
 };
 
 
-const vector<StyledLine> Fonts::layoutLines(const vector<StyledText> &blocks,
-													float targetWidth,
-													ofAlignHorz horAlign,
-													int limitToNLines,
-													bool debug){
+void Fonts::layoutLines(const vector<StyledText> &blocks,
+						float targetWidth,
+						vector<StyledLine> & outputLines,
+						ofAlignHorz horAlign,
+						int limitToNLines,
+						bool debug){
 	vector<StyledLine> ret;
-	OFX_FONSTASH2_CHECK_RET
-	if (targetWidth < 0) return vector<StyledLine>();
+	OFX_FONSTASH2_CHECK;
+	if (targetWidth < 0) return;
 	float x = 0;
 	float y = 0;
 	float xx = x;
@@ -334,17 +339,16 @@ const vector<StyledLine> Fonts::layoutLines(const vector<StyledText> &blocks,
 
 	TS_START_NIF("layoutLines");
 	TS_START_NIF("split words");
-	vector<TextBlock> words = splitWords(blocks);
+	vector<TextBlock> words;
+	splitWords(blocks, words);
 	TS_STOP_NIF("split words");
 	
-	if (words.size() == 0) return vector<StyledLine>();
-	
-	vector<StyledLine> lines;
-	
+	if (words.size() == 0) return;
+
 	// here we create the first line. a few things to note:
 	// - in general, like in a texteditor, the line exists first, then content is added to it.
 	// - 'line' here refers to the visual representation. even a line with no newline (\n) can span multiple lines
-	lines.push_back(StyledLine());
+	outputLines.emplace_back(StyledLine());
 	
 	Style currentStyle;
 	currentStyle.fontSize = -1; // this makes sure the first style is actually applied, even if it's the default style
@@ -361,10 +365,10 @@ const vector<StyledLine> Fonts::layoutLines(const vector<StyledText> &blocks,
 
 	for(int i = 0; i < words.size(); i++){
 
-		if(limitToNLines != 0 && lines.size() > limitToNLines){ //stop early if we reached max N of lines
+		if(limitToNLines != 0 && outputLines.size() > limitToNLines){ //stop early if we reached max N of lines
 			break;
 		}
-		StyledLine &currentLine = lines.back();
+		StyledLine & currentLine = outputLines.back();
 		currentLine.boxW = targetWidth;
 
 		TS_START_ACC("word style");
@@ -390,16 +394,16 @@ const vector<StyledLine> Fonts::layoutLines(const vector<StyledText> &blocks,
 			le.baseLineY = yy;
 			le.x = xx;
 			le.lineHeight = currentWordLineH;
-			currentLine.elements.push_back(le);
+			currentLine.elements.emplace_back(le);
 			
 			float lineH = lineHeightMultiplier * currentStyle.lineHeightMult * calcLineHeight(currentLine);
 			currentLine.lineH = lineH;
 			currentLine.lineW = xx - x + dx;
 
-			if (lines.size() > 1){
-				accumulatedLineDiff += lineH - lines[lines.size()-2].lineH;
+			if (outputLines.size() > 1){
+				accumulatedLineDiff += lineH - outputLines[outputLines.size()-2].lineH;
 			}
-			accLineHeighDiff.push_back(accumulatedLineDiff);
+			accLineHeighDiff.emplace_back(accumulatedLineDiff);
 
 
 			yy += lineH;
@@ -407,7 +411,7 @@ const vector<StyledLine> Fonts::layoutLines(const vector<StyledText> &blocks,
 			lineWidth = 0;
 			wordsThisLine = 0;
 			xx = x;
-			lines.push_back(StyledLine());
+			outputLines.emplace_back(StyledLine());
 			continue;
 
 		}else{ //non-linebreaks
@@ -449,7 +453,7 @@ const vector<StyledLine> Fonts::layoutLines(const vector<StyledText> &blocks,
 		if (stayOnCurrentLine){
 
 			TS_START_ACC("stay on line");
-			currentLine.elements.push_back(le);
+			currentLine.elements.emplace_back(le);
 			lineWidth += dx;
 			xx += dx;
 			wordsThisLine++;
@@ -465,10 +469,10 @@ const vector<StyledLine> Fonts::layoutLines(const vector<StyledText> &blocks,
 			TS_START_ACC("new line");
 			//calc height for this line - taking in account all words in the line
 			float lineH = lineHeightMultiplier * currentStyle.lineHeightMult * calcLineHeight(currentLine);
-			if (lines.size() > 1){
-				accumulatedLineDiff += lineH - lines[lines.size()-2].lineH;
+			if (outputLines.size() > 1){
+				accumulatedLineDiff += lineH - outputLines[outputLines.size()-2].lineH;
 			}
-			accLineHeighDiff.push_back(accumulatedLineDiff);
+			accLineHeighDiff.emplace_back(accumulatedLineDiff);
 
 			currentLine.lineH = lineH;
 			currentLine.lineW = xx - x;
@@ -478,14 +482,14 @@ const vector<StyledLine> Fonts::layoutLines(const vector<StyledText> &blocks,
 			wordsThisLine = 0;
 			xx = x;
 
-			lines.push_back(StyledLine());
+			outputLines.emplace_back(StyledLine());
 			TS_STOP_ACC("new line");
 		}
 	}
 
 	TS_START_ACC("last line");
 	// update dimensions of the last line
-	StyledLine &currentLine = lines.back();
+	StyledLine &currentLine = outputLines.back();
 	currentLine.boxW = targetWidth;
 	if( currentLine.elements.size() == 0 ){
 		// but at least one spacing character, so we have a line height.
@@ -493,22 +497,22 @@ const vector<StyledLine> Fonts::layoutLines(const vector<StyledText> &blocks,
 		le.baseLineY = yy;
 		le.x = xx;
 		le.lineHeight = currentWordLineH;
-		currentLine.elements.push_back(le);
+		currentLine.elements.emplace_back(le);
 	}
 	
 	float lineH = lineHeightMultiplier * currentStyle.lineHeightMult * calcLineHeight(currentLine);
 	currentLine.lineH = lineH;
 	currentLine.lineW = xx - x;
-	if (lines.size() > 1){
-		accumulatedLineDiff += lineH - lines[lines.size()-2].lineH;
+	if (outputLines.size() > 1){
+		accumulatedLineDiff += lineH - outputLines[outputLines.size()-2].lineH;
 	}
-	accLineHeighDiff.push_back(accumulatedLineDiff);
+	accLineHeighDiff.emplace_back(accumulatedLineDiff);
 
 	//now that we laid out all the lines and we know all the lineHs, lets re.adjust their line base y.
 
-	for(int i = 0; i < lines.size(); i++){
-		for(int j = 0; j < lines[i].elements.size(); j++){
-			auto & el = lines[i].elements[j];
+	for(int i = 0; i < outputLines.size(); i++){
+		for(int j = 0; j < outputLines[i].elements.size(); j++){
+			auto & el = outputLines[i].elements[j];
 			el.area.y += accLineHeighDiff[i+1];
 		}
 	}
@@ -518,7 +522,7 @@ const vector<StyledLine> Fonts::layoutLines(const vector<StyledText> &blocks,
 	//on right aligned layouts, remove the last space or similar so that right alight really kisses the edge
 	if(horAlign == OF_ALIGN_HORZ_RIGHT || horAlign == OF_ALIGN_HORZ_CENTER){
 
-		for(auto & l : lines){
+		for(auto & l : outputLines){
 			if(l.elements.size() > 0){
 				if(l.elements.back().content.type == SEPARATOR_INVISIBLE){
 					float lastInvW = l.elements.back().area.width;
@@ -542,9 +546,7 @@ const vector<StyledLine> Fonts::layoutLines(const vector<StyledText> &blocks,
 	}
 
 	TS_STOP_ACC("last line");
-
 	TS_STOP_NIF("layoutLines");
-	return lines; 
 }
 
 
@@ -622,7 +624,7 @@ ofRectangle Fonts::drawLines(const vector<StyledLine> &lines, float x, float y, 
 					case SEPARATOR_INVISIBLE: cr.color = ofColor(0, 255, 255, 30); break;
 				}
 				cr.rect = lines[i].elements[j].area;
-				debugRects.push_back(cr);
+				debugRects.emplace_back(cr);
 			}
 		}
 	}
@@ -688,20 +690,14 @@ float Fonts::calcLineHeight(const StyledLine & line){
 }
 
 
-vector<TextBlock>
-Fonts::splitWords( const vector<StyledText> & blocks){
+void Fonts::splitWords(const vector<StyledText> & blocks, vector<TextBlock> & wordBlocks){
 
-	std::locale loc = std::locale("");
+	static std::locale loc = std::locale("");
+	static std::string currentWord;
 
-	vector<TextBlock> wordBlocks;
-	std::string currentWord;
+	for(const auto & block : blocks){
 
-	for(int i = 0; i < blocks.size(); i++){
-
-		const StyledText & block = blocks[i];
-		string blockText = block.text;
-
-		for(auto c: ofUTF8Iterator(blockText)){
+		for(auto c: ofUTF8Iterator(block.text)){
 
 			bool isSpace = std::isspace<wchar_t>(c,loc);
 			//bool isPunct = std::ispunct<wchar_t>(c,loc);
@@ -709,26 +705,22 @@ Fonts::splitWords( const vector<StyledText> & blocks){
 			if(isSpace /*|| isPunct*/){
 
 				if(currentWord.size()){
-					TextBlock word = TextBlock(BLOCK_WORD, currentWord, block.style);
+					wordBlocks.emplace_back(TextBlock(BLOCK_WORD, currentWord, block.style));
 					currentWord.clear();
-					wordBlocks.push_back(word);
 				}
 				string separatorText;
 				utf8::append(c, back_inserter(separatorText));
-				TextBlock separator = TextBlock(/*isPunct?SEPARATOR:*/SEPARATOR_INVISIBLE, separatorText, block.style);
-				wordBlocks.push_back(separator);
+				wordBlocks.emplace_back(TextBlock(/*isPunct?SEPARATOR:*/SEPARATOR_INVISIBLE, separatorText, block.style));
 
 			}else{
 				utf8::append(c, back_inserter(currentWord));
 			}
 		}
-		if(currentWord.size()){ //add last word
-			TextBlock word = TextBlock(BLOCK_WORD, currentWord, block.style);
+		if(currentWord.size()){ //add last & first word
+			wordBlocks.emplace_back(TextBlock(BLOCK_WORD, currentWord, block.style));
 			currentWord.clear();
-			wordBlocks.push_back(word);
 		}
 	}
-	return wordBlocks;
 }
 
 
@@ -817,8 +809,8 @@ NVGcolor Fonts::toFScolor(const ofColor & c){
 	return NVGcolor{c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f };
 }
 
-vector<StyledText> Fonts::parseStyledText(const string & styledText){
-	return ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID);
+void Fonts::parseStyledText(const string & styledText, vector<StyledText> & output){
+	ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID, output);
 }
 
 

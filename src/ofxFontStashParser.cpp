@@ -34,12 +34,12 @@
 using namespace pugi;
 using namespace ofxFontStash2;
 
-vector<StyledText>
-ofxFontStashParser::parseText(const string& text,
-							  const unordered_map<string, Style> & styleIDs,
-							  const string & defaultStyleID){
+void ofxFontStashParser::parseText(const string& text,
+								  const unordered_map<string, Style> & styleIDs,
+								  const string & defaultStyleID,
+								  vector<StyledText> & parsedText //output
+							  ){
 
-	vector<StyledText> parsedText;
 	// pugi has a some interesting whitespace options available
 	// e.g. parse_fragment, parse_trim_pcdata, parse_ws_pcdata_single
 
@@ -56,14 +56,14 @@ ofxFontStashParser::parseText(const string& text,
 		if (defaultStyleID.size()){ //user specified a default style, init our stack with it.
 			auto it = styleIDs.find(defaultStyleID);
 			if(it != styleIDs.end()){
-				stylesStack.push_back(it->second);
+				stylesStack.emplace_back(it->second);
 			}
 		}
 		if(stylesStack.size() == 0){ //user didnt specify a custom default style - use our nasty default
 			if(styleIDs.size()){
-				stylesStack.push_back(std::begin(styleIDs)->second); //get 1st style
+				stylesStack.emplace_back(std::begin(styleIDs)->second); //get 1st style
 			}else{
-				stylesStack.push_back(Style());
+				stylesStack.emplace_back(Style());
 			}
 		}
 
@@ -127,7 +127,6 @@ ofxFontStashParser::parseText(const string& text,
 	TS_STOP_ACC("handle spaces between tags");
 	#endif
 
-	return parsedText;
 }
  
 

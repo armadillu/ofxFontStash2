@@ -21,10 +21,11 @@ class ofxFontStashParser{
 
 public:
 
-	static vector<StyledText> parseText(const string& text,
-										const unordered_map<string, Style> & styleIDs,
-										const string & defaultStyleID
-										);
+	static void parseText(	const string& text, //input
+							const unordered_map<string, Style> & styleIDs, //input
+							const string & defaultStyleID, //input
+							vector<StyledText> & parsedText //output
+							);
 
 	static ofColor colorFromHex(const string & hex);
 
