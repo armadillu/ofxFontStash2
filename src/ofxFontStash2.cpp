@@ -84,8 +84,7 @@ void Fonts::setup(bool debug){
 	#endif
 
 	if (!ctx) {
-		ofLogError("ofxFontStash2") << "error creating nanovg context";
-		return;
+		ofLogError("ofxFontStash2") << "Error creating nanovg context";
 	}
 }
 
@@ -104,7 +103,7 @@ bool Fonts::addFont(const string& fontID, const string& fontFile){
 		}
 		return true;
 	}else{
-		ofLogError("ofxFontStash2") << "Could not load font '" << fontFile << "'";
+		ofLogError("ofxFontStash2") << "Could not load font from path \"" << fontFile << "\"";
 		return false;
 	}
 }
@@ -169,7 +168,7 @@ void Fonts::beginBatch(){
 		begin();
 		inBatchMode = true;
 	}else{
-		ofLogError("ofxFontStash2") << "can't beginBatch() again - dont nest batches!";
+		ofLogError("ofxFontStash2") << "Can't beginBatch() again - dont nest batches!";
 	}
 }
 
@@ -178,7 +177,7 @@ void Fonts::endBatch(){
 		inBatchMode = false;
 		end();
 	}else{
-		ofLogError("ofxFontStash2") << "can't end batch bc you havent started one!!";
+		ofLogError("ofxFontStash2") << "Can't end batch bc you havent started one!!";
 	}
 }
 
@@ -374,7 +373,7 @@ void Fonts::layoutLines(const vector<StyledText> &blocks,
 			if(applyStyle(currentStyle)){
 				ofxfs2_nvgTextMetrics(ctx, NULL, NULL, &currentWordLineH);
 			}else{
-				ofLogError("ofxFontStash2") << "no style font defined!";
+				ofLogError("ofxFontStash2") << "No style font defined!";
 			}
 		}
 		TS_STOP_ACC("word style");
@@ -747,7 +746,7 @@ void Fonts::setGlobalFallbackFont(const string& fallbackFontID){
 	if(globalFallbackFontID != ""){
 		// We can't, because afaik fontstash has no way of doing that yet
 		// and i don't want to go to deep into their datastructures (??)
-		ofLogWarning("ofxFontStash2") << "Setting the global fallback font multiple times is currently not supported. Funny behavior might arise" << endl;
+		ofLogWarning("ofxFontStash2") << "Setting the global fallback font multiple times is currently not supported. Funny behavior might arise";
 	}
 	
 	int fallbackFontID_fs = fontIDs[fallbackFontID];
@@ -797,7 +796,7 @@ int Fonts::getFsID(const string& userFontID){
 	if(it != fontIDs.end()){
 		return it->second;
 	}
-	ofLogError("ofxFontStash2") << "Invalid Font ID: " << userFontID;
+	ofLogError("ofxFontStash2") << "Invalid Font ID: \"" << userFontID << "\"";
 	return FONS_INVALID;
 }
 

@@ -72,9 +72,7 @@ void Parser::parseText(const string& text,
 		TS_STOP_ACC_NIF("recursive parse");
 
 	}else{
-
-		ofLogError("Parser") << "ofxFontStash: xml parsing error in \"" << text
-		<< "\": \"" << result.description() << "\"";
+		ofLogError("ofxFontStash2") << "xml parsing error in \"" << text << "\": \"" << result.description() << "\"";
 	}
 
 	#if 0
@@ -125,7 +123,6 @@ void Parser::parseText(const string& text,
 	}
 	TS_STOP_ACC("handle spaces between tags");
 	#endif
-
 }
  
 
@@ -143,14 +140,14 @@ void Parser::recursiveParse(xml_node & parentNode,
 			// <myStyle></myStyle> ///////////////////////////////////
 			auto it = styleIDs.find(node.name());
 			if( it != styleIDs.end() ){
-				//if(debug) ofLogNotice("Parser") << "NODE<" << node.name() << " stack:" << styleStack.size();
+				//if(debug) ofLogNotice("ofxFontStash2::Parser") << "NODE<" << node.name() << " stack:" << styleStack.size();
 				style = it->second;
 				handleAttributes(node, style);
 			}
 
 			// <style id = "" ></style> /////////////////////////////////////////////
 			else if( strcmp( node.name(), "style") == 0){
-				//if(debug) ofLogNotice() << "NODE<style> stack:" << styleStack.size();
+				//if(debug) ofLogNotice("ofxFontStash2::Parser") << "NODE<style> stack:" << styleStack.size();
 				xml_attribute attr;
 				if((attr = node.attribute("id"))){
 					auto it = styleIDs.find(attr.value());
@@ -163,7 +160,7 @@ void Parser::recursiveParse(xml_node & parentNode,
 
 			// <br/> //////////////////////////////////////////////////////
 			else if( strcmp( node.name(), "br") == 0){
-				//if(debug) ofLogNotice() << "NODE<br> stack:" << styleStack.size();
+				//if(debug) ofLogNotice("ofxFontStash2::Parser") << "NODE<br> stack:" << styleStack.size();
 				Style st = styleStack.back();
 				xml_attribute attr;
 				if((attr = node.attribute("heightMult"))){
@@ -179,7 +176,7 @@ void Parser::recursiveParse(xml_node & parentNode,
 		// handle text inside tags
 		else if(node.type() == node_pcdata || node.type() == node_cdata){
 			string text = node.text().get();
-			//if(debug) ofLogNotice() << "Content [\"" << text << "\"] stack:" << styleStack.size();
+			//if(debug) ofLogNotice("ofxFontStash2::Parser") << "Content [\"" << text << "\"] stack:" << styleStack.size();
 			StyledText st;
 			st.text = node.text().get();
 			st.style = styleStack.back();
