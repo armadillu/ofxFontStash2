@@ -68,8 +68,7 @@ void ofxFontStashParser::parseText(const string& text,
 		}
 
 		TS_START_ACC_NIF("recursive parse");
-		int level = 0;
-		recursiveParse(doc, level, stylesStack, styleIDs, parsedText);
+		recursiveParse(doc, stylesStack, styleIDs, parsedText);
 		TS_STOP_ACC_NIF("recursive parse");
 
 	}else{
@@ -131,14 +130,12 @@ void ofxFontStashParser::parseText(const string& text,
  
 
 void ofxFontStashParser::recursiveParse(xml_node & parentNode,
-										int & level,
 										vector<Style> & styleStack,
 										const unordered_map<string, Style> & styleIDs,
 										vector<StyledText> & parsedText) {
 
-	bool debug = false;
+	//bool debug = false;
 	Style style;
-	level ++;
 	for( xml_node & node : parentNode ){
 		// handle nodes
 		if( node.type() == node_element ){
@@ -146,14 +143,14 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 			// <myStyle></myStyle> ///////////////////////////////////
 			auto it = styleIDs.find(node.name());
 			if( it != styleIDs.end() ){
-				if(debug) ofLogNotice() << "NODE<" << node.name() << "> level:" << level << " stack:" << styleStack.size();
+				//if(debug) ofLogNotice("ofxFontStashParser") << "NODE<" << node.name() << " stack:" << styleStack.size();
 				style = it->second;
 				handleAttributes(node, style);
 			}
 
 			// <style id = "" ></style> /////////////////////////////////////////////
 			else if( strcmp( node.name(), "style") == 0){
-				if(debug) ofLogNotice() << "NODE<style> level:"  << level << " stack:" << styleStack.size();
+				//if(debug) ofLogNotice() << "NODE<style> stack:" << styleStack.size();
 				xml_attribute attr;
 				if((attr = node.attribute("id"))){
 					auto it = styleIDs.find(attr.value());
@@ -166,7 +163,7 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 
 			// <br/> //////////////////////////////////////////////////////
 			else if( strcmp( node.name(), "br") == 0){
-				if(debug) ofLogNotice() << "NODE<br> level:" << level << " stack:" << styleStack.size();
+				//if(debug) ofLogNotice() << "NODE<br> stack:" << styleStack.size();
 				Style st = styleStack.back();
 				xml_attribute attr;
 				if((attr = node.attribute("heightMult"))){
@@ -176,13 +173,13 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 			}
 
 			styleStack.emplace_back(style);
-			recursiveParse(node, level, styleStack, styleIDs, parsedText);
+			recursiveParse(node, styleStack, styleIDs, parsedText);
 		}
 		
 		// handle text inside tags
 		else if(node.type() == node_pcdata || node.type() == node_cdata){
 			string text = node.text().get();
-			if(debug) ofLogNotice() << "Content [\"" << text << "\"] level:" << level  << " stack:" << styleStack.size();
+			//if(debug) ofLogNotice() << "Content [\"" << text << "\"] stack:" << styleStack.size();
 			StyledText st;
 			st.text = node.text().get();
 			st.style = styleStack.back();
@@ -193,8 +190,6 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 	if(styleStack.size() > 1){
 		styleStack.pop_back(); //always keep the default ([0]) style no matter what.
 	}
-
-	level --;
 }
 
 void ofxFontStashParser::handleAttributes(xml_node & node, Style & currStyle){

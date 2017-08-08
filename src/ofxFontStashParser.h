@@ -32,7 +32,6 @@ public:
 protected:
 
 	static void recursiveParse(	pugi::xml_node & node,
-								int & level,
 							   	vector<Style> & styleStack,
 							   	const unordered_map<string, Style> & styleIDs,
 							   	vector<StyledText> & parsedText);

@@ -52,20 +52,16 @@ struct Style{
 				);
 	}
 
-	string toString(){
+	string toString() const{
 		stringstream ss;
 		string colorT = ofToString((int)color.r) + "," + ofToString((int)color.g) + "," + ofToString((int)color.b) + "," + ofToString((int)color.a);
 		ss << "fontID:" << fontID << " fontSize:" << fontSize << " blur:" << blur <<
-		" alignmentV:" << toString(alignmentV) << " color:[" << colorT << "] lineHeightMult:"
+		" alignmentV:" << toString((NVGalign)alignmentV) << " color:[" << colorT << "] lineHeightMult:"
 		<< lineHeightMult << " spacing:" << spacing;
 		return ss.str();
 	}
-	
-	bool operator!= (const Style & b){
-		return !(*this == b);
-	}
 
-	string toString(NVGalign va){
+	string toString(NVGalign va) const{
 		switch(va){
 			case NVG_ALIGN_BASELINE: return "BASELINE";
 			case NVG_ALIGN_TOP: return "TOP";
@@ -73,6 +69,10 @@ struct Style{
 			case NVG_ALIGN_BOTTOM: return "BOTTOM";
 			default: return "UNKNOWN";
 		}
+	}
+
+	bool operator!= (const Style & b){
+		return !(*this == b);
 	}
 };
 

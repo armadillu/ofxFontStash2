@@ -27,37 +27,37 @@ public:
 	void setup(bool debug = false);
 
 	/// load fonts
-	bool addFont(const string& fontID, const string& fontFile); //returns fontID
-	bool isFontLoaded(const string& fontID); //checks if a font was already loaded
+	bool addFont(const string & fontID, const string & fontFile); //returns fontID
+	bool isFontLoaded(const string & fontID); //checks if a font was already loaded
 	vector<string> getFontIDs(); //returns a list of all fonts that are ready to use
 
 	/// work with font styles
-	bool addStyle(const string& styleID, Style style);
-	bool removeStyle(const string& styleID);
-	bool styleExists(const string& styleID);
-	Style getStyle(const string& styleID, bool * exists = nullptr);
-	unordered_map<string, Style>& getStyles(){ return styleIDs; }
+	bool addStyle(const string & styleID, const Style & style);
+	bool removeStyle(const string & styleID);
+	bool styleExists(const string & styleID);
+	Style getStyle(const string & styleID, bool * exists = nullptr);
+	unordered_map<string, Style> & getStyles(){ return styleIDs; }
 	void setDefaultStyle(const string & styleID){ defaultStyleID = styleID; } //how do we render formatted text whose style is undefined? We will use this style.
 
 	/// draw single line string
 	/// returns text width (dx)
 	/// multiline ("\n") not supported - to use for one-liners
-	float draw(const string& text, const Style& style, float x, float y);
+	float draw(const string & text, const Style & style, float x, float y);
 
 	/// draw xml formatted string
 	/// return text width
 	/// multiline ("\n") not supported - to use for one-liners with style
-	float drawFormatted(const string& styledText, float x, float y);
+	float drawFormatted(const string & styledText, float x, float y);
 
 	/// draw string with fixed maximum width, breaking lines to fit the width
 	/// returns text bbox
 	/// multiline ("\n") supported - and it will break lines on its own given a column width
-	ofRectangle drawColumn(const string& text, const Style& style, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug=false);
+	ofRectangle drawColumn(const string & text, const Style & style, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug = false);
 
 	/// draw xml formatted string with fixed maximum width, breaking lines to fit the width
 	/// returns text bbox
 	/// multiline ("\n") supported - and it will break lines on its own given a column width
-	ofRectangle drawFormattedColumn(const string& styledText, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug=false);
+	ofRectangle drawFormattedColumn(const string & styledText, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug = false);
 
 	// DIY layout + draw - so you can inspect intermediate states and do as you wish //
 	/// 1 - Parse your text to get the vector<StyledText> blocks.
@@ -68,14 +68,16 @@ public:
 		// Styled Text //
 	 	vector<StyledText> parsed;
 	 	fs.parseStyledText(myStyledText, parsed);
-		vector<StyledLine> laidOutLines = fs.layoutLines(parsed, columnWidth);
+		vector<StyledLine> laidOutLines;
+	 	fs.layoutLines(parsed, columnWidth, laidOutLines);
 		ofRectangle bbox = fs.drawLines(laidOutLines, x, y);
 		
 		// Plain Text //
 		Style style;
-		string text = "my text";
 		float columnWidth;
-		vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, columnWidth);
+		string text = "my text";
+		vector<StyledLine> laidOutLines;
+	 	fonts.layoutLines({{text, style}}, columnWidth, laidOutLines);
 		ofRectangle bbox = fonts.drawLines(laidOutLines, xx, yy);
 	 */
 
@@ -111,7 +113,7 @@ public:
 						  bool debug = false);
 	
 	/// draw and layout blocks
-	ofRectangle drawAndLayout(const vector<StyledText> &blocks,
+	ofRectangle drawAndLayout(const vector<StyledText> & blocks,
 							  float x, float y,
 							  float width,
 							  ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
@@ -119,10 +121,10 @@ public:
 
 	/// only applies to draw(); return the bbox of the text
 	ofRectangle getTextBounds( const string &text, const Style &style, const float x, const float y );
-	ofRectangle getTextBounds(const vector<StyledLine> &lines, float x, float y);
+	ofRectangle getTextBounds(const vector<StyledLine> & lines, float x, float y);
 
 	///get font metrics for a particular style
-	void getVerticalMetrics( const Style& style, float* ascender, float* descender, float* lineH);
+	void getVerticalMetrics( const Style & style, float* ascender, float* descender, float* lineH);
 
 	/// a global lineH multiplier that affects all loaded fonts.
 	void setLineHeightMult(float l){lineHeightMultiplier = l;}

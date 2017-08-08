@@ -124,7 +124,7 @@ vector<string> Fonts::getFontIDs(){
 }
 
 
-bool Fonts::addStyle(const string& styleID, Style style){
+bool Fonts::addStyle(const string& styleID, const Style & style){
 	if ( find(reservedStyleNames.begin(), reservedStyleNames.end(), styleID) == reservedStyleNames.end()){
 		styleIDs[styleID] = style;
 		ofLogNotice("ofxFontStash2") << "Adding Style with ID \"" << styleID << "\" : \"" << style.toString() << "\"";

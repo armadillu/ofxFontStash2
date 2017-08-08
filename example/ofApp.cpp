@@ -38,7 +38,8 @@ void ofApp::setup(){
 	fonts.addStyle("style3", style);
 
 	ofDisableAntiAliasing(); //to get precise lines
-	fonts.pixelDensity = 2.0;
+	fonts.pixelDensity = 1.0; //render textures at higher DPI if needed
+	fonts.fontScale = 1.0; //global upscale all fonts in this stash
 
 	#ifdef TEST_OFX_NANOVG_COMPAT
 	ofxNanoVG::one().setup(true, true);
