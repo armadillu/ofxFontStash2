@@ -4,9 +4,8 @@
 //#define TEST_FBO
 
 #ifdef TEST_OFX_NANOVG_COMPAT
-#include "ofxNanoVG.h"
+	#include "ofxNanoVG.h"
 #endif
-
 
 #include "ofMain.h"
 #include "ofxTimeMeasurements.h"
