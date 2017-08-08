@@ -19,19 +19,19 @@ struct Style{
 	string fontID;
 	float fontSize = 12;
 	ofColor color = ofColor::white;
-	 unsigned char blur = 0;
+	unsigned char blur = 0;
 	NVGalign alignmentV = (NVGalign)(NVG_ALIGN_BASELINE); //NOTE H alignment is ignored!
 	float lineHeightMult = 1.0;
 	float spacing = 0;
 
-	Style(string fontID, float fontSize, const ofColor & color){
+	Style(const string & fontID, float fontSize, const ofColor & color){
 		valid = true;
 		this->fontSize = fontSize;
 		this->color = color;
 		this->fontID = fontID;
 	}
 
-	Style(string fontID, float fontSize){
+	Style(const string & fontID, float fontSize){
 		valid = true;
 		this->fontSize = fontSize;
 		this->fontID = fontID;
@@ -61,7 +61,7 @@ struct Style{
 		return ss.str();
 	}
 	
-	bool operator!= (const Style &b){
+	bool operator!= (const Style & b){
 		return !(*this == b);
 	}
 
@@ -98,11 +98,13 @@ enum TextBlockType : unsigned char{
 struct TextBlock{
 	TextBlockType type;
 	StyledText styledText;
-	TextBlock(TextBlockType type, string text, Style style){
+
+	TextBlock(TextBlockType type, const string & text, const Style & style){
 		this->type = type;
 		this->styledText.text = text;
 		this->styledText.style = style;
 	}
+
 	TextBlock(){}
 };
 
@@ -114,7 +116,7 @@ struct LineElement{
 	float baseLineY = 0.0f;
 	float x = 0.0f; //x
 	LineElement(){}
-	LineElement(TextBlock b, ofRectangle r){
+	LineElement(const TextBlock & b, const ofRectangle & r){
 		this->content = b;
 		this->area = r;
 	}

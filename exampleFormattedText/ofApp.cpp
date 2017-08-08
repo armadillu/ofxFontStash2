@@ -13,12 +13,13 @@ void ofApp::setup(){
 
 	fonts.setup(false);
 
+	//add fonts to the stash
 	fonts.addFont("robo", "fonts/Roboto-Regular.ttf");
 	fonts.addFont("roboBold", "fonts/Roboto-Bold.ttf");
 	fonts.addFont("roboItalic", "fonts/Roboto-Italic.ttf");
 	fonts.addFont("roboBlack", "fonts/Roboto-Black.ttf");
 
-
+	//define font styles
 	fonts.addStyle("header", ofxFontStash2::Style("roboBlack", 44, ofColor::white));
 	fonts.addStyle("body", ofxFontStash2::Style("robo", 18, ofColor::white));
 	fonts.addStyle("bodyBold", ofxFontStash2::Style("roboBold", 18, ofColor::white));
@@ -29,7 +30,6 @@ void ofApp::setup(){
 
 	ofDisableAntiAliasing(); //to get precise lines
 	fonts.pixelDensity = 2.0;
-
 }
 
 

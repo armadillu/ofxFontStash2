@@ -197,7 +197,9 @@ void Fonts::begin(){
 
 void Fonts::end(){
 	if(!inBatchMode){
+		//TS_START("endFrame");
 		ofxfs2_nvgEndFrame(ctx);
+		//TS_STOP("endFrame");
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		//ofEnableAlphaBlending();
 		#if defined(NANOVG_GL3_IMPLEMENTATION) || defined(NANOVG_GLES2_IMPLEMENTATION)
@@ -660,7 +662,7 @@ ofRectangle Fonts::getTextBounds(const vector<StyledLine> &lines, float x, float
 	for(auto & l : lines){
 		for(auto & e : l.elements){
 			if(e.content.type == BLOCK_WORD){
-				ret = ret.getUnion(e.area);
+				ret.growToInclude(e.area);
 			}
 		}
 	}
@@ -697,7 +699,7 @@ void Fonts::splitWords(const vector<StyledText> & blocks, vector<TextBlock> & wo
 
 	for(const auto & block : blocks){
 
-		for(auto c: ofUTF8Iterator(block.text)){
+		for(auto c : ofUTF8Iterator(block.text)){
 
 			bool isSpace = std::isspace<wchar_t>(c,loc);
 			//bool isPunct = std::ispunct<wchar_t>(c,loc);
@@ -796,7 +798,7 @@ bool Fonts::applyStyle(const Style & style){
 
 int Fonts::getFsID(const string& userFontID){
 
-	unordered_map<string, int>::iterator it = fontIDs.find(userFontID);
+	auto it = fontIDs.find(userFontID);
 	if(it != fontIDs.end()){
 		return it->second;
 	}

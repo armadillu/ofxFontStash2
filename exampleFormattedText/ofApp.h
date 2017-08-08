@@ -5,7 +5,6 @@
 #include "ofMain.h"
 #include "ofxFontStash2.h"
 
-
 #define TIME_SAMPLE_OFX_FONTSTASH2 //comment this line to remove ofxTimeMeasurements dependency
 
 #ifdef TIME_SAMPLE_OFX_FONTSTASH2

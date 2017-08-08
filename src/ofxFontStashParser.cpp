@@ -104,12 +104,12 @@ void ofxFontStashParser::parseText(const string& text,
 				//handle case where "<style1>bye</style1>.<style2>" should render as "bye." not "bye ."
 				bool isPunctuation;
 				if (parsedText[i+1].text.size() == 1 && parsedText[i+1].text != "\n" && parsedText[i+1].text != " "){
-					for(auto c: ofUTF8Iterator(parsedText[i+1].text)){
+					for(auto & c: ofUTF8Iterator(parsedText[i+1].text)){
 						isPunctuation = std::ispunct<wchar_t>(c,loc);
 					}
 				}
 				if(!rightHasSeparator && !leftHasSeparator && !isPunctuation){
-					spacesToAdd.push_back(i);
+					spacesToAdd.emplace_back(i);
 				}
 			}
 		}
@@ -172,10 +172,10 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 				if((attr = node.attribute("heightMult"))){
 					st.lineHeightMult *= ofToFloat(attr.value());
 				}
-				parsedText.push_back({"\n", st});
+				parsedText.emplace_back(StyledText({"\n", st}));
 			}
 
-			styleStack.push_back(style);
+			styleStack.emplace_back(style);
 			recursiveParse(node, level, styleStack, styleIDs, parsedText);
 		}
 		
@@ -186,7 +186,7 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 			StyledText st;
 			st.text = node.text().get();
 			st.style = styleStack.back();
-			parsedText.push_back(st);
+			parsedText.emplace_back(st);
 		}
 	}
 
