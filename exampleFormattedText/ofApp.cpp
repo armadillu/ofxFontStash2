@@ -27,6 +27,7 @@ void ofApp::setup(){
 	fonts.addStyle("bodyRed", ofxFontStash2::Style("robo", 18, ofColor::red));
 	fonts.addStyle("bodyGreen", ofxFontStash2::Style("robo", 18, ofColor::green));
 	fonts.addStyle("bodyBlue", ofxFontStash2::Style("robo", 18, ofColor::blue));
+	fonts.addStyle("bodyDarkgreen", ofxFontStash2::Style("robo", 18, ofColor::darkGreen));
 
 	ofDisableAntiAliasing(); //to get precise lines
 	fonts.pixelDensity = 2.0;
@@ -54,7 +55,7 @@ void ofApp::draw(){
 	"It offers text alignment (left, center, right).<br/><br/>"
 	"It also allows you to mix and match different text <bodyItalic>styles</bodyItalic> in the same "
 	"paragraph. You can do so by <bodyRed>creating styles that can be applied at an "
-	"individual <bodyGreen>word level</bodyGreen> with style nesting</bodyRed>. You can also inline styles."
+	"individual <bodyDarkgreen>cha<bodyGreen>rac</bodyGreen>ter level</bodyDarkgreen> with style nesting</bodyRed>. You can also inline styles."
 	"<br/><br/>"
 	"Here, we demo the inline styles feature by dynamically "
 	"setting a font " + dynamicSizeTag + "size.</style><br/>"
@@ -83,7 +84,6 @@ void ofApp::draw(){
 	ofSetColor(255,8);
 	ofDrawRectangle(bbox);
 
-
 	//now draw with straight nanovg renderer
 	x = ofGetWidth() * 0.5 + margin/2;
 	drawInsertionPoint(x, y, 100);
@@ -95,10 +95,9 @@ void ofApp::draw(){
 	ofSetColor(255,32);
 	ofDrawLine(x , 0, x, ofGetHeight());
 	ofDrawLine(x + colW, 0, x + colW, ofGetHeight());
-
-
-
 }
+
+
 void ofApp::keyPressed(int key){
 
 	if(key == 'd'){

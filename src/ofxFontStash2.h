@@ -147,15 +147,13 @@ public:
 	/// this can be changed between calls, meaning it's read (and applied) before each draw call
 	float pixelDensity;
 	
-	/// width of tabs (measured in spaces)
+	/// width of tabs (measured in # of spaces)
 	int tabWidth = 4;
 
-	/// set to true to see bboxes and other debug info
-	///bool debug = false;
-	
-	/// with this option one can scale all fonts up/down by a factor
+	/// with this option one can scale all font drawing up/down by a factor
 	float fontScale;
 
+	/// Batch mode
 	void beginBatch(); 	//if you can pack a few draw calls togehter in a batch, you will get better performance
 	void endBatch(); 	//by wrapping them around beginBath() & endBatch()
 	bool isInBatch(){ return inBatchMode;}
@@ -178,9 +176,9 @@ protected:
 	float calcWidth(const StyledLine & line);
 	float calcLineHeight(const StyledLine & line);
 	
-	bool applyStyle(const Style& style);
+	bool applyStyle(const Style & style);
 
-	NVGcolor toFScolor(const ofColor& c);
+	NVGcolor toFScolor(const ofColor & c);
 	NVGcontext* ctx = nullptr;
 
 	unordered_map<string, int> fontIDs; //userFontID to fontStashFontID

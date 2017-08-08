@@ -116,7 +116,7 @@ bool Fonts::isFontLoaded(const string& fontID){
 
 vector<string> Fonts::getFontIDs(){
 	vector<string> ids;
-	for(auto id : fontIDs){
+	for(auto & id : fontIDs){
 		ids.emplace_back(id.first);
 	}
 	return ids;
@@ -125,6 +125,10 @@ vector<string> Fonts::getFontIDs(){
 
 bool Fonts::addStyle(const string& styleID, const Style & style){
 	if ( find(reservedStyleNames.begin(), reservedStyleNames.end(), styleID) == reservedStyleNames.end()){
+		auto it = styleIDs.find(styleID);
+		if(it != styleIDs.end()){
+			ofLogWarning("ofxFontStash2") << "Style with ID \"" << styleID << "\" already existed! Updating it with these contents: \"" << style.toString() << "\"";
+		}
 		styleIDs[styleID] = style;
 		ofLogNotice("ofxFontStash2") << "Adding Style with ID \"" << styleID << "\" : \"" << style.toString() << "\"";
 		return true;
@@ -211,11 +215,11 @@ void Fonts::end(){
 float Fonts::draw(const string& text, const Style& style, float x, float y){
 	float ret = 0;
 	OFX_FONSTASH2_CHECK_RET
-	begin();
+	if(!inBatchMode){begin();}
 	ofRectangle bounds = getTextBounds(text, style, x, y);
 	//applyStyle(style); //getTextBounds already applies style
 	float newX = ofxfs2_nvgText(ctx, x, y, text.c_str(), NULL);
-	end();
+	if(!inBatchMode){end();}
 	//return newX;
 	return bounds.width;
 }
@@ -224,15 +228,15 @@ float Fonts::draw(const string& text, const Style& style, float x, float y){
 float Fonts::drawFormatted(const string& styledText, float x, float y){
 	float ret = 0;
 	OFX_FONSTASH2_CHECK_RET
-	TS_START_ACC_NIF("parse text");
 	vector<StyledText> blocks;
 	Parser::parseText(styledText, styleIDs, defaultStyleID, blocks);
-	TS_STOP_ACC_NIF("parse text");
 	float xx = x;
 	float yy = y;
+	if(!inBatchMode){begin();}
 	for(auto & b : blocks){
 		xx += draw(b.text, b.style, xx, yy);
 	}
+	if(!inBatchMode){end();}
 	return xx - x;
 }
 
@@ -253,7 +257,6 @@ void Fonts::drawColumnNVG(const string& text,
 								  const Style& style,
 								  float x, float y, float width,
 								  ofAlignHorz horAlign){
-
 	begin();
 	applyStyle(style);
 	NVGalign hAlign = NVGalign(0);
@@ -513,8 +516,6 @@ void Fonts::layoutLines(const vector<StyledText> &blocks,
 		}
 	}
 
-
-
 	//on right aligned layouts, remove the last space or similar so that right alight really kisses the edge
 	if(horAlign == OF_ALIGN_HORZ_RIGHT || horAlign == OF_ALIGN_HORZ_CENTER){
 
@@ -598,18 +599,14 @@ ofRectangle Fonts::drawLines(const vector<StyledLine> &lines, float x, float y, 
 
 				if (drawStyle != el.content.styledText.style ){
 					drawStyle = el.content.styledText.style;
-					//TS_START_ACC("applyStyle");
 					applyStyle(drawStyle);
-					//TS_STOP_ACC("applyStyle");
 				}
 
-				//TS_START_ACC("fonsDrawText");
 				float dx = ofxfs2_nvgText(ctx,
 								   el.x + offset.x,
 								   (el.baseLineY + l.lineH - lines[0].lineH) + offset.y,
 								   el.content.styledText.text.c_str(),
 								   NULL);
-				//TS_STOP_ACC("fonsDrawText");
 			}
 
 			if(debug){ //draw rects on top of each block type
@@ -629,11 +626,7 @@ ofRectangle Fonts::drawLines(const vector<StyledLine> &lines, float x, float y, 
 	if(debug){ //draw debug rects on top of each word
 		for(auto & cr : debugRects){
 			ofSetColor(cr.color);
-			ofDrawRectangle(cr.rect.x + offset.x,
-							cr.rect.y + offset.y,
-							cr.rect.width,
-							cr.rect.height
-							);
+			ofDrawRectangle(cr.rect.x + offset.x, cr.rect.y + offset.y, cr.rect.width, cr.rect.height);
 		}
 	}
 
@@ -653,8 +646,8 @@ ofRectangle Fonts::getTextBounds(const vector<StyledLine> &lines, float x, float
 
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
-	for(auto & l : lines){
-		for(auto & e : l.elements){
+	for(const auto & l : lines){
+		for(const auto & e : l.elements){
 			if(e.content.type == BLOCK_WORD){
 				ret.growToInclude(e.area);
 			}
@@ -668,8 +661,8 @@ ofRectangle Fonts::getTextBounds(const vector<StyledLine> &lines, float x, float
 
 float Fonts::calcWidth(const StyledLine & line){
 	float w = 0;
-	for(int i = 0; i < line.elements.size(); i++){
-		w += line.elements[i].area.width;
+	for(const auto & el : line.elements){
+		w += el.area.width;
 	}
 	return w;
 }
@@ -677,9 +670,9 @@ float Fonts::calcWidth(const StyledLine & line){
 
 float Fonts::calcLineHeight(const StyledLine & line){
 	float h = 0;
-	for(int i = 0; i < line.elements.size(); i++){
-		if (line.elements[i].lineHeight > h){
-			h = line.elements[i].lineHeight;
+	for(auto & e : line.elements){
+		if (e.lineHeight > h){
+			h = e.lineHeight;
 		}
 	}
 	return h;
@@ -720,11 +713,11 @@ void Fonts::splitWords(const vector<StyledText> & blocks, vector<TextBlock> & wo
 }
 
 
-ofRectangle Fonts::getTextBounds( const string &text, const Style &style, const float x, const float y ){
+ofRectangle Fonts::getTextBounds( const string & text, const Style & style, const float x, const float y ){
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
 	applyStyle(style);
-	float bounds[4]={0,0,0,0};
+	float bounds[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 
 	float advance = ofxfs2_nvgTextBounds( ctx, x, y, text.c_str(), NULL, bounds );
 	// here we use the "text advance" instead of the width of the rectangle,
@@ -750,7 +743,7 @@ void Fonts::setGlobalFallbackFont(const string& fallbackFontID){
 	}
 	
 	int fallbackFontID_fs = fontIDs[fallbackFontID];
-	for( auto font : fontIDs){
+	for(auto & font : fontIDs){
 		if(font.second != fallbackFontID_fs){
 			ofxfs2_nvgAddFallbackFontId(ctx, font.second, fallbackFontID_fs);
 		}
@@ -767,7 +760,6 @@ string Fonts::getGlobalFallbackFont(){
 void Fonts::addFallbackFont(const string& fontID, const string &fallbackFontID){
 	int fontID_fs = fontIDs[fontID];
 	int fallbackFontID_fs = fontIDs[fallbackFontID];
-
 	ofxfs2_nvgAddFallbackFontId(ctx, fontID_fs, fallbackFontID_fs);
 }
 
@@ -830,7 +822,6 @@ void Fonts::applyOFMatrix(){ //from ofxNanoVG
 		scale.y *= -1;
 		skew.y *= -1;
 	}
-
 	ofxfs2_nvgResetTransform(ctx);
 	ofxfs2_nvgTransform(ctx, scale.x, -skew.y, -skew.x, scale.y, translate.x, translate.y);
 }

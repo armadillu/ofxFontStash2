@@ -133,20 +133,12 @@ void Parser::recursiveParse(xml_node & parentNode,
 
 	//bool debug = false;
 	Style style;
-	for( xml_node & node : parentNode ){
+	for(xml_node & node : parentNode){
 		// handle nodes
 		if( node.type() == node_element ){
 
-			// <myStyle></myStyle> ///////////////////////////////////
-			auto it = styleIDs.find(node.name());
-			if( it != styleIDs.end() ){
-				//if(debug) ofLogNotice("ofxFontStash2::Parser") << "NODE<" << node.name() << " stack:" << styleStack.size();
-				style = it->second;
-				handleAttributes(node, style);
-			}
-
-			// <style id = "" ></style> /////////////////////////////////////////////
-			else if( strcmp( node.name(), "style") == 0){
+			// <style id = "" ></style> //////////////////////////////////////////////////////
+			if( strcmp( node.name(), "style") == 0){
 				//if(debug) ofLogNotice("ofxFontStash2::Parser") << "NODE<style> stack:" << styleStack.size();
 				xml_attribute attr;
 				if((attr = node.attribute("id"))){
@@ -158,7 +150,7 @@ void Parser::recursiveParse(xml_node & parentNode,
 				handleAttributes(node, style);
 			}
 
-			// <br/> //////////////////////////////////////////////////////
+			// <br/> /////////////////////////////////////////////////////////////////////////
 			else if( strcmp( node.name(), "br") == 0){
 				//if(debug) ofLogNotice("ofxFontStash2::Parser") << "NODE<br> stack:" << styleStack.size();
 				Style st = styleStack.back();
@@ -167,6 +159,15 @@ void Parser::recursiveParse(xml_node & parentNode,
 					st.lineHeightMult *= ofToFloat(attr.value());
 				}
 				parsedText.emplace_back(StyledText({"\n", st}));
+			}else{
+
+			// <myStyle></myStyle> /////////////////////////////////////////////////////////// keep this as the last option as its the most expensive to evaluate
+				auto it = styleIDs.find(node.name());
+				if( it != styleIDs.end() ){
+					//if(debug) ofLogNotice("ofxFontStash2::Parser") << "NODE<" << node.name() << " stack:" << styleStack.size();
+					style = it->second;
+					handleAttributes(node, style);
+				}
 			}
 
 			styleStack.emplace_back(style);
