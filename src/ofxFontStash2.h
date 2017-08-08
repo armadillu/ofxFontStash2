@@ -15,12 +15,14 @@
 #include "ofxfs2_fontstash.h"
 #include "ofxfs2_nanovg.h"
 
-class ofxFontStash2{
+namespace ofxFontStash2{
+
+class Fonts{
 
 public:
 
-	ofxFontStash2();
-	~ofxFontStash2();
+	Fonts();
+	~Fonts();
 
 	void setup(bool debug = false);
 
@@ -30,17 +32,17 @@ public:
 	vector<string> getFontIDs(); //returns a list of all fonts that are ready to use
 
 	/// work with font styles
-	bool addStyle(const string& styleID, ofxFontStashStyle style);
+	bool addStyle(const string& styleID, Style style);
 	bool removeStyle(const string& styleID);
 	bool styleExists(const string& styleID);
-	ofxFontStashStyle getStyle(const string& styleID, bool * exists = nullptr);
-	unordered_map<string, ofxFontStashStyle>& getStyles(){ return styleIDs; }
+	Style getStyle(const string& styleID, bool * exists = nullptr);
+	unordered_map<string, Style>& getStyles(){ return styleIDs; }
 	void setDefaultStyle(const string & styleID){ defaultStyleID = styleID; } //how do we render formatted text whose style is undefined? We will use this style.
 
 	/// draw single line string
 	/// returns text width (dx)
 	/// multiline ("\n") not supported - to use for one-liners
-	float draw(const string& text, const ofxFontStashStyle& style, float x, float y);
+	float draw(const string& text, const Style& style, float x, float y);
 
 	/// draw xml formatted string
 	/// return text width
@@ -50,7 +52,7 @@ public:
 	/// draw string with fixed maximum width, breaking lines to fit the width
 	/// returns text bbox
 	/// multiline ("\n") supported - and it will break lines on its own given a column width
-	ofRectangle drawColumn(const string& text, const ofxFontStashStyle& style, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug=false);
+	ofRectangle drawColumn(const string& text, const Style& style, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug=false);
 
 	/// draw xml formatted string with fixed maximum width, breaking lines to fit the width
 	/// returns text bbox
@@ -69,7 +71,7 @@ public:
 		ofRectangle bbox = fs.drawLines(laidOutLines, x, y);
 		
 		// Plain Text //
-		ofxFontStashStyle style;
+		Style style;
 		string text = "my text";
 		float columnWidth;
 		vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, columnWidth);
@@ -77,13 +79,13 @@ public:
 	 */
 
 	///draw a paragraph relying on NanoVG for layout & linebreaking
-	void drawColumnNVG(const string& text, const ofxFontStashStyle& style,
+	void drawColumnNVG(const string& text, const Style& style,
 					   float x, float y, float width,
 					   ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT);
 
 	///get the bbox containing the text laid out in a drawColumnNVG() call
 	ofRectangle getTextBoundsNVG(const string& text,
-								 const ofxFontStashStyle& style,
+								 const Style& style,
 								 float x, float y, float width,
 								 ofAlignHorz horAlign);
 
@@ -114,11 +116,11 @@ public:
 							  bool debug=false);
 
 	/// only applies to draw(); return the bbox of the text
-	ofRectangle getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y );
+	ofRectangle getTextBounds( const string &text, const Style &style, const float x, const float y );
 	ofRectangle getTextBounds(const vector<StyledLine> &lines, float x, float y);
 
 	///get font metrics for a particular style
-	void getVerticalMetrics( const ofxFontStashStyle& style, float* ascender, float* descender, float* lineH);
+	void getVerticalMetrics( const Style& style, float* ascender, float* descender, float* lineH);
 
 	/// a global lineH multiplier that affects all loaded fonts.
 	void setLineHeightMult(float l){lineHeightMultiplier = l;}
@@ -172,13 +174,13 @@ protected:
 	float calcWidth(const StyledLine & line);
 	float calcLineHeight(const StyledLine & line);
 	
-	bool applyStyle(const ofxFontStashStyle& style);
+	bool applyStyle(const Style& style);
 
 	NVGcolor toFScolor(const ofColor& c);
 	NVGcontext* ctx = nullptr;
 
 	unordered_map<string, int> fontIDs; //userFontID to fontStashFontID
-	unordered_map<string, ofxFontStashStyle> styleIDs;
+	unordered_map<string, Style> styleIDs;
 
 	string defaultStyleID; //how do we render formatted text whose style is undefined?
 	
@@ -195,3 +197,5 @@ protected:
 	void begin();
 	void end();
 };
+
+}

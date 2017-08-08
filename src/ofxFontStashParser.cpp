@@ -30,11 +30,13 @@
 	#define TS_STOP
 #endif
 
+
 using namespace pugi;
+using namespace ofxFontStash2;
 
 vector<StyledText>
 ofxFontStashParser::parseText(const string& text,
-							  const unordered_map<string, ofxFontStashStyle> & styleIDs,
+							  const unordered_map<string, Style> & styleIDs,
 							  const string & defaultStyleID){
 
 	vector<StyledText> parsedText;
@@ -50,7 +52,7 @@ ofxFontStashParser::parseText(const string& text,
 
 	if(result.status == status_ok){
 
-		vector<ofxFontStashStyle> stylesStack;
+		vector<Style> stylesStack;
 		if (defaultStyleID.size()){ //user specified a default style, init our stack with it.
 			auto it = styleIDs.find(defaultStyleID);
 			if(it != styleIDs.end()){
@@ -61,7 +63,7 @@ ofxFontStashParser::parseText(const string& text,
 			if(styleIDs.size()){
 				stylesStack.push_back(std::begin(styleIDs)->second); //get 1st style
 			}else{
-				stylesStack.push_back(ofxFontStashStyle());
+				stylesStack.push_back(Style());
 			}
 		}
 
@@ -76,7 +78,7 @@ ofxFontStashParser::parseText(const string& text,
 		<< "\": \"" << result.description() << "\"";
 	}
 
-	#if 1
+	#if 0
 	//this is all to add a space between two styled paragraphs. Otherwise they just have no space
 	//betwen them, so things look like "there was a dog.Bananas are cool".
 	//The parsing seems unable to get any xml contents outisde tags; but that would be a better solution.
@@ -85,6 +87,7 @@ ofxFontStashParser::parseText(const string& text,
 	//the "monkey" is totally lost, but if we found it, then we wouldn't need to be adding extra spaces
 	TS_START_ACC("handle spaces between tags");
 	vector<int> spacesToAdd;
+	std::locale loc = std::locale("");
 	if (parsedText.size() > 1){
 		for(int i = 0; i < parsedText.size() -1; i++){
 			if (parsedText[i].style != parsedText[i+1].style){
@@ -96,7 +99,14 @@ ofxFontStashParser::parseText(const string& text,
 				if (parsedText[i+1].text.size() && isSeparator(parsedText[i+1].text.front())){
 					rightHasSeparator = true;
 				}
-				if(!rightHasSeparator && !leftHasSeparator){
+				//handle case where "<style1>bye</style1>.<style2>" should render as "bye." not "bye ."
+				bool isPunctuation;
+				if (parsedText[i+1].text.size() == 1 && parsedText[i+1].text != "\n" && parsedText[i+1].text != " "){
+					for(auto c: ofUTF8Iterator(parsedText[i+1].text)){
+						isPunctuation = std::ispunct<wchar_t>(c,loc);
+					}
+				}
+				if(!rightHasSeparator && !leftHasSeparator && !isPunctuation){
 					spacesToAdd.push_back(i);
 				}
 			}
@@ -121,12 +131,12 @@ ofxFontStashParser::parseText(const string& text,
 
 void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 										int & level,
-										vector<ofxFontStashStyle> & styleStack,
-										const unordered_map<string, ofxFontStashStyle> & styleIDs,
+										vector<Style> & styleStack,
+										const unordered_map<string, Style> & styleIDs,
 										vector<StyledText> & parsedText) {
 
 	bool debug = false;
-	ofxFontStashStyle style;
+	Style style;
 	level ++;
 	for( xml_node & node : parentNode ){
 		// handle nodes
@@ -156,7 +166,7 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 			// <br/> //////////////////////////////////////////////////////
 			else if( strcmp( node.name(), "br") == 0){
 				if(debug) ofLogNotice() << "NODE<br> level:" << level << " stack:" << styleStack.size();
-				ofxFontStashStyle st = styleStack.back();
+				Style st = styleStack.back();
 				xml_attribute attr;
 				if((attr = node.attribute("heightMult"))){
 					st.lineHeightMult *= ofToFloat(attr.value());
@@ -186,7 +196,7 @@ void ofxFontStashParser::recursiveParse(xml_node & parentNode,
 	level --;
 }
 
-void ofxFontStashParser::handleAttributes(xml_node & node, ofxFontStashStyle & currStyle){
+void ofxFontStashParser::handleAttributes(xml_node & node, Style & currStyle){
 
 	xml_attribute attr;
 	if((attr = node.attribute("font"))){

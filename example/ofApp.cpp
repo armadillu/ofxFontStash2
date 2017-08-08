@@ -21,7 +21,7 @@ void ofApp::setup(){
 	fonts.addFont("veraMonoBold", "fonts/VeraMono-Bold.ttf");
 	fonts.addFont("Helvetica", "fonts/HelveticaNeue.ttf");
 
-	ofxFontStashStyle style;
+	ofxFontStash2::Style style;
 	style.fontID = "Arial";
 	style.fontSize = 33;
 	style.color = ofColor::yellow;
@@ -169,7 +169,7 @@ void ofApp::draw(){
 
 void ofApp::testDraw(float x, float y){
 
-	ofxFontStashStyle style;
+	ofxFontStash2::Style style;
 	style.fontID = "Arial";
 	style.fontSize = 22;
 	{
@@ -195,7 +195,7 @@ void ofApp::testDraw(float x, float y){
 
 void ofApp::testDrawBatch(float x, float y){
 
-	ofxFontStashStyle style;
+	ofxFontStash2::Style style;
 	style.fontID = "Arial";
 	style.fontSize = 22;
 	float xx = x;
@@ -213,7 +213,7 @@ void ofApp::testDrawBatch(float x, float y){
 
 float ofApp::testDrawColumn(float x, float y){
 
-	ofxFontStashStyle style;
+	ofxFontStash2::Style style;
 	style.fontID = "Arial";
 	style.fontSize = 45;
 	style.spacing = -0.5; //tighter letterspacing
@@ -233,7 +233,7 @@ float ofApp::testDrawColumn(float x, float y){
 
 float ofApp::testDrawColumnNVG(float x, float y){
 
-	ofxFontStashStyle style;
+	ofxFontStash2::Style style;
 	style.fontID = "Arial";
 	style.fontSize = 22;
 	ofAlignHorz align = getCurrentAlignment();
@@ -289,7 +289,7 @@ void ofApp::testDrawTabs(float x, float y){
 	"		void update();\n"
 	"}";
 
-	ofxFontStashStyle style;
+	ofxFontStash2::Style style;
 	style.fontID = "veraMono";
 	style.fontSize = 16;
 	style.color = ofColor::white;
@@ -306,12 +306,12 @@ float ofApp::testDiyFormattedLayout(float x, float y){
 	string myStyledText = "<style id='style1'>testDiyFormattedLayout(): hello</style><style id='style2'>banana</style><style id='style3'>monkey</style>";
 	float colW = 300 + (0.5 + 0.5 * sin(columnVariationSpeed * ofGetElapsedTimef() * 0.45 + 2.3)) * 200;
 	auto align = getCurrentAlignment();
-	vector<StyledText> parsed = fonts.parseStyledText(myStyledText);
+	vector<ofxFontStash2::StyledText> parsed = fonts.parseStyledText(myStyledText);
 
 	//we only want to draw whatever fits in 2 lines
 	int numLines = 2;
 	TS_START_NIF("layout formatted");
-	vector<StyledLine> laidOutLines = fonts.layoutLines(parsed, colW, align, numLines);
+	vector<ofxFontStash2::StyledLine> laidOutLines = fonts.layoutLines(parsed, colW, align, numLines);
 	TS_STOP_NIF("layout formatted");
 	TS_START_NIF("draw formatted");
 	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
@@ -325,12 +325,12 @@ float ofApp::testDiyFormattedLayout(float x, float y){
 
 float ofApp::testDiyPlainLayout(float x, float y){
 
-	ofxFontStashStyle style = fonts.getStyles()["style1"];
+	ofxFontStash2::Style style = fonts.getStyles()["style1"];
 	string text = "testDiyPlainLayout(): L'italiano è una tra le ventiquattro lingue ufficiali dell'Unione europea ed è lingua ufficiale dell'Italia, di San Marino, della Svizzera, della Città del Vaticano e del Sovrano Militare Ordine di Malta.";
 	float colW = 300 + (0.5 + 0.5 * sin(columnVariationSpeed * ofGetElapsedTimef() * 0.27)) * 200;
 	auto align = getCurrentAlignment();
 	int maxLines = 3;
-	vector<StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, colW, align, maxLines, debug);
+	vector<ofxFontStash2::StyledLine> laidOutLines = fonts.layoutLines({{text, style}}, colW, align, maxLines, debug);
 	ofRectangle bbox = fonts.drawLines(laidOutLines, x, y);
 	ofSetColor(255,32);
 	ofDrawRectangle(bbox);

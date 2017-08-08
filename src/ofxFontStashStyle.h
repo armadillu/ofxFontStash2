@@ -1,5 +1,5 @@
 //
-//  ofxFontStashStyle.h
+//  Style.h
 //  ofxFontStash2
 //
 //  Created by Oriol Ferrer Mesià on 12/7/15.
@@ -11,35 +11,37 @@
 #include "ofMain.h"
 #include "ofxfs2_nanovg.h"
 
-struct ofxFontStashStyle{
+namespace ofxFontStash2{
+
+struct Style{
 
 	bool valid; //will be true if style definition found.
 	string fontID;
 	float fontSize = 12;
 	ofColor color = ofColor::white;
-	int blur = 0;
+	 unsigned char blur = 0;
 	NVGalign alignmentV = (NVGalign)(NVG_ALIGN_BASELINE); //NOTE H alignment is ignored!
 	float lineHeightMult = 1.0;
 	float spacing = 0;
 
-	ofxFontStashStyle(string fontID, float fontSize, const ofColor & color){
+	Style(string fontID, float fontSize, const ofColor & color){
 		valid = true;
 		this->fontSize = fontSize;
 		this->color = color;
 		this->fontID = fontID;
 	}
 
-	ofxFontStashStyle(string fontID, float fontSize){
+	Style(string fontID, float fontSize){
 		valid = true;
 		this->fontSize = fontSize;
 		this->fontID = fontID;
 	}
 
-	ofxFontStashStyle(){
+	Style(){
 		valid = true;
 	};
 
-	bool operator== (const ofxFontStashStyle &b){
+	bool operator== (const Style &b){
 		return (fontID == b.fontID &&
 				fabs(fontSize - b.fontSize) < 0.001f &&
 				blur == b.blur &&
@@ -59,7 +61,7 @@ struct ofxFontStashStyle{
 		return ss.str();
 	}
 	
-	bool operator!= (const ofxFontStashStyle &b){
+	bool operator!= (const Style &b){
 		return !(*this == b);
 	}
 
@@ -77,7 +79,7 @@ struct ofxFontStashStyle{
 
 struct StyledText{
 	string text;
-	ofxFontStashStyle style;
+	Style style;
 };
 
 
@@ -86,7 +88,7 @@ struct StyledText{
 // - SEPARATOR: word separators that allow breaking into a new line after, like '.' or '-'
 // - SEPARATOR_INVISIBLE: just as separator, but there's no need to ever draw them (space, new line)
 // The enum values are chosen so that you can check if it's_any kind of separator with (type & SEPARATOR) != 0
-enum TextBlockType{
+enum TextBlockType : unsigned char{
 	BLOCK_WORD = 1,
 	SEPARATOR = 2, //this will never be used bc we ignore punctuation types now (they are part of words)
 	SEPARATOR_INVISIBLE = 3
@@ -96,7 +98,7 @@ enum TextBlockType{
 struct TextBlock{
 	TextBlockType type;
 	StyledText styledText;
-	TextBlock(TextBlockType type, string text, ofxFontStashStyle style){
+	TextBlock(TextBlockType type, string text, Style style){
 		this->type = type;
 		this->styledText.text = text;
 		this->styledText.style = style;
@@ -129,3 +131,4 @@ struct StyledLine{
 	}
 };
 
+}

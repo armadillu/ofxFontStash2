@@ -19,13 +19,13 @@ void ofApp::setup(){
 	fonts.addFont("roboBlack", "fonts/Roboto-Black.ttf");
 
 
-	fonts.addStyle("header", ofxFontStashStyle("roboBlack", 44, ofColor::white));
-	fonts.addStyle("body", ofxFontStashStyle("robo", 18, ofColor::white));
-	fonts.addStyle("bodyBold", ofxFontStashStyle("roboBold", 18, ofColor::white));
-	fonts.addStyle("bodyItalic", ofxFontStashStyle("roboItalic", 18, ofColor::white));
-	fonts.addStyle("bodyRed", ofxFontStashStyle("robo", 18, ofColor::red));
-	fonts.addStyle("bodyGreen", ofxFontStashStyle("robo", 18, ofColor::green));
-	fonts.addStyle("bodyBlue", ofxFontStashStyle("robo", 18, ofColor::blue));
+	fonts.addStyle("header", ofxFontStash2::Style("roboBlack", 44, ofColor::white));
+	fonts.addStyle("body", ofxFontStash2::Style("robo", 18, ofColor::white));
+	fonts.addStyle("bodyBold", ofxFontStash2::Style("roboBold", 18, ofColor::white));
+	fonts.addStyle("bodyItalic", ofxFontStash2::Style("roboItalic", 18, ofColor::white));
+	fonts.addStyle("bodyRed", ofxFontStash2::Style("robo", 18, ofColor::red));
+	fonts.addStyle("bodyGreen", ofxFontStash2::Style("robo", 18, ofColor::green));
+	fonts.addStyle("bodyBlue", ofxFontStash2::Style("robo", 18, ofColor::blue));
 
 	ofDisableAntiAliasing(); //to get precise lines
 	fonts.pixelDensity = 2.0;
@@ -53,13 +53,13 @@ void ofApp::draw(){
 	"It offers text alignment (left, center, right).<br/><br/>"
 	"It also allows you to mix and match different text <bodyItalic>styles</bodyItalic> in the same "
 	"paragraph. You can do so by <bodyRed>creating styles that can be applied at an "
-	"individual <bodyGreen>word level</bodyGreen> with style nesting.</bodyRed> You can also inline styles."
+	"individual <bodyGreen>word level</bodyGreen> with style nesting</bodyRed>. You can also inline styles."
 	"<br/><br/>"
 	"Here, we demo the inline styles feature by dynamically "
 	"setting a font " + dynamicSizeTag + "size.</style><br/>"
 	"Here we show how to easily make text " + blinkTag + "blink.</style>"
 	"<br/><br/>"
-	"Here we test what happens when to styles are <bodyBlue>side</bodyBlue> <bodyRed>by side.</bodyRed>"
+	"Here we test what happens when to styles are <bodyBlue>side</bodyBlue> <bodyRed> by side. </bodyRed>"
 	"Here we test inline style <bodyItalic color='#66'>overrides.</bodyItalic>"
 	"<br/><br/>"
 	"Here we test a 1/2 lineHeight line break...<br/><br heightMult='0.5'/>"

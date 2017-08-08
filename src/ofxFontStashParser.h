@@ -11,17 +11,18 @@
 #include "ofMain.h"
 #include "ofxFontStashStyle.h"
 
-
 namespace pugi{
 	class xml_node;
 }
+
+namespace ofxFontStash2{
 
 class ofxFontStashParser{
 
 public:
 
 	static vector<StyledText> parseText(const string& text,
-										const unordered_map<string, ofxFontStashStyle> & styleIDs,
+										const unordered_map<string, Style> & styleIDs,
 										const string & defaultStyleID
 										);
 
@@ -31,10 +32,12 @@ protected:
 
 	static void recursiveParse(	pugi::xml_node & node,
 								int & level,
-							   	vector<ofxFontStashStyle> & styleStack,
-							   	const unordered_map<string, ofxFontStashStyle> & styleIDs,
+							   	vector<Style> & styleStack,
+							   	const unordered_map<string, Style> & styleIDs,
 							   	vector<StyledText> & parsedText);
 
-	static void handleAttributes(pugi::xml_node & node, ofxFontStashStyle & currStyle);
+	static void handleAttributes(pugi::xml_node & node, Style & currStyle);
 	static bool isSeparator(char s);
 };
+
+}

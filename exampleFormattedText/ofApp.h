@@ -30,7 +30,7 @@ public:
 	void keyPressed(int key);
 
 	bool debug;
-	ofxFontStash2 fonts;
+	ofxFontStash2::Fonts fonts;
 
 	void drawInsertionPoint(float x, float y, float w);
 

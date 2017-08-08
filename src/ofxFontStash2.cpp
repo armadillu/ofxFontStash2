@@ -23,22 +23,22 @@
 #ifdef PROFILE_OFX_FONTSTASH2
 	#include "ofxTimeMeasurements.h"
 #else
-#pragma push_macro("TS_START_NIF")
-#define TS_START_NIF
-#pragma push_macro("TS_STOP_NIF")
-#define TS_STOP_NIF
-#pragma push_macro("TS_START_ACC")
-#define TS_START_ACC
-#pragma push_macro("TS_STOP_ACC")
-#define TS_STOP_ACC
-#pragma push_macro("TS_START_ACC_NIF")
-#define TS_START_ACC_NIF
-#pragma push_macro("TS_STOP_ACC_NIF")
-#define TS_STOP_ACC_NIF
-#pragma push_macro("TS_START")
-#define TS_START
-#pragma push_macro("TS_STOP")
-#define TS_STOP
+	#pragma push_macro("TS_START_NIF")
+	#define TS_START_NIF
+	#pragma push_macro("TS_STOP_NIF")
+	#define TS_STOP_NIF
+	#pragma push_macro("TS_START_ACC")
+	#define TS_START_ACC
+	#pragma push_macro("TS_STOP_ACC")
+	#define TS_STOP_ACC
+	#pragma push_macro("TS_START_ACC_NIF")
+	#define TS_START_ACC_NIF
+	#pragma push_macro("TS_STOP_ACC_NIF")
+	#define TS_STOP_ACC_NIF
+	#pragma push_macro("TS_START")
+	#define TS_START
+	#pragma push_macro("TS_STOP")
+	#define TS_STOP
 #endif
 
 #define OFX_FONSTASH2_CHECK		if(!ctx){\
@@ -51,15 +51,16 @@
 									return ret;\
 								}
 
+using namespace ofxFontStash2;
 
-ofxFontStash2::ofxFontStash2(){
+Fonts::Fonts(){
 
 	lineHeightMultiplier = 1.0;
 	pixelDensity = 1.0;
 	fontScale = 1.0;
 }
 
-ofxFontStash2::~ofxFontStash2(){
+Fonts::~Fonts(){
 	#ifdef NANOVG_GL3_IMPLEMENTATION
 	ofxfs2_nvgDeleteGL3(ctx);
 	#elif defined NANOVG_GL2_IMPLEMENTATION
@@ -70,7 +71,7 @@ ofxFontStash2::~ofxFontStash2(){
 }
 
 
-void ofxFontStash2::setup(bool debug){
+void Fonts::setup(bool debug){
 
 	bool stencilStrokes = false;
 
@@ -89,7 +90,7 @@ void ofxFontStash2::setup(bool debug){
 }
 
 
-bool ofxFontStash2::addFont(const string& fontID, const string& fontFile){
+bool Fonts::addFont(const string& fontID, const string& fontFile){
 
 	bool ret = false;
 	OFX_FONSTASH2_CHECK_RET
@@ -109,12 +110,12 @@ bool ofxFontStash2::addFont(const string& fontID, const string& fontFile){
 }
 
 
-bool ofxFontStash2::isFontLoaded(const string& fontID){
+bool Fonts::isFontLoaded(const string& fontID){
 	auto iter = fontIDs.find( fontID );
 	return iter != fontIDs.end();
 }
 
-vector<string> ofxFontStash2::getFontIDs(){
+vector<string> Fonts::getFontIDs(){
 	vector<string> ids;
 	for(auto id : fontIDs){
 		ids.push_back(id.first);
@@ -123,7 +124,7 @@ vector<string> ofxFontStash2::getFontIDs(){
 }
 
 
-bool ofxFontStash2::addStyle(const string& styleID, ofxFontStashStyle style){
+bool Fonts::addStyle(const string& styleID, Style style){
 	if ( find(reservedStyleNames.begin(), reservedStyleNames.end(), styleID) == reservedStyleNames.end()){
 		styleIDs[styleID] = style;
 		ofLogNotice("ofxFontStash2") << "Adding Style with ID \"" << styleID << "\" : \"" << style.toString() << "\"";
@@ -134,7 +135,7 @@ bool ofxFontStash2::addStyle(const string& styleID, ofxFontStashStyle style){
 	}
 }
 
-bool ofxFontStash2::removeStyle(const string& styleID){
+bool Fonts::removeStyle(const string& styleID){
 	auto it = styleIDs.find(styleID);
 	if(it != styleIDs.end()){
 		styleIDs.erase(it);
@@ -147,23 +148,23 @@ bool ofxFontStash2::removeStyle(const string& styleID){
 }
 
 
-bool ofxFontStash2::styleExists(const string& styleID){
+bool Fonts::styleExists(const string& styleID){
 	return styleIDs.find(styleID) != styleIDs.end();
 }
 
 
-ofxFontStashStyle ofxFontStash2::getStyle(const string& styleID, bool * exists){
+ofxFontStash2::Style Fonts::getStyle(const string& styleID, bool * exists){
 	auto it = styleIDs.find(styleID);
 	if(it != styleIDs.end()){
 		if(exists) *exists = true;
 		return it->second;
 	}
 	if(exists) *exists = false;
-	return ofxFontStashStyle();
+	return ofxFontStash2::Style();
 }
 
 
-void ofxFontStash2::beginBatch(){
+void Fonts::beginBatch(){
 	if(!inBatchMode){
 		begin();
 		inBatchMode = true;
@@ -172,7 +173,7 @@ void ofxFontStash2::beginBatch(){
 	}
 }
 
-void ofxFontStash2::endBatch(){
+void Fonts::endBatch(){
 	if(inBatchMode){
 		inBatchMode = false;
 		end();
@@ -181,7 +182,7 @@ void ofxFontStash2::endBatch(){
 	}
 }
 
-void ofxFontStash2::begin(){
+void Fonts::begin(){
 	if(!inBatchMode){
 		#if defined(NANOVG_GL3_IMPLEMENTATION) || defined(NANOVG_GLES2_IMPLEMENTATION)
 		//NanoVG sets its own shader to draw text- once done, we need OF to enable back its own
@@ -194,7 +195,7 @@ void ofxFontStash2::begin(){
 	}
 }
 
-void ofxFontStash2::end(){
+void Fonts::end(){
 	if(!inBatchMode){
 		ofxfs2_nvgEndFrame(ctx);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -206,7 +207,7 @@ void ofxFontStash2::end(){
 }
 
 
-float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, float x, float y){
+float Fonts::draw(const string& text, const Style& style, float x, float y){
 	float ret = 0;
 	OFX_FONSTASH2_CHECK_RET
 	if(!inBatchMode){
@@ -224,7 +225,7 @@ float ofxFontStash2::draw(const string& text, const ofxFontStashStyle& style, fl
 }
 
 
-float ofxFontStash2::drawFormatted(const string& styledText, float x, float y){
+float Fonts::drawFormatted(const string& styledText, float x, float y){
 	float ret = 0;
 	OFX_FONSTASH2_CHECK_RET
 	TS_START_ACC_NIF("parse text");
@@ -239,8 +240,8 @@ float ofxFontStash2::drawFormatted(const string& styledText, float x, float y){
 }
 
 
-ofRectangle ofxFontStash2::drawColumn(const string& text,
-									  const ofxFontStashStyle &style,
+ofRectangle Fonts::drawColumn(const string& text,
+									  const Style &style,
 									  float x, float y, float targetWidth,
 									  ofAlignHorz horAlign,
 									  bool debug){
@@ -251,8 +252,8 @@ ofRectangle ofxFontStash2::drawColumn(const string& text,
 	return drawAndLayout(blocks, x, y, targetWidth, horAlign, debug);
 }
 
-void ofxFontStash2::drawColumnNVG(const string& text,
-								  const ofxFontStashStyle& style,
+void Fonts::drawColumnNVG(const string& text,
+								  const Style& style,
 								  float x, float y, float width,
 								  ofAlignHorz horAlign){
 
@@ -272,8 +273,8 @@ void ofxFontStash2::drawColumnNVG(const string& text,
 	end();
 }
 
-ofRectangle ofxFontStash2::getTextBoundsNVG(const string& text,
-											const ofxFontStashStyle& style,
+ofRectangle Fonts::getTextBoundsNVG(const string& text,
+											const Style& style,
 											float x, float y, float width,
 											ofAlignHorz horAlign){
 	applyStyle(style);
@@ -293,7 +294,7 @@ ofRectangle ofxFontStash2::getTextBoundsNVG(const string& text,
 }
 
 
-ofRectangle ofxFontStash2::drawFormattedColumn(const string& styledText,
+ofRectangle Fonts::drawFormattedColumn(const string& styledText,
 											   float x, float y, float targetWidth,
 											   ofAlignHorz horAlign,
 											   bool debug){
@@ -309,7 +310,7 @@ ofRectangle ofxFontStash2::drawFormattedColumn(const string& styledText,
 }
 
 
-ofRectangle ofxFontStash2::drawAndLayout(vector<StyledText> &blocks,
+ofRectangle Fonts::drawAndLayout(vector<StyledText> &blocks,
 										 float x, float y, float width,
 										 ofAlignHorz align, bool debug){
 	ofRectangle ret;
@@ -318,7 +319,7 @@ ofRectangle ofxFontStash2::drawAndLayout(vector<StyledText> &blocks,
 };
 
 
-const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &blocks,
+const vector<StyledLine> Fonts::layoutLines(const vector<StyledText> &blocks,
 													float targetWidth,
 													ofAlignHorz horAlign,
 													int limitToNLines,
@@ -345,7 +346,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 	// - 'line' here refers to the visual representation. even a line with no newline (\n) can span multiple lines
 	lines.push_back(StyledLine());
 	
-	ofxFontStashStyle currentStyle;
+	Style currentStyle;
 	currentStyle.fontSize = -1; // this makes sure the first style is actually applied, even if it's the default style
 		
 	float lineWidth = 0;
@@ -547,7 +548,7 @@ const vector<StyledLine> ofxFontStash2::layoutLines(const vector<StyledText> &bl
 }
 
 
-ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, float y, ofAlignHorz horAlign, bool debug){
+ofRectangle Fonts::drawLines(const vector<StyledLine> &lines, float x, float y, ofAlignHorz horAlign, bool debug){
 
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
@@ -572,7 +573,7 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 	}
 	
 	float yy = y; //we will increment yy as we draw lines
-	ofxFontStashStyle drawStyle;
+	Style drawStyle;
 	drawStyle.fontSize = -1;
 
 	// debug /////////////////////////////
@@ -650,7 +651,7 @@ ofRectangle ofxFontStash2::drawLines(const vector<StyledLine> &lines, float x, f
 }
 
 
-ofRectangle ofxFontStash2::getTextBounds(const vector<StyledLine> &lines, float x, float y){
+ofRectangle Fonts::getTextBounds(const vector<StyledLine> &lines, float x, float y){
 
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
@@ -667,7 +668,7 @@ ofRectangle ofxFontStash2::getTextBounds(const vector<StyledLine> &lines, float 
 }
 
 
-float ofxFontStash2::calcWidth(const StyledLine & line){
+float Fonts::calcWidth(const StyledLine & line){
 	float w = 0;
 	for(int i = 0; i < line.elements.size(); i++){
 		w += line.elements[i].area.width;
@@ -676,7 +677,7 @@ float ofxFontStash2::calcWidth(const StyledLine & line){
 }
 
 
-float ofxFontStash2::calcLineHeight(const StyledLine & line){
+float Fonts::calcLineHeight(const StyledLine & line){
 	float h = 0;
 	for(int i = 0; i < line.elements.size(); i++){
 		if (line.elements[i].lineHeight > h){
@@ -688,7 +689,7 @@ float ofxFontStash2::calcLineHeight(const StyledLine & line){
 
 
 vector<TextBlock>
-ofxFontStash2::splitWords( const vector<StyledText> & blocks){
+Fonts::splitWords( const vector<StyledText> & blocks){
 
 	std::locale loc = std::locale("");
 
@@ -731,7 +732,7 @@ ofxFontStash2::splitWords( const vector<StyledText> & blocks){
 }
 
 
-ofRectangle ofxFontStash2::getTextBounds( const string &text, const ofxFontStashStyle &style, const float x, const float y ){
+ofRectangle Fonts::getTextBounds( const string &text, const Style &style, const float x, const float y ){
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
 	applyStyle(style);
@@ -745,14 +746,14 @@ ofRectangle ofxFontStash2::getTextBounds( const string &text, const ofxFontStash
 }
 
 
-void ofxFontStash2::getVerticalMetrics(const ofxFontStashStyle & style, float* ascender, float* descender, float* lineH){
+void Fonts::getVerticalMetrics(const Style & style, float* ascender, float* descender, float* lineH){
 	OFX_FONSTASH2_CHECK
 	applyStyle(style);
 	ofxfs2_nvgTextMetrics(ctx, ascender, descender, lineH);
 }
 
 
-void ofxFontStash2::setGlobalFallbackFont(const string& fallbackFontID){
+void Fonts::setGlobalFallbackFont(const string& fallbackFontID){
 	// first remove the existing font
 	if(globalFallbackFontID != ""){
 		// We can't, because afaik fontstash has no way of doing that yet
@@ -770,12 +771,12 @@ void ofxFontStash2::setGlobalFallbackFont(const string& fallbackFontID){
 }
 
 
-string ofxFontStash2::getGlobalFallbackFont(){
+string Fonts::getGlobalFallbackFont(){
 	return globalFallbackFontID;
 }
 
 
-void ofxFontStash2::addFallbackFont(const string& fontID, const string &fallbackFontID){
+void Fonts::addFallbackFont(const string& fontID, const string &fallbackFontID){
 	int fontID_fs = fontIDs[fontID];
 	int fallbackFontID_fs = fontIDs[fallbackFontID];
 
@@ -783,7 +784,7 @@ void ofxFontStash2::addFallbackFont(const string& fontID, const string &fallback
 }
 
 
-bool ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
+bool Fonts::applyStyle(const Style & style){
 	bool ret;
 	OFX_FONSTASH2_CHECK_RET
 	int id = getFsID(style.fontID);
@@ -801,7 +802,7 @@ bool ofxFontStash2::applyStyle(const ofxFontStashStyle & style){
 }
 
 
-int ofxFontStash2::getFsID(const string& userFontID){
+int Fonts::getFsID(const string& userFontID){
 
 	unordered_map<string, int>::iterator it = fontIDs.find(userFontID);
 	if(it != fontIDs.end()){
@@ -812,16 +813,16 @@ int ofxFontStash2::getFsID(const string& userFontID){
 }
 
 
-NVGcolor ofxFontStash2::toFScolor(const ofColor & c){
+NVGcolor Fonts::toFScolor(const ofColor & c){
 	return NVGcolor{c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f };
 }
 
-vector<StyledText> ofxFontStash2::parseStyledText(const string & styledText){
+vector<StyledText> Fonts::parseStyledText(const string & styledText){
 	return ofxFontStashParser::parseText(styledText, styleIDs, defaultStyleID);
 }
 
 
-void ofxFontStash2::applyOFMatrix(){ //from ofxNanoVG
+void Fonts::applyOFMatrix(){ //from ofxNanoVG
 
 	OFX_FONSTASH2_CHECK
 	ofMatrix4x4 ofMatrix = ofGetCurrentMatrix(OF_MATRIX_MODELVIEW);
