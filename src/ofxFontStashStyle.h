@@ -15,31 +15,26 @@ namespace ofxFontStash2{
 
 struct Style{
 
-	bool valid; //will be true if style definition found.
 	string fontID;
-	float fontSize = 12;
-	ofColor color = ofColor::white;
+	float fontSize = 12.0f;
+	ofColor color;
 	unsigned char blur = 0;
 	NVGalign alignmentV = (NVGalign)(NVG_ALIGN_BASELINE); //NOTE H alignment is ignored!
 	float lineHeightMult = 1.0;
 	float spacing = 0;
 
 	Style(const string & fontID, float fontSize, const ofColor & color){
-		valid = true;
 		this->fontSize = fontSize;
 		this->color = color;
 		this->fontID = fontID;
 	}
 
 	Style(const string & fontID, float fontSize){
-		valid = true;
 		this->fontSize = fontSize;
 		this->fontID = fontID;
 	}
 
-	Style(){
-		valid = true;
-	};
+	Style(){};
 
 	bool operator== (const Style &b){
 		return (fontID == b.fontID &&

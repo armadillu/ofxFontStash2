@@ -368,7 +368,7 @@ void Fonts::layoutLines(const vector<StyledText> &blocks,
 		currentLine.boxW = targetWidth;
 
 		TS_START_ACC("word style");
-		if(words[i].styledText.style.valid && currentStyle != words[i].styledText.style ){
+		if(currentStyle != words[i].styledText.style ){
 			currentStyle = words[i].styledText.style;
 			if(applyStyle(currentStyle)){
 				ofxfs2_nvgTextMetrics(ctx, NULL, NULL, &currentWordLineH);
@@ -596,7 +596,7 @@ ofRectangle Fonts::drawLines(const vector<StyledLine> &lines, float x, float y, 
 				const StyledLine &l = lines[i];
 				const LineElement &el = l.elements[j];
 
-				if (el.content.styledText.style.valid && drawStyle != el.content.styledText.style ){
+				if (drawStyle != el.content.styledText.style ){
 					drawStyle = el.content.styledText.style;
 					//TS_START_ACC("applyStyle");
 					applyStyle(drawStyle);

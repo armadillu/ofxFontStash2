@@ -21,7 +21,7 @@ void ofApp::setup(){
 
 	//define font styles
 	fonts.addStyle("header", ofxFontStash2::Style("roboBlack", 44, ofColor::white));
-	fonts.addStyle("body", ofxFontStash2::Style("robo", 18, ofColor::white));
+	fonts.addStyle("body", ofxFontStash2::Style("robo", 18, ofColor(244)));
 	fonts.addStyle("bodyBold", ofxFontStash2::Style("roboBold", 18, ofColor::white));
 	fonts.addStyle("bodyItalic", ofxFontStash2::Style("roboItalic", 18, ofColor::white));
 	fonts.addStyle("bodyRed", ofxFontStash2::Style("robo", 18, ofColor::red));
@@ -35,7 +35,8 @@ void ofApp::setup(){
 
 void ofApp::draw(){
 
-	float x = 50;
+	float margin = 50;
+	float x = margin;
 	float y = 100;
 	float colW = MIN(MAX(120, ofGetMouseX() - x), ofGetWidth()/2 - x);
 
@@ -84,7 +85,7 @@ void ofApp::draw(){
 
 
 	//now draw with straight nanovg renderer
-	x = ofGetWidth() * 0.5 + x;
+	x = ofGetWidth() * 0.5 + margin/2;
 	drawInsertionPoint(x, y, 100);
 	TSGL_START("draw NVG GL");
 	TS_START("draw NVG");
