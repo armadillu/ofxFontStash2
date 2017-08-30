@@ -59,3 +59,5 @@ common:
 	# when parsing the file system looking for libraries exclude this for all or
 	# a specific platform
 	# ADDON_LIBS_EXCLUDE =
+	
+	ADDON_DEFINES = USE_OFX_FONTSTASH2 NANOVG_GL2_IMPLEMENTATION
