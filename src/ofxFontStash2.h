@@ -27,37 +27,37 @@ public:
 	void setup(bool debug = false);
 
 	/// load fonts
-	bool addFont(const string & fontID, const string & fontFile); //returns fontID
-	bool isFontLoaded(const string & fontID); //checks if a font was already loaded
-	vector<string> getFontIDs(); //returns a list of all fonts that are ready to use
+	bool addFont(const std::string & fontID, const std::string & fontFile); //returns fontID
+	bool isFontLoaded(const std::string & fontID); //checks if a font was already loaded
+	std::vector<std::string> getFontIDs(); //returns a list of all fonts that are ready to use
 
 	/// work with font styles
-	bool addStyle(const string & styleID, const Style & style);
-	bool removeStyle(const string & styleID);
-	bool styleExists(const string & styleID);
-	Style getStyle(const string & styleID, bool * exists = nullptr);
-	unordered_map<string, Style> & getStyles(){ return styleIDs; }
-	void setDefaultStyle(const string & styleID){ defaultStyleID = styleID; } //how do we render formatted text whose style is undefined? We will use this style.
+	bool addStyle(const std::string & styleID, const Style & style);
+	bool removeStyle(const std::string & styleID);
+	bool styleExists(const std::string & styleID);
+	Style getStyle(const std::string & styleID, bool * exists = nullptr);
+	std::unordered_map<std::string, Style> & getStyles(){ return styleIDs; }
+	void setDefaultStyle(const std::string & styleID){ defaultStyleID = styleID; } //how do we render formatted text whose style is undefined? We will use this style.
 
 	/// draw single line string
 	/// returns text width (dx)
 	/// multiline ("\n") not supported - to use for one-liners
-	float draw(const string & text, const Style & style, float x, float y);
+	float draw(const std::string & text, const Style & style, float x, float y);
 
 	/// draw xml formatted string
 	/// return text width
 	/// multiline ("\n") not supported - to use for one-liners with style
-	float drawFormatted(const string & styledText, float x, float y);
+	float drawFormatted(const std::string & styledText, float x, float y);
 
 	/// draw string with fixed maximum width, breaking lines to fit the width
 	/// returns text bbox
 	/// multiline ("\n") supported - and it will break lines on its own given a column width
-	ofRectangle drawColumn(const string & text, const Style & style, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug = false);
+	ofRectangle drawColumn(const std::string & text, const Style & style, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug = false);
 
 	/// draw xml formatted string with fixed maximum width, breaking lines to fit the width
 	/// returns text bbox
 	/// multiline ("\n") supported - and it will break lines on its own given a column width
-	ofRectangle drawFormattedColumn(const string & styledText, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug = false);
+	ofRectangle drawFormattedColumn(const std::string & styledText, float x, float y, float width, ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, bool debug = false);
 
 	// DIY layout + draw - so you can inspect intermediate states and do as you wish //
 	/// 1 - Parse your text to get the vector<StyledText> blocks.
@@ -75,19 +75,19 @@ public:
 		// Plain Text //
 		Style style;
 		float columnWidth;
-		string text = "my text";
+		std::string text = "my text";
 		vector<StyledLine> laidOutLines;
 	 	fonts.layoutLines({{text, style}}, columnWidth, laidOutLines);
 		ofRectangle bbox = fonts.drawLines(laidOutLines, xx, yy);
 	 */
 
 	///draw a paragraph relying on NanoVG for layout & linebreaking
-	void drawColumnNVG(const string& text, const Style& style,
+	void drawColumnNVG(const std::string& text, const Style& style,
 					   float x, float y, float width,
 					   ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT);
 
 	///get the bbox containing the text laid out in a drawColumnNVG() call
-	ofRectangle getTextBoundsNVG(const string& text,
+	ofRectangle getTextBoundsNVG(const std::string& text,
 								 const Style& style,
 								 float x, float y, float width,
 								 ofAlignHorz horAlign);
@@ -96,31 +96,31 @@ public:
 	// Utils below this line ///////////////////////////////////////////////////////////////////////////////
 
 	/// split up styledText into a vector of blocks with the same style
-	void parseStyledText(const string & styledText, vector<StyledText> & output);
+	void parseStyledText(const std::string & styledText, std::vector<StyledText> & output);
 
 	/// layout StyledText blocks
-	void layoutLines(const vector<StyledText> &blocks, //input
+	void layoutLines(const std::vector<StyledText> &blocks, //input
 					 float targetWidth, //input
-					 vector<StyledLine> & output, //output
+					 std::vector<StyledLine> & output, //output
 					 ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT, //input
 					 int limitToNLines = 0, //stop layout if lines are > limitToNLines
 					 bool debug = false);
 
 	/// draw already prepared StyledLine´s
-	ofRectangle drawLines(const vector<StyledLine> & lines,
+	ofRectangle drawLines(const std::vector<StyledLine> & lines,
 						  float x, float y,
 						  ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
 						  bool debug = false);
 	
 	/// draw and layout blocks
-	ofRectangle drawAndLayout(const vector<StyledText> & blocks,
+	ofRectangle drawAndLayout(const std::vector<StyledText> & blocks,
 							  float x, float y,
 							  float width,
 							  ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
 							  bool debug=false);
 
 	/// only applies to draw(); return the bbox of the text
-	ofRectangle getTextBounds(const string &text, const Style &style, const float x, const float y );
+	ofRectangle getTextBounds(const std::string &text, const Style &style, const float x, const float y );
 	ofRectangle getTextBounds(const vector<StyledLine> & lines, float x, float y);
 
 	///get font metrics for a particular style
@@ -134,12 +134,12 @@ public:
 
 	/// sets a single font as fallback for all fonts
 	/// this can only be set once - useful for emoji
-	void setGlobalFallbackFont(const string& fallbackFontID);
-	string getGlobalFallbackFont();
+	void setGlobalFallbackFont(const std::string& fallbackFontID);
+	std::string getGlobalFallbackFont();
 	
 	/// add fallback variant to a font
 	/// removing/listing the fallbacks is currently not possible.
-	void addFallbackFont(const string& fontID, const string &fallbackFontID);
+	void addFallbackFont(const std::string& fontID, const std::string &fallbackFontID);
 	
 	/// allows for higher pixel densities.
 	/// this will increase texture resolution during drawing,
@@ -162,7 +162,7 @@ protected:
 
 	float lineHeightMultiplier;
 
-	string toString(TextBlockType t){
+	std::string toString(TextBlockType t){
 		switch(t){
 			case BLOCK_WORD: return "BLOCK_WORD";
 			case SEPARATOR: return "SEPARATOR";
@@ -171,7 +171,7 @@ protected:
 		}
 	}
 
-	int getFsID(const string& userFontID);
+	int getFsID(const std::string& userFontID);
 
 	float calcWidth(const StyledLine & line);
 	float calcLineHeight(const StyledLine & line);
@@ -181,19 +181,19 @@ protected:
 	NVGcolor toFScolor(const ofColor & c);
 	NVGcontext* ctx = nullptr;
 
-	unordered_map<string, int> fontIDs; //userFontID to fontStashFontID
-	unordered_map<string, Style> styleIDs;
+	std::unordered_map<std::string, int> fontIDs; //userFontID to fontStashFontID
+	std::unordered_map<std::string, Style> styleIDs;
 
-	string defaultStyleID; //how do we render formatted text whose style is undefined?
+	std::string defaultStyleID; //how do we render formatted text whose style is undefined?
 	
-	string globalFallbackFontID; // id of the fallback font for all loaded fonts
+	std::string globalFallbackFontID; // id of the fallback font for all loaded fonts
 
 	void splitWords( const vector<StyledText> & blocks, vector<TextBlock> & words);
 
 	ofShader nullShader;
 	bool inBatchMode = false;
 
-	vector<string> reservedStyleNames = {"style"};
+	std::vector<std::string> reservedStyleNames = {"style"};
 
 	void applyOFMatrix();
 	void begin();

@@ -21,20 +21,20 @@ class Parser{
 
 public:
 
-	static void parseText(	const string& text, //input
-							const unordered_map<string, Style> & styleIDs, //input
-							const string & defaultStyleID, //input
-							vector<StyledText> & parsedText //output
+	static void parseText(	const std::string& text, //input
+							const std::unordered_map<std::string, Style> & styleIDs, //input
+							const std::string & defaultStyleID, //input
+							std::vector<StyledText> & parsedText //output
 							);
 
-	static ofColor colorFromHex(const string & hex);
+	static ofColor colorFromHex(const std::string & hex);
 
 protected:
 
 	static void recursiveParse(	pugi::xml_node & node,
 							   	vector<Style> & styleStack,
-							   	const unordered_map<string, Style> & styleIDs,
-							   	vector<StyledText> & parsedText);
+							   	const std::unordered_map<std::string, Style> & styleIDs,
+							   	std::vector<StyledText> & parsedText);
 
 	static void handleAttributes(pugi::xml_node & node, Style & currStyle);
 	static bool isSeparator(char s);

@@ -52,6 +52,7 @@
 								}
 
 using namespace ofxFontStash2;
+using namespace std;
 
 Fonts::Fonts(){
 

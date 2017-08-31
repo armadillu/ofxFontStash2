@@ -33,6 +33,7 @@
 
 using namespace pugi;
 using namespace ofxFontStash2;
+using namespace std;
 
 void Parser::parseText(const string& text,
 								  const unordered_map<string, Style> & styleIDs,

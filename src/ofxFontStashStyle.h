@@ -15,7 +15,7 @@ namespace ofxFontStash2{
 
 struct Style{
 
-	string fontID;
+	std::string fontID;
 	float fontSize = 12.0f;
 	ofColor color;
 	unsigned char blur = 0;
@@ -23,13 +23,13 @@ struct Style{
 	float lineHeightMult = 1.0;
 	float spacing = 0;
 
-	Style(const string & fontID, float fontSize, const ofColor & color){
+	Style(const std::string & fontID, float fontSize, const ofColor & color){
 		this->fontSize = fontSize;
 		this->color = color;
 		this->fontID = fontID;
 	}
 
-	Style(const string & fontID, float fontSize){
+	Style(const std::string & fontID, float fontSize){
 		this->fontSize = fontSize;
 		this->fontID = fontID;
 	}
@@ -47,16 +47,16 @@ struct Style{
 				);
 	}
 
-	string toString() const{
+	std::string toString() const{
 		stringstream ss;
-		string colorT = ofToString((int)color.r) + "," + ofToString((int)color.g) + "," + ofToString((int)color.b) + "," + ofToString((int)color.a);
+		std::string colorT = ofToString((int)color.r) + "," + ofToString((int)color.g) + "," + ofToString((int)color.b) + "," + ofToString((int)color.a);
 		ss << "fontID:" << fontID << " fontSize:" << fontSize << " blur:" << blur <<
 		" alignmentV:" << toString((NVGalign)alignmentV) << " color:[" << colorT << "] lineHeightMult:"
 		<< lineHeightMult << " spacing:" << spacing;
 		return ss.str();
 	}
 
-	string toString(NVGalign va) const{
+	std::string toString(NVGalign va) const{
 		switch(va){
 			case NVG_ALIGN_BASELINE: return "BASELINE";
 			case NVG_ALIGN_TOP: return "TOP";
@@ -73,7 +73,7 @@ struct Style{
 
 
 struct StyledText{
-	string text;
+	std::string text;
 	Style style;
 };
 
@@ -94,7 +94,7 @@ struct TextBlock{
 	TextBlockType type;
 	StyledText styledText;
 
-	TextBlock(TextBlockType type, const string & text, const Style & style){
+	TextBlock(TextBlockType type, const std::string & text, const Style & style){
 		this->type = type;
 		this->styledText.text = text;
 		this->styledText.style = style;
@@ -122,7 +122,7 @@ struct StyledLine{
 	float lineH = 0;
 	float lineW = 0;
 	float boxW = 0;
-	vector<LineElement> elements;
+	std::vector<LineElement> elements;
 	StyledLine(){
 		//elements.reserve(50);
 	}
