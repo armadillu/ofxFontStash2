@@ -52,7 +52,7 @@ struct Style{
 		std::string colorT = ofToString((int)color.r) + "," + ofToString((int)color.g) + "," + 
 			ofToString((int)color.b) + "," + ofToString((int)color.a);
 
-		ss << "fontID:" << fontID << " fontSize:" << fontSize << " blur:" << unsigned int(blur) <<
+		ss << "fontID:" << fontID << " fontSize:" << fontSize << " blur:" << (unsigned int)(blur) <<
 			" alignmentV:" << toString((NVGalign)alignmentV) << " color:[" << colorT << "] lineHeightMult:" << 
 			lineHeightMult << " spacing:" << spacing;
 		return ss.str();
