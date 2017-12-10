@@ -766,7 +766,7 @@ void Fonts::addFallbackFont(const string& fontID, const string &fallbackFontID){
 
 
 bool Fonts::applyStyle(const Style & style){
-	bool ret;
+	bool ret = false;
 	OFX_FONSTASH2_CHECK_RET
 	int id = getFsID(style.fontID);
 	if(id != FONS_INVALID){
