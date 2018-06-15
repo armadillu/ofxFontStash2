@@ -12,8 +12,14 @@ int main( ){
 	settings.setGLVersion(3, 2);  // Programmable pipeline >> you need to define GL_VERSION_3 in you pre-processor macros!
 	#endif
 	settings.stencilBits = 8;
-	settings.width = 1024;
-	settings.height = 768;
+	int w = 1024;
+	int h = 768;
+	#if OF_VERSION_MINOR < 10
+	settings.width = w;
+	settings.height = w;
+	#else
+	settings.setSize(w, h);
+	#endif
 	ofCreateWindow(settings);
 	ofRunApp(new ofApp());
 

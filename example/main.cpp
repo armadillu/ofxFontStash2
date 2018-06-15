@@ -13,8 +13,14 @@ int main( ){
 	#endif
 	settings.stencilBits = 8;
 	settings.numSamples = 4;
-	settings.width = 1300;
-	settings.height = 1050;
+	int w = 1300;
+	int h = 1050;
+#if OF_VERSION_MINOR < 10
+	settings.width = w;
+	settings.height = w;
+#else
+	settings.setSize(w, h);
+#endif
 	ofCreateWindow(settings);
 	ofRunApp(new ofApp());
 
