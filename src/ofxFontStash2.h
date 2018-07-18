@@ -121,7 +121,7 @@ public:
 
 	/// only applies to draw(); return the bbox of the text
 	ofRectangle getTextBounds(const std::string &text, const Style &style, const float x, const float y );
-	ofRectangle getTextBounds(const vector<StyledLine> & lines, float x, float y);
+	ofRectangle getTextBounds(const std::vector<StyledLine> & lines, float x, float y);
 
 	///get font metrics for a particular style
 	void getVerticalMetrics( const Style & style, float* ascender, float* descender, float* lineH);
@@ -188,7 +188,7 @@ protected:
 	
 	std::string globalFallbackFontID; // id of the fallback font for all loaded fonts
 
-	void splitWords( const vector<StyledText> & blocks, vector<TextBlock> & words);
+	void splitWords( const std::vector<StyledText> & blocks, std::vector<TextBlock> & words);
 
 	ofShader nullShader;
 	bool inBatchMode = false;
