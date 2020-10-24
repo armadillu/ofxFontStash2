@@ -188,10 +188,9 @@ matrix:
 
 install:
   - cd ~
-  - ls
-  - ls -laR build
   #edit addon config.mk to add a mandatory implementation option (NANOVG_GL2_IMPLEMENTATION | GL3 | GLES) so at least one path is compiled and tested 
   - sed -i -e 's/# ADDON_CFLAGS/ ADDON_CFLAGS/g' build/armadillu/ofxFontStash2/addon_config.mk
+  - cat build/armadillu/ofxFontStash2/addon_config.mk
   - git clone --depth=1 --branch=$OF_BRANCH https://github.com/openframeworks/openFrameworks
   - cd openFrameworks
   - travis_wait 30 scripts/ci/addons/install.sh
