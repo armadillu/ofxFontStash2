@@ -23,7 +23,7 @@ matrix:
   - os: linux
     dist: trusty
     sudo: required
-    env: TARGET="linux64" OF_BRANCH="master"
+    env: TARGET="linux64" OF_BRANCH="main"
     addons:
       apt:
         sources:
@@ -51,7 +51,7 @@ matrix:
   - os: osx
     osx_image: xcode9.4
     compiler: clang
-    env: TARGET="osx" OF_BRANCH="master"
+    env: TARGET="osx" OF_BRANCH="main"
 
 # OSX, OF stable:  Not supported yet
 #  - os: osx
@@ -191,7 +191,7 @@ install:
   #edit addon config.mk to add a mandatory implementation option (NANOVG_GL2_IMPLEMENTATION | GL3 | GLES) so at least one path is compiled and tested 
   - sed -i -e 's/# ADDON_CFLAGS/ ADDON_CFLAGS/g' build/armadillu/ofxFontStash2/addon_config.mk
   - cat build/armadillu/ofxFontStash2/addon_config.mk
-  - git clone --depth=1 --branch=$OF_BRANCH https://github.com/openframeworks/openFrameworks
+  - git clone --depth=1 --branch=feature/uri.cat https://github.com/armadillu/openFrameworks
   - cd openFrameworks
   - travis_wait 30 scripts/ci/addons/install.sh
 
