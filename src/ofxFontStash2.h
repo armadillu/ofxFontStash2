@@ -7,8 +7,6 @@
 //
 
 #pragma once
-//#include "ofMain.h"
-
 
 
 #include "ofxFontStashParser.h"
@@ -73,7 +71,7 @@ public:
 		vector<StyledLine> laidOutLines;
 	 	fs.layoutLines(parsed, columnWidth, laidOutLines);
 		ofRectangle bbox = fs.drawLines(laidOutLines, x, y);
-		
+
 		// Plain Text //
 		Style style;
 		float columnWidth;
@@ -113,7 +111,7 @@ public:
 						  float x, float y,
 						  ofAlignHorz horAlign = OF_ALIGN_HORZ_LEFT,
 						  bool debug = false);
-	
+
 	/// draw and layout blocks
 	ofRectangle drawAndLayout(const std::vector<StyledText> & blocks,
 							  float x, float y,
@@ -138,17 +136,17 @@ public:
 	/// this can only be set once - useful for emoji
 	void setGlobalFallbackFont(const std::string& fallbackFontID);
 	std::string getGlobalFallbackFont();
-	
+
 	/// add fallback variant to a font
 	/// removing/listing the fallbacks is currently not possible.
 	void addFallbackFont(const std::string& fontID, const std::string &fallbackFontID);
-	
+
 	/// allows for higher pixel densities.
 	/// this will increase texture resolution during drawing,
 	/// but will leave all sizes exactly the same
 	/// this can be changed between calls, meaning it's read (and applied) before each draw call
 	float pixelDensity;
-	
+
 	/// width of tabs (measured in # of spaces)
 	int tabWidth = 4;
 
@@ -177,7 +175,7 @@ protected:
 
 	float calcWidth(const StyledLine & line);
 	float calcLineHeight(const StyledLine & line);
-	
+
 	bool applyStyle(const Style & style);
 
 	NVGcolor toFScolor(const ofColor & c);
@@ -187,7 +185,7 @@ protected:
 	std::unordered_map<std::string, Style> styleIDs;
 
 	std::string defaultStyleID; //how do we render formatted text whose style is undefined?
-	
+
 	std::string globalFallbackFontID; // id of the fallback font for all loaded fonts
 
 	void splitWords( const std::vector<StyledText> & blocks, std::vector<TextBlock> & words);

@@ -7,7 +7,6 @@
 //
 
 #include "ofxFontStash2.h"
-//#include "ofMatrix4x4.h"
 #include <glm/gtx/matrix_decompose.hpp>
 
 #define NVG_DISABLE_FACE_CULL_FOR_TRIANGLES
@@ -807,7 +806,7 @@ void Fonts::parseStyledText(const string & styledText, vector<StyledText> & outp
 
 void Fonts::applyOFMatrix(){ //from ofxNanoVG
 	OFX_FONSTASH2_CHECK
-	
+
 	glm::vec3 viewSize = { ofGetViewportWidth(), ofGetViewportHeight(), 0.0f };
 	glm::mat4 ofMatrix = ofGetCurrentMatrix(OF_MATRIX_MODELVIEW);
 	glm::vec3 scale;
@@ -818,12 +817,6 @@ void Fonts::applyOFMatrix(){ //from ofxNanoVG
 	glm::decompose(ofMatrix, scale, rotation, translate, skew, perspective);
 
 	translate += viewSize * 0.5f;
-	
-//	ofMatrix4x4 ofMatrix = ofGetCurrentMatrix(OF_MATRIX_MODELVIEW);
-//	glm::vec2 viewSize = glm::vec2(ofGetViewportWidth(), ofGetViewportHeight());
-//	glm::vec2 translate = glm::vec2(ofMatrix(3, 0), ofMatrix(3, 1)) + viewSize * 0.5f;
-//	glm::vec2 scale(ofMatrix(0, 0), ofMatrix(1, 1));
-//	glm::vec2 skew(ofMatrix(0, 1), ofMatrix(1, 0));
 
 	// handle OF style vFlipped inside FBO
 	#if OF_VERSION_MINOR <= 9
