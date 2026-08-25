@@ -7,6 +7,7 @@
 //
 
 #include "ofxFontStash2.h"
+#include <glm/gtx/matrix_decompose.hpp>
 
 #define NVG_DISABLE_FACE_CULL_FOR_TRIANGLES
 
@@ -100,7 +101,7 @@ bool Fonts::addFont(const string& fontID, const string& fontFile){
 	if(id != FONS_INVALID){
 		fontIDs[fontID] = id;
 		if(globalFallbackFontID != ""){
-			addFallbackFont(fontID, globalFallbackFontID); 
+			addFallbackFont(fontID, globalFallbackFontID);
 		}
 		return true;
 	}else{
@@ -302,12 +303,12 @@ ofRectangle Fonts::drawFormattedColumn(	const string& styledText,
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
 	if (targetWidth < 0) return ofRectangle();
-	
+
 	TS_START_ACC_NIF("parse text");
 	vector<StyledText> blocks;
 	Parser::parseText(styledText, styleIDs, defaultStyleID, blocks);
 	TS_STOP_ACC_NIF("parse text");
-	
+
 	return drawAndLayout(blocks, x, y, targetWidth, horAlign, debug);
 }
 
@@ -342,21 +343,21 @@ void Fonts::layoutLines(const vector<StyledText> &blocks,
 	vector<TextBlock> words;
 	splitWords(blocks, words);
 	TS_STOP_NIF("split words");
-	
+
 	if (words.size() == 0) return;
 
 	// here we create the first line. a few things to note:
 	// - in general, like in a texteditor, the line exists first, then content is added to it.
 	// - 'line' here refers to the visual representation. even a line with no newline (\n) can span multiple lines
 	outputLines.emplace_back(StyledLine());
-	
+
 	Style currentStyle;
 	currentStyle.fontSize = -1; // this makes sure the first style is actually applied, even if it's the default style
-		
+
 	float lineWidth = 0;
 	int wordsThisLine = 0;
 	float currentWordLineH = 0;
-	
+
 	float bounds[4];
 	float dx;
 	LineElement le;
@@ -381,13 +382,13 @@ void Fonts::layoutLines(const vector<StyledText> &blocks,
 			}
 		}
 		TS_STOP_ACC("word style");
-		
+
 		bool stayOnCurrentLine = true;
-		
+
 		if( words[i].type == SEPARATOR_INVISIBLE && words[i].styledText.text == "\n" ){ //line break
 			stayOnCurrentLine = false;
 			dx = 0;
-			
+
 			// add a zero-width enter mark. this is used to keep track
 			// of the vertical spacing of empty lines.
 			le = LineElement(words[i], ofRectangle(xx,yy,0,currentWordLineH));
@@ -395,7 +396,7 @@ void Fonts::layoutLines(const vector<StyledText> &blocks,
 			le.x = xx;
 			le.lineHeight = currentWordLineH;
 			currentLine.elements.emplace_back(le);
-			
+
 			float lineH = lineHeightMultiplier * currentStyle.lineHeightMult * calcLineHeight(currentLine);
 			currentLine.lineH = lineH;
 			currentLine.lineW = xx - x + dx;
@@ -407,7 +408,7 @@ void Fonts::layoutLines(const vector<StyledText> &blocks,
 
 
 			yy += lineH;
-			
+
 			lineWidth = 0;
 			wordsThisLine = 0;
 			xx = x;
@@ -441,15 +442,15 @@ void Fonts::layoutLines(const vector<StyledText> &blocks,
 			le.baseLineY = yy;
 			le.x = xx;
 			le.lineHeight = currentWordLineH;
-			
+
 			float nextWidth = lineWidth + dx;
-			
+
 			//if not wider than targetW
 			// ||
 			//this is the 1st word in this line but even that doesnt fit
 			stayOnCurrentLine = nextWidth < targetWidth || (wordsThisLine == 0 && (nextWidth >= targetWidth));
 		}
-		
+
 		if (stayOnCurrentLine){
 
 			TS_START_ACC("stay on line");
@@ -465,7 +466,7 @@ void Fonts::layoutLines(const vector<StyledText> &blocks,
 			continue;
 
 		} else{ //too long, start a new line
-			
+
 			TS_START_ACC("new line");
 			//calc height for this line - taking in account all words in the line
 			float lineH = lineHeightMultiplier * currentStyle.lineHeightMult * calcLineHeight(currentLine);
@@ -499,7 +500,7 @@ void Fonts::layoutLines(const vector<StyledText> &blocks,
 		le.lineHeight = currentWordLineH;
 		currentLine.elements.emplace_back(le);
 	}
-	
+
 	float lineH = lineHeightMultiplier * currentStyle.lineHeightMult * calcLineHeight(currentLine);
 	currentLine.lineH = lineH;
 	currentLine.lineW = xx - x;
@@ -552,7 +553,7 @@ ofRectangle Fonts::drawLines(const vector<StyledLine> &lines, float x, float y, 
 
 	ofRectangle ret;
 	OFX_FONSTASH2_CHECK_RET
-	ofVec2f offset;
+	glm::vec2 offset;
 	offset.x = x;
 	offset.y = y;
 
@@ -571,7 +572,7 @@ ofRectangle Fonts::drawLines(const vector<StyledLine> &lines, float x, float y, 
 		}
 		TS_STOP("draw line Heights");
 	}
-	
+
 	float yy = y; //we will increment yy as we draw lines
 	Style drawStyle;
 	drawStyle.fontSize = -1;
@@ -623,7 +624,7 @@ ofRectangle Fonts::drawLines(const vector<StyledLine> &lines, float x, float y, 
 		}
 	}
 	end();
-	
+
 	if(debug){ //draw debug rects on top of each word
 		for(auto & cr : debugRects){
 			ofSetColor(cr.color);
@@ -691,7 +692,7 @@ void Fonts::splitWords(const vector<StyledText> & blocks, vector<TextBlock> & wo
 
 			bool isSpace = std::isspace<wchar_t>(c,loc);
 			//bool isPunct = std::ispunct<wchar_t>(c,loc);
-			
+
 			if(isSpace /*|| isPunct*/){
 
 				if(currentWord.size()){
@@ -723,7 +724,7 @@ ofRectangle Fonts::getTextBounds( const string & text, const Style & style, cons
 	float advance = ofxfs2_nvgTextBounds( ctx, x, y, text.c_str(), NULL, bounds );
 	// here we use the "text advance" instead of the width of the rectangle,
 	// because this includes spaces at the end correctly (the text bounds "x" and "x " are the same,
-	// the text advance isn't). 
+	// the text advance isn't).
 	return ofRectangle(bounds[0], bounds[1], advance, bounds[3]-bounds[1]);
 }
 
@@ -742,14 +743,14 @@ void Fonts::setGlobalFallbackFont(const string& fallbackFontID){
 		// and i don't want to go to deep into their datastructures (??)
 		ofLogWarning("ofxFontStash2") << "Setting the global fallback font multiple times is currently not supported. Funny behavior might arise";
 	}
-	
+
 	int fallbackFontID_fs = fontIDs[fallbackFontID];
 	for(auto & font : fontIDs){
 		if(font.second != fallbackFontID_fs){
 			ofxfs2_nvgAddFallbackFontId(ctx, font.second, fallbackFontID_fs);
 		}
 	}
-	globalFallbackFontID = fallbackFontID; 
+	globalFallbackFontID = fallbackFontID;
 }
 
 
@@ -804,14 +805,18 @@ void Fonts::parseStyledText(const string & styledText, vector<StyledText> & outp
 
 
 void Fonts::applyOFMatrix(){ //from ofxNanoVG
-
 	OFX_FONSTASH2_CHECK
-	ofMatrix4x4 ofMatrix = ofGetCurrentMatrix(OF_MATRIX_MODELVIEW);
-	ofVec2f viewSize = ofVec2f(ofGetViewportWidth(), ofGetViewportHeight());
 
-	ofVec2f translate = ofVec2f(ofMatrix(3, 0), ofMatrix(3, 1)) + viewSize/2;
-	ofVec2f scale(ofMatrix(0, 0), ofMatrix(1, 1));
-	ofVec2f skew(ofMatrix(0, 1), ofMatrix(1, 0));
+	glm::vec3 viewSize = { ofGetViewportWidth(), ofGetViewportHeight(), 0.0f };
+	glm::mat4 ofMatrix = ofGetCurrentMatrix(OF_MATRIX_MODELVIEW);
+	glm::vec3 scale;
+	glm::quat rotation;
+	glm::vec3 translate;
+	glm::vec3 skew;
+	glm::vec4 perspective;
+	glm::decompose(ofMatrix, scale, rotation, translate, skew, perspective);
+
+	translate += viewSize * 0.5f;
 
 	// handle OF style vFlipped inside FBO
 	#if OF_VERSION_MINOR <= 9
