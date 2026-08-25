@@ -1,3 +1,5 @@
+
+
 # ofxFontStash2
 
 [![Build Status](https://travis-ci.org/armadillu/ofxFontStash2.svg?branch=master)](https://travis-ci.org/armadillu/ofxFontStash2)
@@ -58,7 +60,7 @@ Example: ```<myStyleID override='value' color='#ff' size='22' blur='3' font='MyF
 
 
 ### 3. Colors
-must be defined in hex: several options are accepted; RGBA ```#AABBCCDD```, RGB ```#AABBCCDD``` and GRAY ```#AA```.
+must be defined in hex: several options are accepted; RGBA ```#AABBCCDD```, RGB ```#AABBCC``` and GRAY ```#AA```.
 
 ### 4. \<BR/>
 You can include line breaks by adding ```<br/>```.  
