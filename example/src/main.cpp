@@ -29,6 +29,7 @@ int main( ){
 	settings.setSize(w, h);
 #endif
 	ofCreateWindow(settings);
+	ofSetWindowTitle("ofxFontStash2 Example");
 	ofRunApp(new ofApp());
 
 }

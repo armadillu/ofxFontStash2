@@ -52,6 +52,10 @@ void ofApp::setup(){
 	fonts.setGlobalFallbackFont("emoji-fallback");
 
 	fbo.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA);
+
+	auto window = dynamic_cast<ofAppGLFWWindow*>(ofGetWindowPtr());
+	if (window) uiscale = window->getPixelScreenCoordScale();
+	TIME_SAMPLE_GET_INSTANCE()->setUiScale(uiscale); //bigger ui in 4k screens
 }
 
 
@@ -69,7 +73,9 @@ void ofApp::draw(){
 
 	float xx = 40;
 	float yy = 40;
-	ofScale(0.9, 0.9);
+
+	ofScale(uiscale);
+
 	TSGL_START("d");
 
 	int id = 0;
@@ -178,6 +184,7 @@ void ofApp::testDraw(float x, float y){
 	ofxFontStash2::Style style;
 	style.fontID = "Arial";
 	style.fontSize = 22;
+
 	{
 		string text = "testDraw(): method with one-line string. バナナのようなサル";
 		ofRectangle bounds = fonts.getTextBounds(text, style, x, y);
@@ -239,9 +246,7 @@ float ofApp::testDrawColumn(float x, float y){
 
 float ofApp::testDrawColumnNVG(float x, float y){
 
-	ofxFontStash2::Style style;
-	style.fontID = "Arial";
-	style.fontSize = 22;
+	ofxFontStash2::Style style = ofxFontStash2::Style("VeraMono", 8.5f);
 	ofAlignHorz align = getCurrentAlignment();
 
 	string text = "testDrawColumnNVG(): El català és una llengua de transició entre les llengües iberoromàniques i les llengües gal·loromàniques, encara que antigament fos molt pròxima a l'occità, amb qui comparteix origen i grup: l'occitanoromànic.";

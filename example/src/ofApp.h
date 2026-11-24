@@ -47,4 +47,6 @@ class ofApp : public ofBaseApp{
 
 	ofFbo fbo;
 	float columnVariationSpeed = 1;
+
+	float uiscale = 1;
 };
